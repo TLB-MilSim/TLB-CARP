@@ -17,8 +17,20 @@ paste-ready as it stands:
     https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/<name>.png
 
 Two things follow from that. The repository has to stay **public** for the images to load,
-and renaming or moving `docs/workshop/banners/` breaks a published page. If you would
-rather host them somewhere else, see *Hosting them elsewhere* at the bottom.
+and renaming the repository or moving `docs/workshop/banners/` breaks a published page --
+raw URLs are not redirected the way git remotes are, so a rename turns every banner into a
+404 in silence. If you would rather host them somewhere else, see *Hosting them elsewhere*
+at the bottom.
+
+## 8000 characters, and Steam does not tell you
+
+A Workshop description is capped at **8000 characters**. Over that, Steam does not truncate
+and does not report an error: the save does not take, the page keeps the description it
+already had, and from the author's chair that looks like the new banners failing to load.
+
+`tests/test_workshop_description.py` pins the length, and pins it again against the higher
+count you get if a paste turns every newline into CRLF. If it goes red, shorten the prose.
+Dropping a banner to make room fixes nothing, because the page Steam kept is the old one.
 
 ## Publishing, start to finish
 
