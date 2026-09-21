@@ -1,0 +1,2460 @@
+[
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 27.529,
+    "canopyWorldM": [
+      3.50195,
+      226.221
+    ],
+    "chuteAttachAglM": 274.74,
+    "chuteAttachTimeS": 23.189,
+    "legacyPredictedCanopyTimeS": 24.589,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.394,
+    "canopyWorldM": [
+      123.736,
+      177.604
+    ],
+    "chuteAttachAglM": 299.815,
+    "chuteAttachTimeS": 23.56,
+    "legacyPredictedCanopyTimeS": 24.55,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 27.669,
+    "canopyWorldM": [
+      226.678,
+      34.5273
+    ],
+    "chuteAttachAglM": 299.308,
+    "chuteAttachTimeS": 23.655,
+    "legacyPredictedCanopyTimeS": 24.543,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 38.936,
+    "canopyWorldM": [
+      186.219,
+      -126.004
+    ],
+    "chuteAttachAglM": 298.356,
+    "chuteAttachTimeS": 23.18,
+    "legacyPredictedCanopyTimeS": 24.583,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 44.106,
+    "canopyWorldM": [
+      -0.623047,
+      -212.422
+    ],
+    "chuteAttachAglM": 298.857,
+    "chuteAttachTimeS": 23.835,
+    "legacyPredictedCanopyTimeS": 24.538,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 45.265,
+    "canopyWorldM": [
+      -184.785,
+      -131.617
+    ],
+    "chuteAttachAglM": 298.422,
+    "chuteAttachTimeS": 23.522,
+    "legacyPredictedCanopyTimeS": 24.551,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 34.486,
+    "canopyWorldM": [
+      -225.148,
+      36.4844
+    ],
+    "chuteAttachAglM": 298.528,
+    "chuteAttachTimeS": 22.616,
+    "legacyPredictedCanopyTimeS": 24.631,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.438,
+    "canopyWorldM": [
+      -124.838,
+      176.971
+    ],
+    "chuteAttachAglM": 298.21,
+    "chuteAttachTimeS": 22.64,
+    "legacyPredictedCanopyTimeS": 24.629,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      5,
+      0
+    ],
+    "canopyDurationS": 29.966,
+    "canopyWorldM": [
+      3.73047,
+      387.773
+    ],
+    "chuteAttachAglM": 299.323,
+    "chuteAttachTimeS": 23.079,
+    "legacyPredictedCanopyTimeS": 24.598,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      5,
+      0
+    ],
+    "canopyDurationS": 28.718,
+    "canopyWorldM": [
+      126.486,
+      307.645
+    ],
+    "chuteAttachAglM": 298.695,
+    "chuteAttachTimeS": 23.492,
+    "legacyPredictedCanopyTimeS": 24.551,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      5,
+      0
+    ],
+    "canopyDurationS": 33.575,
+    "canopyWorldM": [
+      227.863,
+      193.166
+    ],
+    "chuteAttachAglM": 298.022,
+    "chuteAttachTimeS": 23.672,
+    "legacyPredictedCanopyTimeS": 24.539,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      5,
+      0
+    ],
+    "canopyDurationS": 45.882,
+    "canopyWorldM": [
+      183.623,
+      75.4082
+    ],
+    "chuteAttachAglM": 299.818,
+    "chuteAttachTimeS": 23.252,
+    "legacyPredictedCanopyTimeS": 24.583,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      5,
+      0
+    ],
+    "canopyDurationS": 44.292,
+    "canopyWorldM": [
+      -0.658203,
+      5.60156
+    ],
+    "chuteAttachAglM": 298.08,
+    "chuteAttachTimeS": 23.653,
+    "legacyPredictedCanopyTimeS": 24.541,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      5,
+      0
+    ],
+    "canopyDurationS": 44.947,
+    "canopyWorldM": [
+      -183.293,
+      74.3887
+    ],
+    "chuteAttachAglM": 299.397,
+    "chuteAttachTimeS": 23.46,
+    "legacyPredictedCanopyTimeS": 24.552,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      5,
+      0
+    ],
+    "canopyDurationS": 34.137,
+    "canopyWorldM": [
+      -226.834,
+      195.512
+    ],
+    "chuteAttachAglM": 298.549,
+    "chuteAttachTimeS": 22.513,
+    "legacyPredictedCanopyTimeS": 24.632,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      5,
+      0
+    ],
+    "canopyDurationS": 20.745,
+    "canopyWorldM": [
+      -132.215,
+      260.953
+    ],
+    "chuteAttachAglM": 298.303,
+    "chuteAttachTimeS": 22.562,
+    "legacyPredictedCanopyTimeS": 24.63,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      5,
+      0,
+      0
+    ],
+    "canopyDurationS": 24.854,
+    "canopyWorldM": [
+      27.2324,
+      213.928
+    ],
+    "chuteAttachAglM": 299.754,
+    "chuteAttachTimeS": 23.027,
+    "legacyPredictedCanopyTimeS": 24.592,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      5,
+      0,
+      0
+    ],
+    "canopyDurationS": 26.561,
+    "canopyWorldM": [
+      211.904,
+      166.977
+    ],
+    "chuteAttachAglM": 298.362,
+    "chuteAttachTimeS": 23.503,
+    "legacyPredictedCanopyTimeS": 24.55,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      5,
+      0,
+      0
+    ],
+    "canopyDurationS": 33.146,
+    "canopyWorldM": [
+      356.531,
+      22.1719
+    ],
+    "chuteAttachAglM": 298.599,
+    "chuteAttachTimeS": 23.631,
+    "legacyPredictedCanopyTimeS": 24.543,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      5,
+      0,
+      0
+    ],
+    "canopyDurationS": 44.9,
+    "canopyWorldM": [
+      398.74,
+      -148.166
+    ],
+    "chuteAttachAglM": 299.122,
+    "chuteAttachTimeS": 23.137,
+    "legacyPredictedCanopyTimeS": 24.591,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      5,
+      0,
+      0
+    ],
+    "canopyDurationS": 50.867,
+    "canopyWorldM": [
+      233.975,
+      -214.152
+    ],
+    "chuteAttachAglM": 299.796,
+    "chuteAttachTimeS": 23.683,
+    "legacyPredictedCanopyTimeS": 24.539,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      5,
+      0,
+      0
+    ],
+    "canopyDurationS": 44.927,
+    "canopyWorldM": [
+      26.7578,
+      -132.291
+    ],
+    "chuteAttachAglM": 298.142,
+    "chuteAttachTimeS": 23.462,
+    "legacyPredictedCanopyTimeS": 24.551,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      5,
+      0,
+      0
+    ],
+    "canopyDurationS": 33.659,
+    "canopyWorldM": [
+      -71.2539,
+      61.4766
+    ],
+    "chuteAttachAglM": 298.774,
+    "chuteAttachTimeS": 22.659,
+    "legacyPredictedCanopyTimeS": 24.632,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      5,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.787,
+    "canopyWorldM": [
+      5.50781,
+      185.957
+    ],
+    "chuteAttachAglM": 299.78,
+    "chuteAttachTimeS": 22.664,
+    "legacyPredictedCanopyTimeS": 24.628,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      10,
+      0,
+      0
+    ],
+    "canopyDurationS": 19.996,
+    "canopyWorldM": [
+      47.1113,
+      201.109
+    ],
+    "chuteAttachAglM": 299.608,
+    "chuteAttachTimeS": 23.1,
+    "legacyPredictedCanopyTimeS": 24.599,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      10,
+      0,
+      0
+    ],
+    "canopyDurationS": 33.526,
+    "canopyWorldM": [
+      522.465,
+      17.7246
+    ],
+    "chuteAttachAglM": 299.584,
+    "chuteAttachTimeS": 23.65,
+    "legacyPredictedCanopyTimeS": 24.545,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      10,
+      0,
+      0
+    ],
+    "canopyDurationS": 50.632,
+    "canopyWorldM": [
+      468.459,
+      -210.457
+    ],
+    "chuteAttachAglM": 299.662,
+    "chuteAttachTimeS": 23.676,
+    "legacyPredictedCanopyTimeS": 24.54,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      10,
+      0,
+      0
+    ],
+    "canopyDurationS": 30.931,
+    "canopyWorldM": [
+      53.9648,
+      81.8086
+    ],
+    "chuteAttachAglM": 299.565,
+    "chuteAttachTimeS": 22.664,
+    "legacyPredictedCanopyTimeS": 24.63,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      10,
+      0
+    ],
+    "canopyDurationS": 30.46,
+    "canopyWorldM": [
+      3.39648,
+      539.559
+    ],
+    "chuteAttachAglM": 299.445,
+    "chuteAttachTimeS": 22.955,
+    "legacyPredictedCanopyTimeS": 24.602,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      10,
+      0
+    ],
+    "canopyDurationS": 27.326,
+    "canopyWorldM": [
+      239.809,
+      289.537
+    ],
+    "chuteAttachAglM": 298.556,
+    "chuteAttachTimeS": 23.8,
+    "legacyPredictedCanopyTimeS": 24.535,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      10,
+      0
+    ],
+    "canopyDurationS": 50.242,
+    "canopyWorldM": [
+      -0.478516,
+      282.318
+    ],
+    "chuteAttachAglM": 298.084,
+    "chuteAttachTimeS": 23.619,
+    "legacyPredictedCanopyTimeS": 24.54,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      10,
+      0
+    ],
+    "canopyDurationS": 28.059,
+    "canopyWorldM": [
+      -240.047,
+      296.686
+    ],
+    "chuteAttachAglM": 299.513,
+    "chuteAttachTimeS": 22.651,
+    "legacyPredictedCanopyTimeS": 24.632,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_M977A4_usarmy_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 29.818,
+    "canopyWorldM": [
+      4.08398,
+      220.83
+    ],
+    "chuteAttachAglM": 273.084,
+    "chuteAttachTimeS": 23.195,
+    "legacyPredictedCanopyTimeS": 24.589,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_M977A4_usarmy_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 50.534,
+    "canopyWorldM": [
+      -0.496094,
+      -215.336
+    ],
+    "chuteAttachAglM": 298.208,
+    "chuteAttachTimeS": 23.686,
+    "legacyPredictedCanopyTimeS": 24.538,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_M977A4_usarmy_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      5,
+      0
+    ],
+    "canopyDurationS": 50.852,
+    "canopyWorldM": [
+      -0.539062,
+      35.2305
+    ],
+    "chuteAttachAglM": 299.33,
+    "chuteAttachTimeS": 23.665,
+    "legacyPredictedCanopyTimeS": 24.541,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_M977A4_usarmy_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      5,
+      0,
+      0
+    ],
+    "canopyDurationS": 50.823,
+    "canopyWorldM": [
+      233.363,
+      -214.111
+    ],
+    "chuteAttachAglM": 299.158,
+    "chuteAttachTimeS": 23.636,
+    "legacyPredictedCanopyTimeS": 24.539,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyDurationS": 44.595,
+    "canopyWorldM": [
+      -186.529,
+      -347.803
+    ],
+    "chuteAttachAglM": 299.13,
+    "chuteAttachTimeS": 23.537,
+    "legacyPredictedCanopyTimeS": 45.589,
+    "dataset": "controlledWindV1",
+    "supersededBy": "windSouth5_2026_08_31",
+    "supersededReason": "single sample from the pre-v0.4.24 harness, which solved runs in the same frame as setWind (so wind was unverified) and starved USAF chute-attach detection. Replaced by 8 headings x n=5 at verified [0,-5,0] with 0/40 late attaches."
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyDurationS": 33.554,
+    "canopyWorldM": [
+      -205.516,
+      -108.809
+    ],
+    "chuteAttachAglM": 298.339,
+    "chuteAttachTimeS": 22.639,
+    "legacyPredictedCanopyTimeS": 40.392,
+    "dataset": "controlledWindV1",
+    "supersededBy": "windSouth5_2026_08_31",
+    "supersededReason": "single sample from the pre-v0.4.24 harness, which solved runs in the same frame as setWind (so wind was unverified) and starved USAF chute-attach detection. Replaced by 8 headings x n=5 at verified [0,-5,0] with 0/40 late attaches."
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyDurationS": 24.416,
+    "canopyWorldM": [
+      -88.7266,
+      108.488
+    ],
+    "chuteAttachAglM": 299.449,
+    "chuteAttachTimeS": 22.751,
+    "legacyPredictedCanopyTimeS": 35.384,
+    "dataset": "controlledWindV1",
+    "supersededBy": "windSouth5_2026_08_31",
+    "supersededReason": "single sample from the pre-v0.4.24 harness, which solved runs in the same frame as setWind (so wind was unverified) and starved USAF chute-attach detection. Replaced by 8 headings x n=5 at verified [0,-5,0] with 0/40 late attaches."
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      -5,
+      0,
+      0
+    ],
+    "canopyDurationS": 38.767,
+    "canopyWorldM": [
+      -368.809,
+      -134.879
+    ],
+    "chuteAttachAglM": 299.004,
+    "chuteAttachTimeS": 23.547,
+    "legacyPredictedCanopyTimeS": 43.432,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      -5,
+      0,
+      0
+    ],
+    "canopyDurationS": 33.636,
+    "canopyWorldM": [
+      -357.801,
+      20.4805
+    ],
+    "chuteAttachAglM": 298.49,
+    "chuteAttachTimeS": 22.496,
+    "legacyPredictedCanopyTimeS": 39.963,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      -5,
+      0,
+      0
+    ],
+    "canopyDurationS": 27.177,
+    "canopyWorldM": [
+      -211.943,
+      165.143
+    ],
+    "chuteAttachAglM": 298.713,
+    "chuteAttachTimeS": 22.623,
+    "legacyPredictedCanopyTimeS": 34.402,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyDurationS": 24.515,
+    "canopyWorldM": [
+      6.1539,
+      167.8392
+    ],
+    "chuteAttachAglM": 298.346,
+    "chuteAttachTimeS": 23.203,
+    "legacyPredictedCanopyTimeS": 28.926,
+    "sampleCount": 5,
+    "note": "re-measured 2026-08-31, n=5 harness runs; the original n=1 sample caught the short canopy mode",
+    "dataset": "controlledWindV1",
+    "supersededBy": "windSouth5_2026_08_31",
+    "supersededReason": "single sample from the pre-v0.4.24 harness, which solved runs in the same frame as setWind (so wind was unverified) and starved USAF chute-attach detection. Replaced by 8 headings x n=5 at verified [0,-5,0] with 0/40 late attaches."
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyDurationS": 24.078,
+    "canopyWorldM": [
+      89.8652,
+      111.041
+    ],
+    "chuteAttachAglM": 298.994,
+    "chuteAttachTimeS": 23.582,
+    "legacyPredictedCanopyTimeS": 28.076,
+    "dataset": "controlledWindV1",
+    "supersededBy": "windSouth5_2026_08_31",
+    "supersededReason": "single sample from the pre-v0.4.24 harness, which solved runs in the same frame as setWind (so wind was unverified) and starved USAF chute-attach detection. Replaced by 8 headings x n=5 at verified [0,-5,0] with 0/40 late attaches."
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyDurationS": 27.507,
+    "canopyWorldM": [
+      223.574,
+      -86.5273
+    ],
+    "chuteAttachAglM": 299.73,
+    "chuteAttachTimeS": 23.614,
+    "legacyPredictedCanopyTimeS": 27.32,
+    "dataset": "controlledWindV1",
+    "supersededBy": "windSouth5_2026_08_31",
+    "supersededReason": "single sample from the pre-v0.4.24 harness, which solved runs in the same frame as setWind (so wind was unverified) and starved USAF chute-attach detection. Replaced by 8 headings x n=5 at verified [0,-5,0] with 0/40 late attaches."
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyDurationS": 44.626,
+    "canopyWorldM": [
+      186.438,
+      -348.051
+    ],
+    "chuteAttachAglM": 298.489,
+    "chuteAttachTimeS": 23.205,
+    "legacyPredictedCanopyTimeS": 31.243,
+    "dataset": "controlledWindV1",
+    "supersededBy": "windSouth5_2026_08_31",
+    "supersededReason": "single sample from the pre-v0.4.24 harness, which solved runs in the same frame as setWind (so wind was unverified) and starved USAF chute-attach detection. Replaced by 8 headings x n=5 at verified [0,-5,0] with 0/40 late attaches."
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyDurationS": 49.777,
+    "canopyWorldM": [
+      -0.433594,
+      -459.99
+    ],
+    "chuteAttachAglM": 298.361,
+    "chuteAttachTimeS": 23.803,
+    "legacyPredictedCanopyTimeS": 48.612,
+    "dataset": "controlledWindV1",
+    "supersededBy": "windSouth5_2026_08_31",
+    "supersededReason": "single sample from the pre-v0.4.24 harness, which solved runs in the same frame as setWind (so wind was unverified) and starved USAF chute-attach detection. Replaced by 8 headings x n=5 at verified [0,-5,0] with 0/40 late attaches."
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      -5,
+      0,
+      0
+    ],
+    "canopyDurationS": 24.61,
+    "canopyWorldM": [
+      -26.6113,
+      214.25
+    ],
+    "chuteAttachAglM": 298.633,
+    "chuteAttachTimeS": 23.101,
+    "legacyPredictedCanopyTimeS": 32.199,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      -5,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.113,
+    "canopyWorldM": [
+      -1.49414,
+      185.799
+    ],
+    "chuteAttachAglM": 299.485,
+    "chuteAttachTimeS": 23.486,
+    "legacyPredictedCanopyTimeS": 28.056,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      -5,
+      0,
+      0
+    ],
+    "canopyDurationS": 33.378,
+    "canopyWorldM": [
+      73.0156,
+      61.4414
+    ],
+    "chuteAttachAglM": 299.732,
+    "chuteAttachTimeS": 23.728,
+    "legacyPredictedCanopyTimeS": 26.842,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      -5,
+      0,
+      0
+    ],
+    "canopyDurationS": 38.769,
+    "canopyWorldM": [
+      3.86914,
+      -126.514
+    ],
+    "chuteAttachAglM": 298.501,
+    "chuteAttachTimeS": 23.476,
+    "legacyPredictedCanopyTimeS": 39.285,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      -5,
+      0,
+      0
+    ],
+    "canopyDurationS": 44.038,
+    "canopyWorldM": [
+      -199.537,
+      -211.533
+    ],
+    "chuteAttachAglM": 298.748,
+    "chuteAttachTimeS": 23.666,
+    "legacyPredictedCanopyTimeS": 43.5,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      -10,
+      0
+    ],
+    "canopyDurationS": 21.805,
+    "canopyWorldM": [
+      8.13281,
+      25.4258
+    ],
+    "chuteAttachAglM": 299.34,
+    "chuteAttachTimeS": 23.382,
+    "legacyPredictedCanopyTimeS": 31.596,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      -10,
+      0
+    ],
+    "canopyDurationS": 27.062,
+    "canopyWorldM": [
+      223.346,
+      -205.463
+    ],
+    "chuteAttachAglM": 298.379,
+    "chuteAttachTimeS": 23.666,
+    "legacyPredictedCanopyTimeS": 21.242,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      -10,
+      0
+    ],
+    "canopyDurationS": 49.384,
+    "canopyWorldM": [
+      -0.330078,
+      -701.479
+    ],
+    "chuteAttachAglM": 299.087,
+    "chuteAttachTimeS": 23.728,
+    "legacyPredictedCanopyTimeS": 49.106,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      -10,
+      0
+    ],
+    "canopyDurationS": 27.857,
+    "canopyWorldM": [
+      -221.564,
+      -213.18
+    ],
+    "chuteAttachAglM": 298.686,
+    "chuteAttachTimeS": 22.623,
+    "legacyPredictedCanopyTimeS": 34.143,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      -10,
+      0,
+      0
+    ],
+    "canopyDurationS": 19.876,
+    "canopyWorldM": [
+      -47.0723,
+      199.703
+    ],
+    "chuteAttachAglM": 299.722,
+    "chuteAttachTimeS": 23.06,
+    "legacyPredictedCanopyTimeS": 31.986,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      -10,
+      0,
+      0
+    ],
+    "canopyDurationS": 26.492,
+    "canopyWorldM": [
+      -23.6934,
+      42.8945
+    ],
+    "chuteAttachAglM": 299.066,
+    "chuteAttachTimeS": 23.491,
+    "legacyPredictedCanopyTimeS": 24.114,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      -10,
+      0,
+      0
+    ],
+    "canopyDurationS": 50.192,
+    "canopyWorldM": [
+      -465.922,
+      -210.385
+    ],
+    "chuteAttachAglM": 298.755,
+    "chuteAttachTimeS": 23.667,
+    "legacyPredictedCanopyTimeS": 38.643,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      -10,
+      0,
+      0
+    ],
+    "canopyDurationS": 33.982,
+    "canopyWorldM": [
+      -526.594,
+      16.3438
+    ],
+    "chuteAttachAglM": 299.846,
+    "chuteAttachTimeS": 22.68,
+    "legacyPredictedCanopyTimeS": 40.343,
+    "dataset": "controlledWindV1"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 20.778,
+    "canopyWorldM": [
+      132.695,
+      172.534
+    ],
+    "chuteAttachAglM": 299.3,
+    "chuteAttachTimeS": 23.501,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3086",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 22.694,
+    "canopyWorldM": [
+      10.493,
+      232.0355
+    ],
+    "chuteAttachAglM": 298.4,
+    "chuteAttachTimeS": 23.006,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3086",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 21.287,
+    "canopyWorldM": [
+      -125.8704,
+      166.2088
+    ],
+    "chuteAttachAglM": 299.7,
+    "chuteAttachTimeS": 22.822,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3086",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.078,
+    "canopyWorldM": [
+      236.548,
+      34.9473
+    ],
+    "chuteAttachAglM": 298.8,
+    "chuteAttachTimeS": 23.677,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3086",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.652,
+    "canopyWorldM": [
+      -227.918,
+      33.8244
+    ],
+    "chuteAttachAglM": 298.6,
+    "chuteAttachTimeS": 22.679,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3086",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 39.604,
+    "canopyWorldM": [
+      190.8152,
+      -130.2749
+    ],
+    "chuteAttachAglM": 298.8,
+    "chuteAttachTimeS": 23.019,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3086",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 39.394,
+    "canopyWorldM": [
+      -185.5487,
+      -125.1682
+    ],
+    "chuteAttachAglM": 298.9,
+    "chuteAttachTimeS": 23.516,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3086",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 44.684,
+    "canopyWorldM": [
+      -1.1696,
+      -213.959
+    ],
+    "chuteAttachAglM": 298.9,
+    "chuteAttachTimeS": 23.681,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3086",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 21.194,
+    "canopyWorldM": [
+      -125.9764,
+      166.6543
+    ],
+    "chuteAttachAglM": 298.7,
+    "chuteAttachTimeS": 22.653,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3908",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 20.857,
+    "canopyWorldM": [
+      125.8785,
+      165.958
+    ],
+    "chuteAttachAglM": 299.8,
+    "chuteAttachTimeS": 23.538,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3908",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 22.723,
+    "canopyWorldM": [
+      9.983,
+      221.8455
+    ],
+    "chuteAttachAglM": 298.6,
+    "chuteAttachTimeS": 22.923,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3908",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.181,
+    "canopyWorldM": [
+      -233.088,
+      34.3444
+    ],
+    "chuteAttachAglM": 297.2,
+    "chuteAttachTimeS": 22.666,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3908",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 34.673,
+    "canopyWorldM": [
+      226.448,
+      37.2973
+    ],
+    "chuteAttachAglM": 298.2,
+    "chuteAttachTimeS": 23.6,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3908",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 39.381,
+    "canopyWorldM": [
+      184.9391,
+      -128.0193
+    ],
+    "chuteAttachAglM": 298.2,
+    "chuteAttachTimeS": 23.166,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3908",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 44.656,
+    "canopyWorldM": [
+      0.1404,
+      -216.079
+    ],
+    "chuteAttachAglM": 298.8,
+    "chuteAttachTimeS": 23.702,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3908",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 45.959,
+    "canopyWorldM": [
+      -184.8981,
+      -131.9564
+    ],
+    "chuteAttachAglM": 299.9,
+    "chuteAttachTimeS": 23.494,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 3908",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 20.013,
+    "canopyWorldM": [
+      128.608,
+      168.1076
+    ],
+    "chuteAttachAglM": 296.5,
+    "chuteAttachTimeS": 23.563,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 4695",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 21.16,
+    "canopyWorldM": [
+      -126.7048,
+      166.4351
+    ],
+    "chuteAttachAglM": 299.1,
+    "chuteAttachTimeS": 22.627,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 4695",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 22.956,
+    "canopyWorldM": [
+      7.613,
+      220.6255
+    ],
+    "chuteAttachAglM": 299.5,
+    "chuteAttachTimeS": 22.826,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 4695",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.685,
+    "canopyWorldM": [
+      -228.498,
+      34.1144
+    ],
+    "chuteAttachAglM": 299.3,
+    "chuteAttachTimeS": 22.68,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 4695",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 27.815,
+    "canopyWorldM": [
+      228.328,
+      34.9373
+    ],
+    "chuteAttachAglM": 298.1,
+    "chuteAttachTimeS": 23.589,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 4695",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 39.269,
+    "canopyWorldM": [
+      -187.1114,
+      -125.8824
+    ],
+    "chuteAttachAglM": 298.6,
+    "chuteAttachTimeS": 23.517,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 4695",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 44.519,
+    "canopyWorldM": [
+      -1.5196,
+      -213.669
+    ],
+    "chuteAttachAglM": 298.3,
+    "chuteAttachTimeS": 23.649,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 4695",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 45.822,
+    "canopyWorldM": [
+      184.4866,
+      -132.5023
+    ],
+    "chuteAttachAglM": 299.2,
+    "chuteAttachTimeS": 23.445,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 4695",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 21.048,
+    "canopyWorldM": [
+      -126.0967,
+      165.7704
+    ],
+    "chuteAttachAglM": 298.6,
+    "chuteAttachTimeS": 22.644,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 5485",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 22.653,
+    "canopyWorldM": [
+      10.343,
+      221.3155
+    ],
+    "chuteAttachAglM": 298.7,
+    "chuteAttachTimeS": 23.02,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 5485",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 20.564,
+    "canopyWorldM": [
+      126.7553,
+      166.6651
+    ],
+    "chuteAttachAglM": 298.7,
+    "chuteAttachTimeS": 23.551,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 5485",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.511,
+    "canopyWorldM": [
+      -228.018,
+      34.6644
+    ],
+    "chuteAttachAglM": 298.9,
+    "chuteAttachTimeS": 22.663,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 5485",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 27.965,
+    "canopyWorldM": [
+      228.878,
+      34.7973
+    ],
+    "chuteAttachAglM": 298.5,
+    "chuteAttachTimeS": 23.651,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 5485",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 39.394,
+    "canopyWorldM": [
+      -184.6153,
+      -124.0651
+    ],
+    "chuteAttachAglM": 299.0,
+    "chuteAttachTimeS": 23.504,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 5485",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 39.489,
+    "canopyWorldM": [
+      187.6756,
+      -127.0505
+    ],
+    "chuteAttachAglM": 298.4,
+    "chuteAttachTimeS": 22.965,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 5485",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 44.713,
+    "canopyWorldM": [
+      0.3604,
+      -213.589
+    ],
+    "chuteAttachAglM": 299.0,
+    "chuteAttachTimeS": 23.753,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 5485",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 21.298,
+    "canopyWorldM": [
+      -125.8492,
+      166.0886
+    ],
+    "chuteAttachAglM": 299.7,
+    "chuteAttachTimeS": 22.768,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 6248",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 20.766,
+    "canopyWorldM": [
+      126.7907,
+      166.7853
+    ],
+    "chuteAttachAglM": 299.6,
+    "chuteAttachTimeS": 23.5,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 6248",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 22.526,
+    "canopyWorldM": [
+      8.953,
+      223.2955
+    ],
+    "chuteAttachAglM": 298.1,
+    "chuteAttachTimeS": 23.071,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 6248",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.608,
+    "canopyWorldM": [
+      -229.178,
+      34.4244
+    ],
+    "chuteAttachAglM": 299.1,
+    "chuteAttachTimeS": 22.651,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 6248",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 28.133,
+    "canopyWorldM": [
+      229.248,
+      34.5773
+    ],
+    "chuteAttachAglM": 299.0,
+    "chuteAttachTimeS": 23.552,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 6248",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 39.223,
+    "canopyWorldM": [
+      -185.9022,
+      -125.5925
+    ],
+    "chuteAttachAglM": 298.3,
+    "chuteAttachTimeS": 23.5,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 6248",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 39.566,
+    "canopyWorldM": [
+      185.2503,
+      -124.9221
+    ],
+    "chuteAttachAglM": 298.9,
+    "chuteAttachTimeS": 23.139,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 6248",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      0,
+      0
+    ],
+    "canopyDurationS": 44.905,
+    "canopyWorldM": [
+      -0.9196,
+      -213.359
+    ],
+    "chuteAttachAglM": 299.9,
+    "chuteAttachTimeS": 23.607,
+    "source": "parallelDropBench zero-wind baseline campaign 2026-08-31, batch 6248",
+    "dataset": "zeroWindBaseline_2026_08_31"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      107.7058,
+      128.4005
+    ],
+    "chuteAttachAglM": 297.3,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 1092"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      6.644,
+      170.5695
+    ],
+    "chuteAttachAglM": 298.7,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 1092"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -93.9449,
+      116.0121
+    ],
+    "chuteAttachAglM": 296.3,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 1092"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      209.164,
+      -105.9077
+    ],
+    "chuteAttachAglM": 298.1,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 1092"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -212.276,
+      -108.0586
+    ],
+    "chuteAttachAglM": 297.8,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 1092"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      188.1425,
+      -348.8215
+    ],
+    "chuteAttachAglM": 297.4,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 1092"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -0.7036,
+      -432.2
+    ],
+    "chuteAttachAglM": 299.4,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 1092"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -190.0788,
+      -349.3303
+    ],
+    "chuteAttachAglM": 297.5,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 1092"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -93.5348,
+      114.0464
+    ],
+    "chuteAttachAglM": 298.0,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 2127"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      96.7456,
+      119.6606
+    ],
+    "chuteAttachAglM": 296.1,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 2127"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      5.974,
+      172.9395
+    ],
+    "chuteAttachAglM": 298.3,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 2127"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      213.124,
+      -105.7477
+    ],
+    "chuteAttachAglM": 297.9,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 2127"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -207.846,
+      -110.3386
+    ],
+    "chuteAttachAglM": 299.3,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 2127"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      186.7,
+      -347.2518
+    ],
+    "chuteAttachAglM": 297.3,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 2127"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -186.5927,
+      -346.7635
+    ],
+    "chuteAttachAglM": 299.3,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 2127"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -1.4636,
+      -463.09
+    ],
+    "chuteAttachAglM": 299.1,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 2127"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      107.7341,
+      127.6509
+    ],
+    "chuteAttachAglM": 298.2,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3043"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -92.2196,
+      114.3433
+    ],
+    "chuteAttachAglM": 295.7,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3043"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      6.094,
+      174.1895
+    ],
+    "chuteAttachAglM": 294.4,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3043"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -209.286,
+      -111.8286
+    ],
+    "chuteAttachAglM": 299.3,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3043"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      213.274,
+      -106.6977
+    ],
+    "chuteAttachAglM": 298.4,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3043"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      191.0558,
+      -348.7933
+    ],
+    "chuteAttachAglM": 296.3,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3043"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -190.2768,
+      -350.1081
+    ],
+    "chuteAttachAglM": 297.8,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3043"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -0.9036,
+      -466.01
+    ],
+    "chuteAttachAglM": 294.9,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3043"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -91.2226,
+      112.3988
+    ],
+    "chuteAttachAglM": 297.2,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3863"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      6.784,
+      169.4895
+    ],
+    "chuteAttachAglM": 299.0,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3863"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      97.8982,
+      120.3324
+    ],
+    "chuteAttachAglM": 296.7,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3863"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -210.346,
+      -107.6086
+    ],
+    "chuteAttachAglM": 297.5,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3863"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      220.254,
+      -107.0777
+    ],
+    "chuteAttachAglM": 298.7,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3863"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -188.7706,
+      -344.6138
+    ],
+    "chuteAttachAglM": 294.3,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3863"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      195.7722,
+      -359.0534
+    ],
+    "chuteAttachAglM": 298.1,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3863"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -1.6236,
+      -472.81
+    ],
+    "chuteAttachAglM": 296.1,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 3863"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 45.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      110.6262,
+      130.84
+    ],
+    "chuteAttachAglM": 298.0,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 4732"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 315.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -89.271,
+      109.1603
+    ],
+    "chuteAttachAglM": 299.8,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 4732"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 0.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      6.194,
+      172.5495
+    ],
+    "chuteAttachAglM": 299.0,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 4732"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 90.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      230.804,
+      -84.4077
+    ],
+    "chuteAttachAglM": 297.6,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 4732"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 270.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -211.696,
+      -110.7186
+    ],
+    "chuteAttachAglM": 298.5,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 4732"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 225.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -188.912,
+      -348.8848
+    ],
+    "chuteAttachAglM": 298.1,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 4732"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 135.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      189.38,
+      -350.8509
+    ],
+    "chuteAttachAglM": 297.6,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 4732"
+  },
+  {
+    "cargoClass": "rhsusf_mrzr4_d",
+    "headingDeg": 180.0,
+    "windWorldMs": [
+      0,
+      -5,
+      0
+    ],
+    "canopyWorldM": [
+      -0.7336,
+      -463.69
+    ],
+    "chuteAttachAglM": 296.6,
+    "dataset": "windSouth5_2026_08_31",
+    "source": "parallelDropBench 5 m/s south campaign 2026-08-31, batch 4732"
+  }
+]
