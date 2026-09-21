@@ -1,7 +1,7 @@
 # Contributing
 
-How a change gets into this repository. It applies to everyone working here — people and
-AI assistants alike.
+How a change gets into this repository. It applies to everyone and everything working
+here, with no exceptions for tooling.
 
 ## Work reaches main through a pull request
 
@@ -81,10 +81,10 @@ push. A PR sits open until somebody has actually gone through this:
 5. **Somebody says so.** The person merging confirms 1 to 4 were done, in a PR comment or
    out loud. If nobody has said it, it is not done.
 
-**AI agents open pull requests. They do not merge them.** An agent that opens and
-immediately merges its own work has removed the only review step this project has, and
-"the tests passed" is exactly the assurance that step exists to distrust. Leave the PR
-open and say what still needs checking.
+**Opening a pull request and merging it are two separate acts, by two separate
+parties.** Whatever opened it does not also wave it through: a PR opened and merged a
+minute later has had no review at all, and "the tests passed" is precisely the assurance
+this step exists to distrust. Leave it open and say what still needs checking.
 
 An open PR costs nothing. A bad commit on `main` costs a revert, a second commit, and the
 history that was the whole point of squashing.
@@ -114,6 +114,17 @@ history that was the whole point of squashing.
 **A release page carries two things:** the mod ZIP and GitHub's own source archive. Do not
 attach loose PBOs, signatures or keys. They are all inside the ZIP already, and a release
 with six assets buries the one people came for.
+
+## Do not rename what records history
+
+Some strings in this repository are facts about what already shipped: the names a PBO was
+released under, an old variable kept only so an out-of-date client can be detected. They
+look like leftovers and they are not.
+
+A blanket find-and-replace has already broken one. The rename pass swept up
+`LEGACY_PBO_NAMES`, made it equal to the current PBO name, and would have had deploy
+delete the PBO it had just installed. `tests/test_tlb_carp_rename.py` lists every
+deliberate exception with its reason; add to that list rather than to the replacement.
 
 ## Tests
 
