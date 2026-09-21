@@ -59,18 +59,56 @@ Write both as a commit message:
 - Review scaffolding — checklists, "ready for review", screenshots of your own terminal —
   does not belong in the body, because it ends up in the history.
 
+## Nothing merges until it has been checked
+
+Opening a pull request and merging it a minute later is not review, it is a slow direct
+push. A PR sits open until somebody has actually gone through this:
+
+1. **The full suite passes.** `python -m unittest discover -s tests`
+2. **The diff has been read**, by a person, in the GitHub diff view. Not skimmed from a
+   terminal, and not just the files you meant to change. Line-ending churn, a stray
+   generated file and a blanket find-and-replace that hit something it should not have are
+   all invisible until you look.
+3. **Anything that runs in Arma has been loaded in Arma.** Not "the tests are green". The
+   suite reads the source; it has never once started the game. Load the mod, open the
+   panel, and exercise the thing you changed.
+4. **`config.bin` has been rebuilt** if `config.cpp` was touched
+   (`python tools/build_config.py`), because the binary is what ships.
+5. **Somebody says so.** The person merging confirms 1 to 4 were done, in a PR comment or
+   out loud. If nobody has said it, it is not done.
+
+**AI agents open pull requests. They do not merge them.** An agent that opens and
+immediately merges its own work has removed the only review step this project has, and
+"the tests passed" is exactly the assurance that step exists to distrust. Leave the PR
+open and say what still needs checking.
+
+An open PR costs nothing. A bad commit on `main` costs a revert, a second commit, and the
+history that was the whole point of squashing.
+
 ## Releases
 
 1. Bump `TLB_CARP_VERSION` in `addon/functions/fn_postInit.sqf`.
-2. Build and verify: `python tools/build_release.py --version <x.y.z.0> --label <slug>`.
+2. **Make the signing key for this version.** Every release is signed with its own key,
+   named for the version, the way the other TLB mods are: `tlb_carp_v1_1_0`. Create it
+   with Arma 3 Tools' `DSCreateKey`, keep the `.biprivatekey` outside the repository, and
+   pass the pair to the build with `--key-dir` and `--key-name`.
+
+   The cost of this is real and admins carry it: a new key means every server operator
+   installs a new `.bikey` on every release, and a server that misses one kicks everybody
+   running the new build. Say clearly in the release notes that the key changed.
+3. Build and verify: `python tools/build_release.py --version <x.y.z.0> --label <slug>`.
    It runs the suite, builds and signs both PBOs, writes the release and source ZIPs, and
    re-runs the suite from a fresh extraction of the source ZIP. It fails rather than
    shipping something unverified.
-3. Open the release PR. **Title it `v1.2.3 - short title`, and make the description the
+4. Open the release PR. **Title it `v1.2.3 - short title`, and make the description the
    release notes themselves** — no checklists, no test plan. `tools/publish_release.py`
    takes the GitHub Release notes from the commit body of the tag, which after squashing
    is that description.
-4. Merge, then tag `main` and publish: `python tools/publish_release.py --tag v1.2.3`.
+5. **Fly it.** A release is the one change that cannot be "source-verified only".
+6. Merge, then tag `main` and publish: `python tools/publish_release.py --tag v1.2.3`.
+   It attaches the mod ZIP plus the loose PBOs, signatures and key that
+   `build_release.py` left in `releases/pbo/v1.2.3/`, so an admin can refresh a server
+   with `gh release download v1.2.3 -p '*.pbo'` instead of unpacking the archive.
 
 ## Tests
 
