@@ -51,9 +51,13 @@ Write both as a commit message:
 
 - **Subject:** what changed, in plain words, under about 70 characters. `Refuse a green
   light the jumper cannot use`, not `Update fn_updateJumpCue.sqf` or `fixes`.
-- **Body:** what changed and, more importantly, **why** — the reasoning that would
-  otherwise be lost, what was tried and rejected, what a reader would otherwise have to
-  rediscover. If a decision rests on a measurement, give the number.
+- **Body:** what changed and **why**, in a handful of lines. The reasoning that would
+  otherwise be lost, and nothing else. If a decision rests on a measurement, give the
+  number.
+- **Keep it short.** Past about fifteen lines you are writing a report, not a commit
+  message. Leave out anything a reader can see in the diff, anything you did on the way to
+  the answer, and any explanation of a problem you then solved. One paragraph per idea, and
+  most changes are one idea.
 - Plain English. No marketing, no emoji, no "as requested", no restating the diff line by
   line.
 - Review scaffolding — checklists, "ready for review", screenshots of your own terminal —

@@ -15,6 +15,10 @@ exactly one commit. The PR title is the commit subject and the PR description is
 commit body, which means the description is what `git log` shows forever. Write it as a
 commit message, not as a status report.
 
+**Keep it short.** A handful of lines. Agents write PR descriptions far too long: every
+consideration weighed, every problem met and fixed along the way, every guard explained.
+None of that belongs in `git log`. Say what changed and why, and stop.
+
 ## One session is one pull request
 
 A session's worth of adjustments is **one** PR. When a change is asked for and then
