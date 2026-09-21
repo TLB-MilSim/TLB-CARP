@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/screenshots/hud-run-in.png" alt="The CARP HUD on a run-in: range to the release point, cross-track, track error, altitude and speed against target, drift, and time on target" width="820">
+  <img src="docs/images/screenshots/panel.png" alt="The CARP panel: drop zone, mission, environment and cargo sections, with the run-in, guidance, autopilot and auto drop controls" width="780">
 </p>
 
 ---
@@ -57,9 +57,9 @@ A walkthrough of the system in flight: [youtu.be/3v0Nm9U3178](https://youtu.be/3
 
 ## Screenshots
 
-| The panel | The jump readout |
+| The HUD on a run-in | The jump readout |
 | --- | --- |
-| <img src="docs/images/screenshots/panel.png" alt="The CARP panel: drop zone, mission, environment, jump run and cargo sections" width="420"> | <img src="docs/images/screenshots/jump-standby.png" alt="Jump readout on standby" width="420"><br><img src="docs/images/screenshots/jump-go.png" alt="Green light" width="420"> |
+| <img src="docs/images/screenshots/hud-run-in.png" alt="The CARP HUD on a run-in: range to the release point, cross-track, track error, altitude and speed against target, drift, and time on target" width="420"> | <img src="docs/images/screenshots/jump-standby.png" alt="Jump readout on standby" width="420"><br><img src="docs/images/screenshots/jump-go.png" alt="Green light" width="420"> |
 
 | Capturing the final line | Release stable |
 | --- | --- |
