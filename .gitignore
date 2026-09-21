@@ -1,0 +1,37 @@
+# Superseded release archives.
+#
+# 112 historical build artifacts, ~23 MB. Excluded because they are derived: given a
+# base release ZIP, tools/build_release.py reproduces a release byte-for-byte
+# (verified for v0.4.1: sha256 4fd51ef648a4e2ce4cb705edebcd4ddc4fc52cfb11e60c5be172d6a5fe64f9a3).
+#
+# The CURRENT release ZIP at the repo root is deliberately NOT ignored. It is a build
+# INPUT, not just an artifact: addon/config.bin is pre-binarized and the base PBO
+# defines the entry set that pack_pbo fills from addon/, so without it the project
+# cannot be built at all.
+releases/
+
+# Local session memory from the remember plugin. Not project content.
+.remember/
+
+# Build scratch
+# build_release.py --out-dir build/check writes a throwaway release here when
+# proving that a rebuild still reproduces a shipped PBO byte for byte.
+build/
+*.pbo
+!addon/**/*.pbo
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Editor / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+*.swp
+
+# Signing keys. The real ones live OUTSIDE this repository (see build_release.py step 3);
+# this is a backstop so a key copied in by accident can never be committed. A private key
+# in a public history lets anyone sign a hostile PBO that passes as TLB CARP.
+*.biprivatekey
+*.bikey

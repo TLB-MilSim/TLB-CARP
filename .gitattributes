@@ -1,0 +1,19 @@
+# No line-ending conversion, anywhere.
+#
+# This is not a style preference. tools/build_release.py verifies that every entry in
+# the built PBO is byte-identical to its source file, and that a rebuild reproduces a
+# known release exactly (v0.4.1 reproduces as
+# sha256 4fd51ef648a4e2ce4cb705edebcd4ddc4fc52cfb11e60c5be172d6a5fe64f9a3).
+#
+# If git rewrote LF to CRLF on checkout, every .sqf would gain a byte per line, the
+# PBO built from a fresh clone would differ from the one built here, and both the
+# byte-identity check and the reproducibility guarantee would fail. Arma also reads
+# these files verbatim.
+* -text
+
+# Binary, never diffed or converted.
+*.pbo binary
+*.bin binary
+*.sqfc binary
+*.zip binary
+*.paa binary

@@ -1,0 +1,19 @@
+USAFDC_state_packageTimingState = "IDLE";
+USAFDC_state_packageCargoSnapshot = [];
+USAFDC_state_packageCarrier = objNull;
+USAFDC_state_packagePrimaryCargo = objNull;
+USAFDC_state_packageReleaseSimTime = -1;
+USAFDC_state_packageReleaseClockSeconds = -1;
+USAFDC_state_packagePredictedChuteSimTime = -1;
+USAFDC_state_packagePredictedTouchdownSimTime = -1;
+USAFDC_state_packagePredictedTouchdownClockSeconds = -1;
+USAFDC_state_packageActualChuteSimTime = -1;
+USAFDC_state_packageActualTouchdownSimTime = -1;
+USAFDC_state_packageActualTouchdownClockSeconds = -1;
+USAFDC_state_packagePredictedCanopyTimeS = 0;
+USAFDC_state_packageEstimatedChuteAttachTimeS = 0;
+USAFDC_state_packageEstimatedCanopyTimeS = 0;
+USAFDC_state_packageAirborneConfirmed = false;
+USAFDC_state_packageGroundCandidateSince = -1;
+USAFDC_state_packageTiming = createHashMap;
+true
