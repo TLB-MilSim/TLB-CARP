@@ -35,3 +35,12 @@ desktop.ini
 # in a public history lets anyone sign a hostile PBO that passes as TLB CARP.
 *.biprivatekey
 *.bikey
+
+# Per-contributor editor and assistant instruction files. The rules themselves live in
+# CONTRIBUTING.md, which is the one copy and is written for whoever is reading. Anything
+# that points a particular tool at it is personal setup, not project content.
+CLAUDE.md
+AGENTS.md
+.claude/
+.cursorrules
+.github/copilot-instructions.md

@@ -95,9 +95,11 @@ class ModNamingTests(unittest.TestCase):
             self.assertEqual(publish.asset_for("v0.8.5").name, "@TLB_CARP_System_v0.8.5-new.zip")
             self.assertIsNone(publish.asset_for("v9.9.9"))
 
-    def test_publish_attaches_the_loose_pbos_alongside_the_zip(self):
-        """A Workshop upload refreshes a staging folder by copying two files. The ZIP is
-        still first in the list -- it is what a player installs."""
+    def test_publish_attaches_the_mod_zip_and_nothing_else(self):
+        """Asked for 2026-09-22. A release page carries the mod ZIP plus GitHub's own
+        source archives, and no loose files -- everything the extras contained is inside
+        the ZIP, and six assets buried the one people came for. The local PBO export under
+        releases/pbo/ is unaffected; it just is not published."""
         publish = load_tool("publish_release")
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -106,12 +108,11 @@ class ModNamingTests(unittest.TestCase):
             pbos.mkdir(parents=True)
             (pbos / "TLB_CARP_System.pbo").write_bytes(b"")
             (pbos / "TLB_CARP_Items.pbo").write_bytes(b"")
+            (pbos / "tlb_carp.bikey").write_bytes(b"")
             publish.ROOT = root
 
-            names = [a.name for a in publish.assets_for("v0.16.12")]
-            self.assertEqual(names[0], "@TLB_CARP_System_v0.16.12-x.zip")
-            self.assertEqual(sorted(names[1:]),
-                             ["TLB_CARP_Items.pbo", "TLB_CARP_System.pbo"])
+            self.assertEqual([a.name for a in publish.assets_for("v0.16.12")],
+                             ["@TLB_CARP_System_v0.16.12-x.zip"])
 
     def test_a_release_built_before_the_pbo_export_still_publishes(self):
         """Every release through v0.16.12 was built without it. Publishing those must not
@@ -122,7 +123,6 @@ class ModNamingTests(unittest.TestCase):
             (root / "@TLB_CARP_System_v0.8.5-new.zip").write_bytes(b"")
             publish.ROOT = root
 
-            self.assertEqual(publish.pbos_for("v0.8.5"), [])
             self.assertEqual([a.name for a in publish.assets_for("v0.8.5")],
                              ["@TLB_CARP_System_v0.8.5-new.zip"])
 
@@ -144,8 +144,8 @@ class ModNamingTests(unittest.TestCase):
         self.assertIn("differs from the copy inside", src)
 
     def test_the_export_does_not_break_the_one_zip_root_rule(self):
-        """CLAUDE.md: never leave a loose .pbo at the repo root. The export writes under
-        releases/, and the rotate step that enforces the rule runs after it."""
+        """Never leave a loose .pbo at the repo root. The export writes under releases/,
+        and the rotate step that enforces the rule runs after it."""
         src = (ROOT / "tools" / "build_release.py").read_text(encoding="utf-8")
         # Order by NAME, not by step number. The numbers shifted when signing was added
         # as step 3, and a test that pins them fails on an unrelated insertion while
