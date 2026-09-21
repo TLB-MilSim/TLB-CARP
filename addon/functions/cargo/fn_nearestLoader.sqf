@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_nearestLoader
+    TLB_CARP_fnc_nearestLoader
 
     The nearest aircraft that could actually take this load.
 
-        [_cargo] call USAFDC_fnc_nearestLoader  ->  aircraft or objNull
+        [_cargo] call TLB_CARP_fnc_nearestLoader  ->  aircraft or objNull
 
     Exists so the interaction menu does not have to ask "which aircraft" -- a loadmaster
     walks up to the truck and there is only ever one plausible answer, which is the
@@ -28,7 +28,7 @@ private _bestDist = 1e9;
     if (alive _x && {!(_x isEqualTo _cargo)}) then {
         private _d = _cargo distance _x;
         if (_d < _bestDist) then {
-            if ((([_x, _cargo] call USAFDC_fnc_canLoadCargo) param [0, ""]) != "") then {
+            if ((([_x, _cargo] call TLB_CARP_fnc_canLoadCargo) param [0, ""]) != "") then {
                 _best = _x;
                 _bestDist = _d;
             };

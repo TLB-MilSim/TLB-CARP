@@ -1,5 +1,5 @@
 /*
-    USAFDC_fnc_ensurePanelEnhancements
+    TLB_CARP_fnc_ensurePanelEnhancements
 
     Attaches the two edit-field commit handlers the config cannot declare.
 
@@ -38,8 +38,8 @@ private _commitJump = {
     params ["_ctrl"];
     private _value = parseNumber (ctrlText _ctrl);
     if (_value < 0) then {_value = 0};
-    missionNamespace setVariable [_ctrl getVariable ["USAFDC_jumpField", ""], round _value];
-    [] call USAFDC_fnc_refreshPanel;
+    missionNamespace setVariable [_ctrl getVariable ["TLB_CARP_jumpField", ""], round _value];
+    [] call TLB_CARP_fnc_refreshPanel;
 };
 
 {
@@ -47,14 +47,14 @@ private _commitJump = {
     private _ctrl = _display displayCtrl _idc;
     // Guarded because this runs on every refresh. Without it the handler stacks and fires
     // once per refresh the panel has ever seen.
-    if (!isNull _ctrl && {!(_ctrl getVariable ["USAFDC_commitBound", false])}) then {
-        _ctrl setVariable ["USAFDC_commitBound", true];
-        _ctrl setVariable ["USAFDC_jumpField", _var];
+    if (!isNull _ctrl && {!(_ctrl getVariable ["TLB_CARP_commitBound", false])}) then {
+        _ctrl setVariable ["TLB_CARP_commitBound", true];
+        _ctrl setVariable ["TLB_CARP_jumpField", _var];
         _ctrl ctrlAddEventHandler ["KillFocus", _commitJump];
     };
 } forEach [
-    [9332, "USAFDC_state_jumpPlannedStick"],
-    [9333, "USAFDC_state_jumpOpenAglM"]
+    [9332, "TLB_CARP_state_jumpPlannedStick"],
+    [9333, "TLB_CARP_state_jumpOpenAglM"]
 ];
 
 true

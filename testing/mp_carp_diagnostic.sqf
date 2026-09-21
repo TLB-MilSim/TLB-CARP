@@ -4,7 +4,7 @@
     Run this in the debug console on EVERY machine involved: the pilot, the co-pilot, and
     the server if you can reach its console. Sit in the aircraft first.
 
-        [] call USAFDC_diag;
+        [] call TLB_CARP_diag;
 
     It prints to systemChat and copies the whole report to the clipboard. Paste all of
     them back and the two reported faults are settled in one pass.
@@ -43,7 +43,7 @@
     attachedTo and isVehicleCargo, which is exactly that distinction.
 */
 
-USAFDC_diag = {
+TLB_CARP_diag = {
     private _out = [];
     private _add = {_out pushBack _this; systemChat _this};
 
@@ -55,7 +55,7 @@ USAFDC_diag = {
     };
 
     format ["CARP %1 | iface %2 | server %3 | me %4",
-        missionNamespace getVariable ["USAFDC_VERSION", "*** NOT LOADED ***"],
+        missionNamespace getVariable ["TLB_CARP_VERSION", "*** NOT LOADED ***"],
         hasInterface, isServer, name player
     ] call _add;
 
@@ -63,36 +63,36 @@ USAFDC_diag = {
         "cargoManifest", "getLoadedCargo", "syncPublish", "syncApply", "syncTick",
         "syncReconcile", "steerTick", "steerBegin", "releaseSelected", "steerPublisher",
         "hasComputer", "canUseCarp"
-    ] select {isNil (format ["USAFDC_fnc_%1", _x])};
+    ] select {isNil (format ["TLB_CARP_fnc_%1", _x])};
     format ["fns missing: %1",
         if ((count _missing) isEqualTo 0) then {"none"} else {_missing}
     ] call _add;
 
     format ["syncPfh %1 | adopted rev %2 by %3 (%4) | wantGuid %5 | wantAuto %6",
-        missionNamespace getVariable ["USAFDC_state_syncPfh", -99],
-        missionNamespace getVariable ["USAFDC_state_syncRev", -99],
-        missionNamespace getVariable ["USAFDC_state_syncAuthor", "?"],
-        missionNamespace getVariable ["USAFDC_state_syncUid", "?"],
-        missionNamespace getVariable ["USAFDC_state_syncWantGuidance", "?"],
-        missionNamespace getVariable ["USAFDC_state_syncWantAuto", "?"]
+        missionNamespace getVariable ["TLB_CARP_state_syncPfh", -99],
+        missionNamespace getVariable ["TLB_CARP_state_syncRev", -99],
+        missionNamespace getVariable ["TLB_CARP_state_syncAuthor", "?"],
+        missionNamespace getVariable ["TLB_CARP_state_syncUid", "?"],
+        missionNamespace getVariable ["TLB_CARP_state_syncWantGuidance", "?"],
+        missionNamespace getVariable ["TLB_CARP_state_syncWantAuto", "?"]
     ] call _add;
 
     // Access. A client without a CARP Computer (when the mission requires one) neither
     // adopts nor publishes, which from the other seat looks exactly like broken sync.
     format ["access: computer %1 | required %2 | can use %3",
-        if (isNil "USAFDC_fnc_hasComputer") then {"?"} else {[player] call USAFDC_fnc_hasComputer},
-        missionNamespace getVariable ["USAFDC_setting_requireComputer", "?"],
-        if (isNil "USAFDC_fnc_canUseCarp" || {isNull _v}) then {"?"} else {[player, _v] call USAFDC_fnc_canUseCarp}
+        if (isNil "TLB_CARP_fnc_hasComputer") then {"?"} else {[player] call TLB_CARP_fnc_hasComputer},
+        missionNamespace getVariable ["TLB_CARP_setting_requireComputer", "?"],
+        if (isNil "TLB_CARP_fnc_canUseCarp" || {isNull _v}) then {"?"} else {[player, _v] call TLB_CARP_fnc_canUseCarp}
     ] call _add;
 
     format ["MY state: dz %1 | mode %2 | agl %3 | gs %4 | runIn %5 @ %6 | guidance %7",
-        missionNamespace getVariable ["USAFDC_state_dzName", "?"],
-        missionNamespace getVariable ["USAFDC_state_mode", "?"],
-        round (missionNamespace getVariable ["USAFDC_state_targetAglM", -1]),
-        round (missionNamespace getVariable ["USAFDC_state_targetGroundSpeedKmh", -1]),
-        missionNamespace getVariable ["USAFDC_state_runInLocked", "?"],
-        round (missionNamespace getVariable ["USAFDC_state_runInDeg", -1]),
-        missionNamespace getVariable ["USAFDC_state_guidanceArmed", "?"]
+        missionNamespace getVariable ["TLB_CARP_state_dzName", "?"],
+        missionNamespace getVariable ["TLB_CARP_state_mode", "?"],
+        round (missionNamespace getVariable ["TLB_CARP_state_targetAglM", -1]),
+        round (missionNamespace getVariable ["TLB_CARP_state_targetGroundSpeedKmh", -1]),
+        missionNamespace getVariable ["TLB_CARP_state_runInLocked", "?"],
+        round (missionNamespace getVariable ["TLB_CARP_state_runInDeg", -1]),
+        missionNamespace getVariable ["TLB_CARP_state_guidanceArmed", "?"]
     ] call _add;
 
     if (isNull _v) exitWith {
@@ -104,13 +104,13 @@ USAFDC_diag = {
     // Where edits are merged. Without CARP on the server each client merges for itself,
     // and edits made in the same instant can overwrite each other.
     format ["server CARP: %1",
-        missionNamespace getVariable ["USAFDC_serverVersion", "NOT RUNNING -- clients merge for themselves"]
+        missionNamespace getVariable ["TLB_CARP_serverVersion", "NOT RUNNING -- clients merge for themselves"]
     ] call _add;
 
     // The shared record. If the pilot publishes and this stays NONE on the co-pilot, the
     // edit never reached the server or the record never came back. Two seats showing
     // different revs are out of sync; the same rev on both means they hold one record.
-    private _record = _v getVariable ["USAFDC_carpRecord", []];
+    private _record = _v getVariable ["TLB_CARP_carpRecord", []];
     format ["AIRCRAFT %1 | local %2 | driver %3",
         typeOf _v, local _v, if (isNull (driver _v)) then {"-"} else {name (driver _v)}
     ] call _add;
@@ -124,7 +124,7 @@ USAFDC_diag = {
         }
     ] call _add;
     // The v0.7.0-v0.8.x record. Present only if a crew member is running an old build.
-    private _intent = _v getVariable ["USAFDC_carpIntent", []];
+    private _intent = _v getVariable ["TLB_CARP_carpIntent", []];
     if ((count _intent) >= 16) then {
         format ["LEGACY intent from %1 (seq %2) -- that player is on a CARP older than v0.9.0", _intent # 1, _intent # 0] call _add;
     };
@@ -142,12 +142,12 @@ USAFDC_diag = {
     format ["getVehicleCargo  %1 %2", count _viv,  _viv  call _names] call _add;
     format ["attachedObjects  %1 %2", count _att,  _att  call _names] call _add;
 
-    private _manifest = if (isNil "USAFDC_fnc_getLoadedCargo") then {[]} else {
-        [_v] call USAFDC_fnc_getLoadedCargo
+    private _manifest = if (isNil "TLB_CARP_fnc_getLoadedCargo") then {[]} else {
+        [_v] call TLB_CARP_fnc_getLoadedCargo
     };
     format ["CARP MANIFEST    %1 %2", count _manifest, _manifest call _names] call _add;
     {
-        format ["   %1 source=%2", typeOf _x, _x getVariable ["USAFDC_cargoSource", "?"]] call _add;
+        format ["   %1 source=%2", typeOf _x, _x getVariable ["TLB_CARP_cargoSource", "?"]] call _add;
     } forEach _manifest;
 
     // Anything physically in or beside the aircraft that NO mechanism claims. A car Zeus
@@ -170,6 +170,6 @@ USAFDC_diag = {
     _out
 };
 
-USAFDC_diag2 = USAFDC_diag;
-systemChat "CARP diagnostic loaded. Run:  [] call USAFDC_diag;";
+TLB_CARP_diag2 = TLB_CARP_diag;
+systemChat "CARP diagnostic loaded. Run:  [] call TLB_CARP_diag;";
 true

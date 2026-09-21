@@ -74,6 +74,6 @@ back to placeholders first if you want it to do the work.
 
 The description quotes measured numbers. If a figure changes in the mod's own records,
 change it here too. Every figure traces to a `*Source` note in `calibration/model.json`
-or to a flown `USAFDC_CAL_V3` record; the accuracy claims are the flown v1.0.0 drops,
+or to a flown `TLB_CARP_CAL_V3` record; the accuracy claims are the flown v1.0.0 drops,
 19.3 m and 21.1 m radial, and the guided figures carry the caveat that they were measured
 with the steering running on a client rather than a dedicated server.

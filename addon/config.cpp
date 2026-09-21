@@ -1,9 +1,9 @@
 class CfgPatches
 {
-	class usafdc_drop_computer
+	class tlb_carp_system
 	{
-		name="USAF CARP (Computed Air Release Point) System";
-		author="USAF CARP Project";
+		name="TLB CARP (Computed Air Release Point) System";
+		author="TLB MilSim";
 		requiredVersion=2.1199999;
 		// USAF_Cargo was required here until v0.12.1. v0.10.0 moved the whole release
 		// sequence into fn_releaseCargo, so nothing in CARP needs USAF at runtime any
@@ -24,12 +24,12 @@ class CfgPatches
 };
 class CfgFunctions
 {
-	class USAFDC
+	class TLB_CARP
 	{
-		tag="USAFDC";
+		tag="TLB_CARP";
 		class lifecycle
 		{
-			file="\x\usafdc\addons\drop_computer\functions";
+			file="\x\tlbcarp\addons\drop_computer\functions";
 			class preInit
 			{
 				preInit=1;
@@ -41,7 +41,7 @@ class CfgFunctions
 		};
 		class generated
 		{
-			file="\x\usafdc\addons\drop_computer\functions\generated";
+			file="\x\tlbcarp\addons\drop_computer\functions\generated";
 			class getModel
 			{
 			};
@@ -51,7 +51,7 @@ class CfgFunctions
 		};
 		class dz
 		{
-			file="\x\usafdc\addons\drop_computer\functions\dz";
+			file="\x\tlbcarp\addons\drop_computer\functions\dz";
 			class getMissionDZs
 			{
 			};
@@ -67,7 +67,7 @@ class CfgFunctions
 		};
 		class aircraft
 		{
-			file="\x\usafdc\addons\drop_computer\functions\aircraft";
+			file="\x\tlbcarp\addons\drop_computer\functions\aircraft";
 			class resolveAircraftProfile
 			{
 			};
@@ -83,7 +83,7 @@ class CfgFunctions
 		};
 		class ui
 		{
-			file="\x\usafdc\addons\drop_computer\functions\ui";
+			file="\x\tlbcarp\addons\drop_computer\functions\ui";
 			class openPanel
 			{
 			};
@@ -99,7 +99,7 @@ class CfgFunctions
 		};
 		class auto
 		{
-			file="\x\usafdc\addons\drop_computer\functions\auto";
+			file="\x\tlbcarp\addons\drop_computer\functions\auto";
 			class armAutoDrop
 			{
 			};
@@ -118,7 +118,7 @@ class CfgFunctions
 		};
 		class guidance
 		{
-			file="\x\usafdc\addons\drop_computer\functions\guidance";
+			file="\x\tlbcarp\addons\drop_computer\functions\guidance";
 			class buildWorldSolution
 			{
 			};
@@ -155,7 +155,7 @@ class CfgFunctions
 		};
 		class solver
 		{
-			file="\x\usafdc\addons\drop_computer\functions\solver";
+			file="\x\tlbcarp\addons\drop_computer\functions\solver";
 			class basisFromHeading
 			{
 			};
@@ -174,7 +174,7 @@ class CfgFunctions
 		};
 		class debug
 		{
-			file="\x\usafdc\addons\drop_computer\functions\debug";
+			file="\x\tlbcarp\addons\drop_computer\functions\debug";
 			class runSolverSelfTest
 			{
 			};
@@ -224,13 +224,13 @@ class RscButton;
 class RscCheckBox;
 class RscEdit;
 class RscStructuredText;
-class USAFDC_RscDialog: RscDisplayEmpty
+class TLB_CARP_RscDialog: RscDisplayEmpty
 {
 	idd=9300;
 	movingEnable=0;
 	enableSimulation=1;
-	onLoad="uiNamespace setVariable ['USAFDC_display', _this # 0]; [] spawn {uiSleep 0.01; [] call USAFDC_fnc_refreshPanel};";
-	onUnload="uiNamespace setVariable ['USAFDC_display', displayNull];";
+	onLoad="uiNamespace setVariable ['TLB_CARP_display', _this # 0]; [] spawn {uiSleep 0.01; [] call TLB_CARP_fnc_refreshPanel};";
+	onUnload="uiNamespace setVariable ['TLB_CARP_display', displayNull];";
 	class controlsBackground
 	{
 		class Background: RscText
@@ -320,7 +320,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			font="RobotoCondensed";
 			sizeEx=0.030;
 			colorText[]={0.910,0.929,0.941,1};
-			onLBSelChanged="if (!USAFDC_state_panelRefreshing) then {private _m=(_this#0) lbData (_this#1); if (_m!='') then {private _d=[] call USAFDC_fnc_getMissionDZs; private _i=_d findIf {(_x#0) isEqualTo _m}; if (_i>=0) then {[(_d#_i)#2, (_d#_i)#1] call USAFDC_fnc_setDZ}; [] call USAFDC_fnc_refreshPanel}}";
+			onLBSelChanged="if (!TLB_CARP_state_panelRefreshing) then {private _m=(_this#0) lbData (_this#1); if (_m!='') then {private _d=[] call TLB_CARP_fnc_getMissionDZs; private _i=_d findIf {(_x#0) isEqualTo _m}; if (_i>=0) then {[(_d#_i)#2, (_d#_i)#1] call TLB_CARP_fnc_setDZ}; [] call TLB_CARP_fnc_refreshPanel}}";
 		};
 		class MapDZ: RscButton
 		{
@@ -333,7 +333,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			font="RobotoCondensedBold";
 			sizeEx=0.028;
 			colorText[]={0.341,0.886,0.604,1};
-			action="private _d=findDisplay 9300; if (!isNull _d) then {_d closeDisplay 2}; [] call USAFDC_fnc_beginMapDZ";
+			action="private _d=findDisplay 9300; if (!isNull _d) then {_d closeDisplay 2}; [] call TLB_CARP_fnc_beginMapDZ";
 		};
 		class ClearDZ: RscButton
 		{
@@ -346,7 +346,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			font="RobotoCondensedBold";
 			sizeEx=0.028;
 			colorText[]={0.553,0.604,0.639,1};
-			action="[] call USAFDC_fnc_clearDZ; [] call USAFDC_fnc_refreshPanel";
+			action="[] call TLB_CARP_fnc_clearDZ; [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class SecMISSION: RscText
 		{
@@ -397,7 +397,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			font="RobotoCondensed";
 			sizeEx=0.030;
 			colorText[]={0.910,0.929,0.941,1};
-			onLBSelChanged="if (!USAFDC_state_panelRefreshing) then {private _v=(_this#0) lbData (_this#1); if (_v in ['TOUCHDOWN','CHUTE','JUMP']) then {[] call USAFDC_fnc_disarmAutoDrop; USAFDC_state_mode=_v; USAFDC_state_dropLatched=false}; [] call USAFDC_fnc_refreshPanel}";
+			onLBSelChanged="if (!TLB_CARP_state_panelRefreshing) then {private _v=(_this#0) lbData (_this#1); if (_v in ['TOUCHDOWN','CHUTE','JUMP']) then {[] call TLB_CARP_fnc_disarmAutoDrop; TLB_CARP_state_mode=_v; TLB_CARP_state_dropLatched=false}; [] call TLB_CARP_fnc_refreshPanel}";
 		};
 		class AircraftLabel: RscText
 		{
@@ -422,7 +422,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			font="RobotoCondensed";
 			sizeEx=0.030;
 			colorText[]={0.910,0.929,0.941,1};
-			onLBSelChanged="if (!USAFDC_state_panelRefreshing) then {[] call USAFDC_fnc_disarmAutoDrop; USAFDC_state_profileOverride=(_this#0) lbData (_this#1); USAFDC_state_dropLatched=false; [] call USAFDC_fnc_refreshPanel}";
+			onLBSelChanged="if (!TLB_CARP_state_panelRefreshing) then {[] call TLB_CARP_fnc_disarmAutoDrop; TLB_CARP_state_profileOverride=(_this#0) lbData (_this#1); TLB_CARP_state_dropLatched=false; [] call TLB_CARP_fnc_refreshPanel}";
 		};
 		class TargetAglLabel: RscText
 		{
@@ -485,7 +485,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			font="RobotoCondensedBold";
 			sizeEx=0.028;
 			colorText[]={0.341,0.886,0.604,1};
-			action="USAFDC_state_targetAglM=(parseNumber ctrlText ((findDisplay 9300) displayCtrl 9320)) max 300; USAFDC_state_targetGroundSpeedKmh=(parseNumber ctrlText ((findDisplay 9300) displayCtrl 9321)) max 100; [] call USAFDC_fnc_refreshPanel";
+			action="TLB_CARP_state_targetAglM=(parseNumber ctrlText ((findDisplay 9300) displayCtrl 9320)) max 300; TLB_CARP_state_targetGroundSpeedKmh=(parseNumber ctrlText ((findDisplay 9300) displayCtrl 9321)) max 100; [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class SecENVIRONMENT: RscText
 		{
@@ -536,7 +536,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			font="RobotoCondensed";
 			sizeEx=0.030;
 			colorText[]={0.910,0.929,0.941,1};
-			onCheckedChanged="if (!USAFDC_state_panelRefreshing) then {USAFDC_state_manualWind=(_this#1) isEqualTo 1; [] call USAFDC_fnc_refreshPanel}";
+			onCheckedChanged="if (!TLB_CARP_state_panelRefreshing) then {TLB_CARP_state_manualWind=(_this#1) isEqualTo 1; [] call TLB_CARP_fnc_refreshPanel}";
 		};
 		class WindSpeed: RscEdit
 		{
@@ -573,7 +573,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			font="RobotoCondensedBold";
 			sizeEx=0.028;
 			colorText[]={0.341,0.886,0.604,1};
-			action="USAFDC_state_manualWindMs=0 max parseNumber ctrlText ((findDisplay 9300) displayCtrl 9306); USAFDC_state_manualWindFromDeg=(parseNumber ctrlText ((findDisplay 9300) displayCtrl 9307)) mod 360; [] call USAFDC_fnc_refreshPanel";
+			action="TLB_CARP_state_manualWindMs=0 max parseNumber ctrlText ((findDisplay 9300) displayCtrl 9306); TLB_CARP_state_manualWindFromDeg=(parseNumber ctrlText ((findDisplay 9300) displayCtrl 9307)) mod 360; [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class SecJUMPRUN: RscText
 		{
@@ -663,7 +663,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			sizeEx=0.028;
 			colorText[]={0.957,0.757,0.365,1};
 			tooltip="Arm or disarm the HALO exit cue: computed exit point, audible countdown and the jumplight. Was an ACE interaction until v0.15.0.";
-			action="if (USAFDC_state_jumpArmed) then {['PILOT DISARM'] call USAFDC_fnc_disarmJumpRun} else {[] call USAFDC_fnc_armJumpRun}; [] call USAFDC_fnc_refreshPanel";
+			action="if (TLB_CARP_state_jumpArmed) then {['PILOT DISARM'] call TLB_CARP_fnc_disarmJumpRun} else {[] call TLB_CARP_fnc_armJumpRun}; [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class SecCARGO: RscText
 		{
@@ -714,7 +714,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			font="RobotoCondensed";
 			sizeEx=0.030;
 			colorText[]={0.910,0.929,0.941,1};
-			onLBSelChanged="if (!USAFDC_state_panelRefreshing) then {[] call USAFDC_fnc_disarmAutoDrop; USAFDC_state_cargoCount=parseNumber ((_this#0) lbData (_this#1)); USAFDC_state_dropLatched=false; [] call USAFDC_fnc_refreshPanel}";
+			onLBSelChanged="if (!TLB_CARP_state_panelRefreshing) then {[] call TLB_CARP_fnc_disarmAutoDrop; TLB_CARP_state_cargoCount=parseNumber ((_this#0) lbData (_this#1)); TLB_CARP_state_dropLatched=false; [] call TLB_CARP_fnc_refreshPanel}";
 		};
 		class Jpads: RscButton
 		{
@@ -728,7 +728,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			sizeEx=0.028;
 			colorText[]={0.910,0.929,0.941,1};
 			tooltip="Steer the cargo canopy onto the drop zone after the chute opens. A stick is spread along the run-in rather than steered onto one point. Shared with the crew.";
-			action="USAFDC_state_jpadsEnabled=!(missionNamespace getVariable ['USAFDC_state_jpadsEnabled',false]); [] call USAFDC_fnc_refreshPanel";
+			action="TLB_CARP_state_jpadsEnabled=!(missionNamespace getVariable ['TLB_CARP_state_jpadsEnabled',false]); [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class Smoke: RscButton
 		{
@@ -742,7 +742,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			sizeEx=0.028;
 			colorText[]={0.910,0.929,0.941,1};
 			tooltip="Mark the released load with a coloured smoke shell under canopy, re-lit as each burns out. Shared with the crew.";
-			action="USAFDC_state_smokeEnabled=!(missionNamespace getVariable ['USAFDC_state_smokeEnabled',true]); [] call USAFDC_fnc_refreshPanel";
+			action="TLB_CARP_state_smokeEnabled=!(missionNamespace getVariable ['TLB_CARP_state_smokeEnabled',true]); [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class RuleActions: RscText
 		{
@@ -769,7 +769,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			sizeEx=0.028;
 			colorText[]={0.910,0.929,0.941,1};
 			tooltip="Lock the aircraft's current ground track as the required drop heading.";
-			action="if (USAFDC_state_runInLocked) then {[] call USAFDC_fnc_unlockRunIn} else {[] call USAFDC_fnc_lockRunIn}; [] call USAFDC_fnc_refreshPanel";
+			action="if (TLB_CARP_state_runInLocked) then {[] call TLB_CARP_fnc_unlockRunIn} else {[] call TLB_CARP_fnc_lockRunIn}; [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class Guidance: RscButton
 		{
@@ -783,7 +783,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			sizeEx=0.028;
 			colorText[]={0.957,0.757,0.365,1};
 			tooltip="Start solving and drawing the release point.";
-			action="if (USAFDC_state_guidanceArmed) then {[] call USAFDC_fnc_disarmGuidance} else {[] call USAFDC_fnc_armGuidance}; [] call USAFDC_fnc_refreshPanel";
+			action="if (TLB_CARP_state_guidanceArmed) then {[] call TLB_CARP_fnc_disarmGuidance} else {[] call TLB_CARP_fnc_armGuidance}; [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class Autopilot: RscButton
 		{
@@ -797,7 +797,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			sizeEx=0.028;
 			colorText[]={0.910,0.929,0.941,1};
 			tooltip="Fly the locked run-in at the target altitude and speed. Driver only.";
-			action="if (missionNamespace getVariable ['USAFDC_state_apArmed',false]) then {['USER',false] call USAFDC_fnc_disarmAutopilot} else {[] call USAFDC_fnc_armAutopilot}; [] call USAFDC_fnc_refreshPanel";
+			action="if (missionNamespace getVariable ['TLB_CARP_state_apArmed',false]) then {['USER',false] call TLB_CARP_fnc_disarmAutopilot} else {[] call TLB_CARP_fnc_armAutopilot}; [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class AutoDrop: RscButton
 		{
@@ -811,7 +811,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 			sizeEx=0.028;
 			colorText[]={0.898,0.302,0.251,1};
 			tooltip="Release automatically at the computed release point.";
-			action="if !(isNil 'USAFDC_fnc_armAutoDrop') then {if (USAFDC_state_autoArmed) then {[] call USAFDC_fnc_disarmAutoDrop} else {[] call USAFDC_fnc_armAutoDrop}}; [] call USAFDC_fnc_refreshPanel";
+			action="if !(isNil 'TLB_CARP_fnc_armAutoDrop') then {if (TLB_CARP_state_autoArmed) then {[] call TLB_CARP_fnc_disarmAutoDrop} else {[] call TLB_CARP_fnc_armAutoDrop}}; [] call TLB_CARP_fnc_refreshPanel";
 		};
 		class Close: RscButton
 		{
@@ -830,7 +830,7 @@ class USAFDC_RscDialog: RscDisplayEmpty
 };
 class RscTitles
 {
-	class USAFDC_HUD
+	class TLB_CARP_HUD
 	{
 		idd=-1;
 		movingEnable=0;
@@ -838,8 +838,8 @@ class RscTitles
 		fadeIn=0;
 		fadeOut=0;
 		duration=1e+010;
-		onLoad="uiNamespace setVariable ['USAFDC_HUD_display', _this # 0]; uiNamespace setVariable ['USAFDC_HUD_STEER', (_this # 0) displayCtrl 9402];";
-		onUnload="uiNamespace setVariable ['USAFDC_HUD_display', displayNull]; uiNamespace setVariable ['USAFDC_HUD_STEER', controlNull];";
+		onLoad="uiNamespace setVariable ['TLB_CARP_HUD_display', _this # 0]; uiNamespace setVariable ['TLB_CARP_HUD_STEER', (_this # 0) displayCtrl 9402];";
+		onUnload="uiNamespace setVariable ['TLB_CARP_HUD_display', displayNull]; uiNamespace setVariable ['TLB_CARP_HUD_STEER', controlNull];";
 		class controls
 		{
 			class Guidance: RscStructuredText

@@ -1,5 +1,5 @@
 /*
-    USAFDC_fnc_buildJumpSolution
+    TLB_CARP_fnc_buildJumpSolution
 
     Where a jumper must leave the aircraft to reach the DZ, and whether the profile
     they have asked for can reach it at all.
@@ -13,12 +13,12 @@
          chute. A human falls at 64 m/s under a canopy with an air glide ratio of
          1.27. None of those numbers transfer, and calibration/model.json is a
          protected asset that unrelated work must not touch.
-      3. USAFDC_state_solution is the live authoritative CARGO state. Writing jump
+      3. TLB_CARP_state_solution is the live authoritative CARGO state. Writing jump
          geometry into it would make an invalid cargo solver look valid to
          operational logic, which is explicitly not how display problems get fixed
          in this codebase.
 
-    Returns its own hashmap; the caller stores it in USAFDC_state_jumpSolution.
+    Returns its own hashmap; the caller stores it in TLB_CARP_state_jumpSolution.
 
     ---------------------------------------------------------------------------
     THE MODEL, and the four flown runs behind it
@@ -57,7 +57,7 @@
     CAVEAT that belongs in the cockpit, not just here: the recovery budget IS the
     jumper's freefall tracking plus canopy glide. A stick that exits and simply
     falls has neither, and the 0.9x throw then carries them along the run-in
-    uncorrected. USAFDC_setting_jumpTrackOffsetM exists for that case and defaults
+    uncorrected. TLB_CARP_setting_jumpTrackOffsetM exists for that case and defaults
     to 0.
 */
 
@@ -106,18 +106,18 @@ private _fail = {
 };
 
 if (isNull _aircraft) exitWith {["NO AIRCRAFT"] call _fail};
-if ((count USAFDC_state_dzPosASL) < 3) exitWith {["NO DZ SET"] call _fail};
-if (!USAFDC_state_runInLocked) exitWith {["RUN-IN UNLOCKED"] call _fail};
+if ((count TLB_CARP_state_dzPosASL) < 3) exitWith {["NO DZ SET"] call _fail};
+if (!TLB_CARP_state_runInLocked) exitWith {["RUN-IN UNLOCKED"] call _fail};
 
-private _dz = USAFDC_state_dzPosASL;
+private _dz = TLB_CARP_state_dzPosASL;
 private _acPos = getPosASL _aircraft;
 private _vel = velocity _aircraft;
 private _groundSpeedMs = sqrt (((_vel # 0) ^ 2) + ((_vel # 1) ^ 2));
 private _exitAgl = (getPosATL _aircraft) # 2;
 // Panel first, Addon Option as the mission default. 0 means the crew has not overridden
 // it, not "open at ground level".
-private _openAgl = missionNamespace getVariable ["USAFDC_state_jumpOpenAglM", 0];
-if (_openAgl <= 0) then {_openAgl = missionNamespace getVariable ["USAFDC_setting_jumpOpenAglM", 600]};
+private _openAgl = missionNamespace getVariable ["TLB_CARP_state_jumpOpenAglM", 0];
+if (_openAgl <= 0) then {_openAgl = missionNamespace getVariable ["TLB_CARP_setting_jumpOpenAglM", 600]};
 
 if (_exitAgl <= (_openAgl + JUMP_CANOPY_TRANSIENT_M)) exitWith {
     ["BELOW OPENING ALTITUDE"] call _fail
@@ -142,7 +142,7 @@ private _driftM = _windMs * _freefallS;
 private _exitE = (_dz # 0) - (_windE * _freefallS);
 private _exitN = (_dz # 1) - (_windN * _freefallS);
 
-private _runInDeg = USAFDC_state_runInDeg;
+private _runInDeg = TLB_CARP_state_runInDeg;
 private _tE = sin _runInDeg;
 private _tN = cos _runInDeg;
 
@@ -163,7 +163,7 @@ private _tN = cos _runInDeg;
 // forward throw it is exact -- pure geometry, no measurement in it. The throw stays
 // out of the computation because three flown residuals (520 m at 208.3 m/s, 604 m and
 // 529 m at ~125 m/s) show it is dominated by how the jumper flies, not by exit speed:
-// two runs at the SAME exit speed differed by 75 m. USAFDC_setting_jumpTrackOffsetM
+// two runs at the SAME exit speed differed by 75 m. TLB_CARP_setting_jumpTrackOffsetM
 // is there for anyone who wants to bias for it by hand.
 // ---- the asymmetry that decides everything -----------------------------------
 // The exit point sits UPWIND of the DZ, so an exit error has a SIGN, and the two
@@ -190,11 +190,11 @@ private _canopyTimeS = ((_openAgl - JUMP_CANOPY_TRANSIENT_M) max 0) / JUMP_CANOP
 private _downwindRecoveryM = (JUMP_CANOPY_AIRSPEED_MS + _windMs) * _canopyTimeS;
 private _upwindRecoveryM = ((JUMP_CANOPY_AIRSPEED_MS - _windMs) max 0) * _canopyTimeS;
 
-private _stickCount = missionNamespace getVariable ["USAFDC_state_jumpStickCount", 0];
+private _stickCount = missionNamespace getVariable ["TLB_CARP_state_jumpStickCount", 0];
 if (_stickCount < 1) then {
-    _stickCount = (missionNamespace getVariable ["USAFDC_setting_jumpStickCount", 1]) max 1;
+    _stickCount = (missionNamespace getVariable ["TLB_CARP_setting_jumpStickCount", 1]) max 1;
 };
-private _stickIntervalS = missionNamespace getVariable ["USAFDC_setting_jumpStickIntervalS", 1];
+private _stickIntervalS = missionNamespace getVariable ["TLB_CARP_setting_jumpStickIntervalS", 1];
 private _stickDurationS = (_stickCount - 1) * _stickIntervalS;
 private _stickLengthM = _stickDurationS * _groundSpeedMs;
 
@@ -207,8 +207,8 @@ private _stickLengthM = _stickDurationS * _groundSpeedMs;
 // early -- they went on the count rather than the light. The two err in opposite
 // directions so there is no lead to compute, but there is every reason to put the
 // spread on the recoverable side.
-private _trackOffsetM = missionNamespace getVariable ["USAFDC_setting_jumpTrackOffsetM", 0];
-private _earlyBiasM = missionNamespace getVariable ["USAFDC_setting_jumpEarlyBiasM", 250];
+private _trackOffsetM = missionNamespace getVariable ["TLB_CARP_setting_jumpTrackOffsetM", 0];
+private _earlyBiasM = missionNamespace getVariable ["TLB_CARP_setting_jumpEarlyBiasM", 250];
 private _leadM = _trackOffsetM + _stickLengthM + _earlyBiasM;
 _exitE = _exitE - (_tE * _leadM);
 _exitN = _exitN - (_tN * _leadM);

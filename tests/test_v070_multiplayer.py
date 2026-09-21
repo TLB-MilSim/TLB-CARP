@@ -70,7 +70,7 @@ AP_UPDATE = "addon/functions/autopilot/fn_updateAutopilot.sqf"
 AP_ARM = "addon/functions/autopilot/fn_armAutopilot.sqf"
 POSTINIT = "addon/functions/fn_postInit.sqf"
 # The PBO-internal path prefix the compile table uses, with single backslashes.
-SYNC_PREFIX = "\\x\\usafdc\\addons\\drop_computer\\functions\\sync\\"
+SYNC_PREFIX = "\\x\\tlbcarp\\addons\\drop_computer\\functions\\sync\\"
 
 
 class AutopilotActuationRateTests(unittest.TestCase):
@@ -78,8 +78,8 @@ class AutopilotActuationRateTests(unittest.TestCase):
 
     def test_actuation_is_throttled_against_the_wall_clock(self):
         src = code(AP_UPDATE)
-        self.assertIn("USAFDC_state_apLastActuateTick", src)
-        self.assertIn('missionNamespace getVariable ["USAFDC_setting_updateInterval", 0.05]', src)
+        self.assertIn("TLB_CARP_state_apLastActuateTick", src)
+        self.assertIn('missionNamespace getVariable ["TLB_CARP_setting_updateInterval", 0.05]', src)
         self.assertIn("(_interval * 0.9)", src)
 
     def test_throttle_returns_without_stamping_the_tick_used_for_dt(self):
@@ -91,15 +91,15 @@ class AutopilotActuationRateTests(unittest.TestCase):
         per second -- the AP would turn several times too slowly.
         """
         src = code(AP_UPDATE)
-        guard = src[src.index("USAFDC_state_apLastActuateTick"):src.index("private _dt =")]
+        guard = src[src.index("TLB_CARP_state_apLastActuateTick"):src.index("private _dt =")]
         self.assertIn("exitWith", guard)
-        self.assertNotIn("USAFDC_state_apLastTick =", guard)
+        self.assertNotIn("TLB_CARP_state_apLastTick =", guard)
 
     def test_orientation_write_requires_a_free_frame(self):
         """The engine needs a frame in which nothing re-seats the transform."""
         src = code(AP_UPDATE)
         self.assertIn("diag_frameNo", src)
-        self.assertIn("USAFDC_state_apLastDirFrame", src)
+        self.assertIn("TLB_CARP_state_apLastDirFrame", src)
         self.assertIn(">= 2", src)
 
     def test_velocity_is_still_commanded_on_every_actuation(self):
@@ -129,12 +129,12 @@ class AutopilotActuationRateTests(unittest.TestCase):
         self.assertEqual(depth(setdir), 2, "setDir is not inside the frame-gap block")
         self.assertEqual(depth(setvel), 1, "setVelocity must run on every legacy actuation")
         # And the legacy path must remain reachable, or the fallback is a fiction.
-        self.assertIn('missionNamespace getVariable ["USAFDC_setting_apForceMode", true]', src)
+        self.assertIn('missionNamespace getVariable ["TLB_CARP_setting_apForceMode", true]', src)
 
     def test_rate_limit_state_is_initialised_and_reset_on_arm(self):
         post = code(POSTINIT)
         arm = code(AP_ARM)
-        for name in ["USAFDC_state_apLastActuateTick", "USAFDC_state_apLastDirFrame"]:
+        for name in ["TLB_CARP_state_apLastActuateTick", "TLB_CARP_state_apLastDirFrame"]:
             self.assertIn(f"{name} = -1;", post)
             self.assertIn(f"{name} = -1;", arm)
 
@@ -144,7 +144,7 @@ class AutopilotArmGateTests(unittest.TestCase):
         """exitWith leaves only the innermost scope, and a then-block is a scope.
 
         Nested inside `if !(isNil ...) then {...}`, the refusal hinted "valid path
-        required" and then fell through to USAFDC_state_apArmed = true, so the pilot
+        required" and then fell through to TLB_CARP_state_apArmed = true, so the pilot
         saw a refusal immediately followed by AP ENGAGED and the stale path solution
         from the previous run survived the arm.
         """
@@ -167,7 +167,7 @@ class AutopilotArmGateTests(unittest.TestCase):
 
     def test_arm_clears_the_ace_interaction_latch(self):
         """A missed ace_interactMenuClosed latches override detection off forever."""
-        self.assertIn("USAFDC_state_apAceInteractOpen = false;", code(AP_ARM))
+        self.assertIn("TLB_CARP_state_apAceInteractOpen = false;", code(AP_ARM))
 
 
 class CrewSyncContractTests(unittest.TestCase):
@@ -188,7 +188,7 @@ class CrewSyncContractTests(unittest.TestCase):
         for rel in self.FILES:
             self.assertTrue((ROOT / rel).exists(), rel)
             name = Path(rel).stem.replace("fn_", "")
-            self.assertIn(f'["USAFDC_fnc_{name}", "{SYNC_PREFIX}{Path(rel).name}"]', post)
+            self.assertIn(f'["TLB_CARP_fnc_{name}", "{SYNC_PREFIX}{Path(rel).name}"]', post)
 
     def test_no_sync_function_has_a_compiled_sibling(self):
         for rel in self.FILES:
@@ -203,26 +203,26 @@ class CrewSyncContractTests(unittest.TestCase):
         """
         src = code("addon/functions/sync/fn_syncSnapshot.sqf")
         for shared in [
-            "USAFDC_state_dzPosASL", "USAFDC_state_dzName", "USAFDC_state_mode",
-            "USAFDC_state_profileOverride", "USAFDC_state_manualWind",
-            "USAFDC_state_targetAglM", "USAFDC_state_targetGroundSpeedKmh",
-            "USAFDC_state_cargoCount", "USAFDC_state_runInLocked", "USAFDC_state_runInDeg",
+            "TLB_CARP_state_dzPosASL", "TLB_CARP_state_dzName", "TLB_CARP_state_mode",
+            "TLB_CARP_state_profileOverride", "TLB_CARP_state_manualWind",
+            "TLB_CARP_state_targetAglM", "TLB_CARP_state_targetGroundSpeedKmh",
+            "TLB_CARP_state_cargoCount", "TLB_CARP_state_runInLocked", "TLB_CARP_state_runInDeg",
         ]:
             self.assertIn(shared, src)
         for derived in [
-            "USAFDC_state_solution", "USAFDC_state_pathSolution",
-            "USAFDC_state_displaySolution", "USAFDC_state_packageTiming",
-            "USAFDC_state_apArmed", "USAFDC_state_lastSignedRpM",
+            "TLB_CARP_state_solution", "TLB_CARP_state_pathSolution",
+            "TLB_CARP_state_displaySolution", "TLB_CARP_state_packageTiming",
+            "TLB_CARP_state_apArmed", "TLB_CARP_state_lastSignedRpM",
         ]:
             self.assertNotIn(derived, src)
 
     def test_snapshot_reports_want_flags_not_live_armed_flags(self):
         """A client that cannot arm must not publish "off" and disarm the crew."""
         src = code("addon/functions/sync/fn_syncSnapshot.sqf")
-        self.assertIn("USAFDC_state_syncWantGuidance", src)
-        self.assertIn("USAFDC_state_syncWantAuto", src)
-        self.assertNotIn("USAFDC_state_guidanceArmed", src)
-        self.assertNotIn("USAFDC_state_autoArmed", src)
+        self.assertIn("TLB_CARP_state_syncWantGuidance", src)
+        self.assertIn("TLB_CARP_state_syncWantAuto", src)
+        self.assertNotIn("TLB_CARP_state_guidanceArmed", src)
+        self.assertNotIn("TLB_CARP_state_autoArmed", src)
 
     def test_tuple_arity_is_consistent_across_publish_and_apply(self):
         """Two metadata fields plus the payload fields (fifteen since v0.10.1)."""
@@ -254,20 +254,20 @@ class CrewSyncContractTests(unittest.TestCase):
         """Airframe-scoped so two crews cannot overwrite each other, and JIP-correct.
         Since v0.9.0 the server's fn_syncMerge is the only machine that writes it."""
         src = code("addon/functions/sync/fn_syncMerge.sqf")
-        self.assertIn('_aircraft setVariable ["USAFDC_carpRecord", _newRecord, true]', src)
-        self.assertIn('["USAFDC_carpRecordChanged", [_aircraft, _newRecord], crew _aircraft] call CBA_fnc_targetEvent', src)
-        self.assertIn('_aircraft getVariable ["USAFDC_carpRecord", []]', code("addon/functions/sync/fn_syncTick.sqf"))
+        self.assertIn('_aircraft setVariable ["TLB_CARP_carpRecord", _newRecord, true]', src)
+        self.assertIn('["TLB_CARP_carpRecordChanged", [_aircraft, _newRecord], crew _aircraft] call CBA_fnc_targetEvent', src)
+        self.assertIn('_aircraft getVariable ["TLB_CARP_carpRecord", []]', code("addon/functions/sync/fn_syncTick.sqf"))
 
     def test_publish_is_guarded_against_echo_and_against_having_no_aircraft(self):
         src = code("addon/functions/sync/fn_syncPublish.sqf")
-        self.assertIn('USAFDC_state_syncApplying', src)
+        self.assertIn('TLB_CARP_state_syncApplying', src)
         self.assertIn("if (isNull _aircraft) exitWith", src)
 
     def test_publish_is_called_only_from_the_two_human_intent_choke_points(self):
         """A polling publisher cannot tell "I changed this" from "I failed to apply
         what someone else changed", and sending the second clobbers the author."""
-        self.assertIn("USAFDC_fnc_syncPublish", code("addon/functions/ui/fn_refreshPanel.sqf"))
-        self.assertIn("USAFDC_fnc_syncPublish", code("addon/functions/dz/fn_setDZ.sqf"))
+        self.assertIn("TLB_CARP_fnc_syncPublish", code("addon/functions/ui/fn_refreshPanel.sqf"))
+        self.assertIn("TLB_CARP_fnc_syncPublish", code("addon/functions/dz/fn_setDZ.sqf"))
         callers = []
         for path in (ROOT / "addon" / "functions").rglob("*.sqf"):
             rel = path.relative_to(ROOT).as_posix()
@@ -275,7 +275,7 @@ class CrewSyncContractTests(unittest.TestCase):
                 continue
             # The compile table in fn_postInit names every function; that is a
             # registration, not a call site.
-            if "call USAFDC_fnc_syncPublish" in code(rel):
+            if "call TLB_CARP_fnc_syncPublish" in code(rel):
                 callers.append(rel)
         self.assertEqual(
             sorted(callers),
@@ -285,54 +285,54 @@ class CrewSyncContractTests(unittest.TestCase):
     def test_apply_uses_the_real_functions_for_side_effecting_values(self):
         """A raw write would skip the marker, the reset and the per-client solver."""
         src = code("addon/functions/sync/fn_syncApply.sqf")
-        self.assertIn("USAFDC_fnc_setDZ", src)
-        self.assertIn("USAFDC_fnc_clearDZ", src)
-        self.assertIn("USAFDC_fnc_unlockRunIn", src)
-        self.assertIn("USAFDC_fnc_syncReconcile", src)
-        self.assertNotIn("USAFDC_state_dzPosASL =", src)
+        self.assertIn("TLB_CARP_fnc_setDZ", src)
+        self.assertIn("TLB_CARP_fnc_clearDZ", src)
+        self.assertIn("TLB_CARP_fnc_unlockRunIn", src)
+        self.assertIn("TLB_CARP_fnc_syncReconcile", src)
+        self.assertNotIn("TLB_CARP_state_dzPosASL =", src)
 
     def test_apply_writes_the_run_in_as_a_number_rather_than_recapturing_it(self):
         """fn_lockRunIn reads this client's own view of the track. On a dedicated
         server the co-pilot's copy is network-interpolated, so two independent captures
         give two final lines against a 2-degree release gate."""
         src = code("addon/functions/sync/fn_syncApply.sqf")
-        self.assertIn("USAFDC_state_runInDeg = _runInDeg;", src)
-        self.assertNotIn("USAFDC_fnc_lockRunIn", src)
+        self.assertIn("TLB_CARP_state_runInDeg = _runInDeg;", src)
+        self.assertNotIn("TLB_CARP_fnc_lockRunIn", src)
 
     def test_a_record_is_adopted_when_it_differs_not_only_when_it_is_newer(self):
         """v0.7.0 dropped any tuple not numbered above a counter each client kept for
         itself, and that counter could run ahead of the aircraft. See
         test_v090_crew_access.AdoptionTests."""
         src = code("addon/functions/sync/fn_syncTick.sqf")
-        self.assertIn("!([_record # 0, _record # 1] isEqualTo [USAFDC_state_syncRev, USAFDC_state_syncUid])", src)
+        self.assertIn("!([_record # 0, _record # 1] isEqualTo [TLB_CARP_state_syncRev, TLB_CARP_state_syncUid])", src)
 
     def test_apply_repaints_an_open_panel(self):
         """Safe to re-enter: refreshPanel raises panelRefreshing and every binarized
         control handler tests it, so a repaint cannot re-fire the handlers."""
         src = code("addon/functions/sync/fn_syncApply.sqf")
         self.assertIn("findDisplay 9300", src)
-        self.assertIn("USAFDC_fnc_refreshPanel", src)
+        self.assertIn("TLB_CARP_fnc_refreshPanel", src)
 
     def test_auto_drop_arm_is_attempted_once_and_never_retried(self):
         """fn_armAutoDrop refuses an RP already behind the aircraft and hints why;
         retrying it on a 5 Hz tick would hint that refusal all the way down the run."""
         src = code("addon/functions/sync/fn_syncReconcile.sqf")
-        self.assertIn("USAFDC_state_syncAutoAttempted", src)
+        self.assertIn("TLB_CARP_state_syncAutoAttempted", src)
 
     def test_guidance_arm_is_probed_before_being_attempted(self):
         """fn_armGuidance hints its failure reason; a 5 Hz retry would paper the
         screen with it."""
         src = code("addon/functions/sync/fn_syncReconcile.sqf")
-        self.assertIn("USAFDC_fnc_buildWorldSolution", src)
+        self.assertIn("TLB_CARP_fnc_buildWorldSolution", src)
         self.assertIn('_probe getOrDefault ["valid", false]', src)
 
     def test_sync_runs_on_its_own_handler_outside_the_guidance_loop(self):
         """Adoption has to work before guidance is armed -- that is exactly when a
         co-pilot needs to pick up the pilot's DZ."""
         post = code(POSTINIT)
-        self.assertIn('USAFDC_state_syncPfh = [{[] call USAFDC_fnc_syncTick}, 0.2, []] call CBA_fnc_addPerFrameHandler;', post)
-        self.assertIn('["USAFDC_carpRecordChanged", {', post)
-        self.assertNotIn("USAFDC_fnc_syncTick", code("addon/functions/guidance/fn_updateGuidance.sqf"))
+        self.assertIn('TLB_CARP_state_syncPfh = [{[] call TLB_CARP_fnc_syncTick}, 0.2, []] call CBA_fnc_addPerFrameHandler;', post)
+        self.assertIn('["TLB_CARP_carpRecordChanged", {', post)
+        self.assertNotIn("TLB_CARP_fnc_syncTick", code("addon/functions/guidance/fn_updateGuidance.sqf"))
 
 
 class CrewAuthorityTests(unittest.TestCase):
@@ -345,7 +345,7 @@ class CrewAuthorityTests(unittest.TestCase):
         a scheduled door animation.
         """
         src = code("addon/functions/auto/fn_triggerAutoDrop.sqf")
-        gate = src[:src.index("USAFDC_state_autoDropCommand")]
+        gate = src[:src.index("TLB_CARP_state_autoDropCommand")]
         self.assertIn("(driver _vehicle) isEqualTo player", gate)
         self.assertIn("exitWith", gate)
 
@@ -357,7 +357,7 @@ class CrewAuthorityTests(unittest.TestCase):
         per-client; scope 1 is server-forced."""
         post = read(POSTINIT)
         for setting in ["hudEnabled", "hudScale", "3dEnabled", "mapTrajectory", "sounds"]:
-            line = [ln for ln in post.splitlines() if f"USAFDC_setting_{setting}" in ln and "CBA_fnc_addSetting" in ln]
+            line = [ln for ln in post.splitlines() if f"TLB_CARP_setting_{setting}" in ln and "CBA_fnc_addSetting" in ln]
             self.assertEqual(len(line), 1, setting)
             self.assertTrue(line[0].rstrip().endswith("0] call CBA_fnc_addSetting;"), setting)
 
@@ -425,9 +425,9 @@ class DedicatedServerLoadTests(unittest.TestCase):
         head = src[:src.index(guard)]
         self.assertIn("CBA_fnc_addSetting", head)
         self.assertIn("compile preprocessFileLineNumbers", head)
-        self.assertIn("USAFDC_state_dzPosASL = [];", head)
-        self.assertIn('["USAFDC_carpRecordChanged", {', head)
-        self.assertIn('["USAFDC_carpPatch", {', head)
+        self.assertIn("TLB_CARP_state_dzPosASL = [];", head)
+        self.assertIn('["TLB_CARP_carpRecordChanged", {', head)
+        self.assertIn('["TLB_CARP_carpPatch", {', head)
 
     def test_everything_needing_a_screen_is_below_the_guard(self):
         src = code(POSTINIT)
@@ -437,7 +437,7 @@ class DedicatedServerLoadTests(unittest.TestCase):
             "CBA_fnc_addKeybind",
             "ace_interact_menu_fnc_createAction",
             'addMissionEventHandler ["Draw3D"',
-            "USAFDC_fnc_syncTick",
+            "TLB_CARP_fnc_syncTick",
         ]:
             self.assertIn(needsScreen, tail, needsScreen)
 
@@ -453,8 +453,8 @@ class DedicatedServerLoadTests(unittest.TestCase):
         src = code(POSTINIT)
         head = src[:src.index("if (!hasInterface) exitWith {")]
         self.assertIn('addMissionEventHandler ["EachFrame"', head)
-        self.assertIn("USAFDC_fnc_steerTick", head)
-        self.assertIn('["USAFDC_steerBegin", {', head)
+        self.assertIn("TLB_CARP_fnc_steerTick", head)
+        self.assertIn('["TLB_CARP_steerBegin", {', head)
 
     def test_the_guard_appears_exactly_once(self):
         self.assertEqual(code(POSTINIT).count("if (!hasInterface) exitWith {"), 1)
@@ -468,7 +468,7 @@ class JumpRunMultiplayerTests(unittest.TestCase):
         times a second for minutes, and each receiver re-coloured the light.
         """
         src = code("addon/functions/jump/fn_setJumpLight.sqf")
-        guard = 'if (_state isEqualTo (missionNamespace getVariable ["USAFDC_state_jumpLightState", ""])) exitWith'
+        guard = 'if (_state isEqualTo (missionNamespace getVariable ["TLB_CARP_state_jumpLightState", ""])) exitWith'
         self.assertIn(guard, src)
         self.assertLess(
             src.index(guard),
@@ -480,7 +480,7 @@ class JumpRunMultiplayerTests(unittest.TestCase):
         src = code("addon/functions/jump/fn_setJumpLight.sqf")
         self.assertLess(
             src.index("CBA_fnc_globalEvent"),
-            src.index("USAFDC_state_jumpLightState = _state;"),
+            src.index("TLB_CARP_state_jumpLightState = _state;"),
         )
 
     def test_arming_claims_the_airframe_not_just_the_client(self):
@@ -490,20 +490,20 @@ class JumpRunMultiplayerTests(unittest.TestCase):
         whole green window and every jumper heard two countdowns.
         """
         arm = code("addon/functions/jump/fn_armJumpRun.sqf")
-        self.assertIn('_aircraft getVariable ["USAFDC_jumpArmedBy", objNull]', arm)
-        self.assertIn('_aircraft setVariable ["USAFDC_jumpArmedBy", player, true]', arm)
+        self.assertIn('_aircraft getVariable ["TLB_CARP_jumpArmedBy", objNull]', arm)
+        self.assertIn('_aircraft setVariable ["TLB_CARP_jumpArmedBy", player, true]', arm)
         self.assertIn("already armed by", arm)
 
     def test_disarm_releases_the_claim_only_if_it_is_ours(self):
         src = code("addon/functions/jump/fn_disarmJumpRun.sqf")
         self.assertIn("_armedBy isEqualTo player", src)
-        self.assertIn('_aircraft setVariable ["USAFDC_jumpArmedBy", objNull, true]', src)
+        self.assertIn('_aircraft setVariable ["TLB_CARP_jumpArmedBy", objNull, true]', src)
 
     def test_the_arm_path_respects_the_claim(self):
         # v0.15.0 moved the control onto the panel, so the ACE condition that mirrored
         # this check is gone. The check itself never lived there -- it is in fn_armJumpRun,
         # which is what actually refuses, and that is the one worth pinning.
-        self.assertIn('getVariable ["USAFDC_jumpArmedBy", objNull]',
+        self.assertIn('getVariable ["TLB_CARP_jumpArmedBy", objNull]',
                       code("addon/functions/jump/fn_armJumpRun.sqf"))
 
 
@@ -515,7 +515,7 @@ class ObserverClientTests(unittest.TestCase):
         src = code("addon/functions/guidance/fn_updateGuidance.sqf")
         self.assertIn("private _authoritative = local _vehicle;", src)
         self.assertIn('_solution set ["authoritative", _authoritative];', src)
-        latch = src[src.index("USAFDC_state_passMissed = true;") - 400:src.index("USAFDC_state_passMissed = true;")]
+        latch = src[src.index("TLB_CARP_state_passMissed = true;") - 400:src.index("TLB_CARP_state_passMissed = true;")]
         self.assertIn("_authoritative", latch)
 
     def test_the_go_around_instruction_is_owner_only(self):
@@ -556,8 +556,8 @@ class SyncEchoGuardTests(unittest.TestCase):
         src = code("addon/functions/ui/fn_openPanel.sqf")
         # v0.9.0 adopts the aircraft's record before the display exists instead of
         # seeding the payload, so the onLoad refresh finds nothing of its own to send.
-        self.assertIn('if !(isNil "USAFDC_fnc_syncTick") then {[] call USAFDC_fnc_syncTick};', src)
-        self.assertLess(src.index("USAFDC_fnc_syncTick"), src.index("createDisplay"))
+        self.assertIn('if !(isNil "TLB_CARP_fnc_syncTick") then {[] call TLB_CARP_fnc_syncTick};', src)
+        self.assertLess(src.index("TLB_CARP_fnc_syncTick"), src.index("createDisplay"))
 
     def test_the_apply_guard_spans_the_panel_repaint(self):
         """fn_refreshPanel publishes. If the guard dropped first, a co-pilot
@@ -566,12 +566,12 @@ class SyncEchoGuardTests(unittest.TestCase):
         """
         src = code("addon/functions/sync/fn_syncApply.sqf")
         self.assertLess(
-            src.index("USAFDC_fnc_refreshPanel"),
-            src.index("USAFDC_state_syncApplying = false;"),
+            src.index("TLB_CARP_fnc_refreshPanel"),
+            src.index("TLB_CARP_state_syncApplying = false;"),
         )
 
     def test_the_cargo_clamp_never_mutates_intent_from_a_non_owner(self):
         src = code("addon/functions/ui/fn_refreshPanel.sqf")
-        clamp = src[src.index("USAFDC_state_cargoCount > _availableCargo"):]
+        clamp = src[src.index("TLB_CARP_state_cargoCount > _availableCargo"):]
         clamp = clamp[:clamp.index("lbClear")]
         self.assertIn("local _cargoVehicle", clamp)

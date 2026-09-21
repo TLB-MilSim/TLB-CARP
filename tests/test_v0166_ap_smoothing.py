@@ -58,7 +58,7 @@ per-frame transform write was added. The turn-rate schedule is untouched.
 
 v0.16.8 NOTE: those transform invariants still hold, but that path is no longer the default.
 The autopilot now flies with forces and never writes the transform at all; the paragraph
-above describes the legacy path, kept behind USAFDC_setting_apForceMode.
+above describes the legacy path, kept behind TLB_CARP_setting_apForceMode.
 """
 from pathlib import Path
 import re
@@ -120,15 +120,15 @@ class CommandedStateTests(unittest.TestCase):
         """Seeding at arm time would go stale if anything changed between the arm and the
         first actuation. The sentinel makes the first tick do it."""
         src = code(ARM)
-        self.assertIn("USAFDC_state_apCmdSpeedMs = -1;", src)
-        self.assertIn("USAFDC_state_apCmdVzMs = -1e9;", src)
+        self.assertIn("TLB_CARP_state_apCmdSpeedMs = -1;", src)
+        self.assertIn("TLB_CARP_state_apCmdVzMs = -1e9;", src)
 
     def test_the_state_is_initialised_at_load(self):
         """An unset command reads nil, and nil in the arithmetic above throws inside the AP
         on every frame."""
         src = read(POSTINIT)
-        self.assertIn("USAFDC_state_apCmdSpeedMs = -1;", src)
-        self.assertIn("USAFDC_state_apCmdVzMs = -1e9;", src)
+        self.assertIn("TLB_CARP_state_apCmdSpeedMs = -1;", src)
+        self.assertIn("TLB_CARP_state_apCmdVzMs = -1e9;", src)
 
 
 class RatesAreTunableTests(unittest.TestCase):
@@ -137,8 +137,8 @@ class RatesAreTunableTests(unittest.TestCase):
         flight -- but these are set before a sortie, not during one, so a setting is the
         right home rather than a panel field."""
         src = read(POSTINIT)
-        self.assertIn('["USAFDC_setting_apAccelMs2", "SLIDER"', src)
-        self.assertIn('["USAFDC_setting_apVzRateMs2", "SLIDER"', src)
+        self.assertIn('["TLB_CARP_setting_apAccelMs2", "SLIDER"', src)
+        self.assertIn('["TLB_CARP_setting_apVzRateMs2", "SLIDER"', src)
 
     def test_the_defaults_are_a_transport_not_a_fighter(self):
         """1.5 m/s2 is roughly a loaded transport shedding speed on idle thrust; 2.5 m/s2 of
@@ -151,8 +151,8 @@ class RatesAreTunableTests(unittest.TestCase):
         """A setting whose default disagrees with the code's fallback gives two different
         aircraft depending on whether CBA has initialised yet."""
         src = code(AP)
-        self.assertIn('getVariable ["USAFDC_setting_apAccelMs2", 1.5]', src)
-        self.assertIn('getVariable ["USAFDC_setting_apVzRateMs2", 2.5]', src)
+        self.assertIn('getVariable ["TLB_CARP_setting_apAccelMs2", 1.5]', src)
+        self.assertIn('getVariable ["TLB_CARP_setting_apVzRateMs2", 2.5]', src)
 
     def test_they_are_client_settings(self):
         """v0.16.10 MOVED THESE TO CLIENT SCOPE. Every one changes how the autopilot
@@ -161,7 +161,7 @@ class RatesAreTunableTests(unittest.TestCase):
         reported as "I don't see the sliders", which was correct."""
         src = read(POSTINIT)
         for line in src.splitlines():
-            if "USAFDC_setting_apAccelMs2" in line or "USAFDC_setting_apVzRateMs2" in line:
+            if "TLB_CARP_setting_apAccelMs2" in line or "TLB_CARP_setting_apVzRateMs2" in line:
                 if "addSetting" in line:
                     self.assertIn(", 0] call CBA_fnc_addSetting;", line)
 
@@ -185,7 +185,7 @@ class InstrumentTests(unittest.TestCase):
         """Its period matched the reported symptom exactly and diag_log writes to disk on
         the render thread. Removing it from the normal flight path is free to test."""
         src = code(AP)
-        self.assertIn('if ((missionNamespace getVariable ["USAFDC_setting_debug", false]) && {(diag_tickTime - (missionNamespace getVariable ["USAFDC_state_apTrackLogTick", -1e9])) >= 0.5}) then {', src)
+        self.assertIn('if ((missionNamespace getVariable ["TLB_CARP_setting_debug", false]) && {(diag_tickTime - (missionNamespace getVariable ["TLB_CARP_state_apTrackLogTick", -1e9])) >= 0.5}) then {', src)
 
     def test_the_log_still_exists_and_shows_the_new_command(self):
         """Gated, not deleted -- it is still the only instrument on this loop, and it now has

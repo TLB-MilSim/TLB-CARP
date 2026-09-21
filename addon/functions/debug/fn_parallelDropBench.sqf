@@ -1,7 +1,7 @@
 // Parallel drop bench: run many independent C-17 cargo drops simultaneously.
 //
-// Why this exists alongside USAFDC_fnc_debugDropSeries:
-//   The series harness is hard-serialised. USAFDC_state_debugHarnessActive admits
+// Why this exists alongside TLB_CARP_fnc_debugDropSeries:
+//   The series harness is hard-serialised. TLB_CARP_state_debugHarnessActive admits
 //   one run at a time, and the calibration recorder is a singleton (it logs
 //   "recorder already active; ignoring new cue" if a second cue arrives). A batch
 //   of 20 runs therefore takes 20 descents back to back. Time acceleration is not
@@ -19,7 +19,7 @@
 // discarded rather than silently skewing the batch.
 //
 // Solving is serial but instant (pure computation, no waiting); only the descents
-// run in parallel. USAFDC_state_dzPosASL is swapped during the solve phase and
+// run in parallel. TLB_CARP_state_dzPosASL is swapped during the solve phase and
 // restored before anything is spawned.
 //
 // Concurrency is bounded by waves. The carrier pin window is only about a second,
@@ -34,7 +34,7 @@
 // measures against the actual DZ and needs no virtual grid.
 //
 // Usage:
-//   [[0,90,180,270], 3000, 500, 0, "rhsusf_mrzr4_d", "ZERO", [0,0], 500] spawn USAFDC_fnc_parallelDropBench;
+//   [[0,90,180,270], 3000, 500, 0, "rhsusf_mrzr4_d", "ZERO", [0,0], 500] spawn TLB_CARP_fnc_parallelDropBench;
 //
 // Argument order (a bool in the wrong slot raises "Type Bool, expected Number"):
 //    1 headings          2 aglM             3 groundSpeedKmh   4 verticalSpeedMs
@@ -43,7 +43,7 @@
 //   13 aircraftId ("c17" | "c130")
 //
 // Guided, 8 headings, zero wind, waves of 4:
-//   [[0,45,90,135,180,225,270,315], 3000, 500, 0, "rhsusf_mrzr4_d", "ZERO", [0,0], 300, 4, 3, true] spawn USAFDC_fnc_parallelDropBench;
+//   [[0,45,90,135,180,225,270,315], 3000, 500, 0, "rhsusf_mrzr4_d", "ZERO", [0,0], 300, 4, 3, true] spawn TLB_CARP_fnc_parallelDropBench;
 
 params [
     ["_headings", [], [[]]],
@@ -66,10 +66,10 @@ _windMode = toUpper _windMode;
 if (isMultiplayer) exitWith {hint "PARALLEL BENCH\nEden / Single Player only"; false};
 if ((count _headings) isEqualTo 0) exitWith {hint "PARALLEL BENCH\nNo headings supplied"; false};
 if !(_windMode in ["LIVE", "ZERO", "FIXED"]) exitWith {hint "PARALLEL BENCH\nwindMode must be LIVE, ZERO or FIXED"; false};
-if (USAFDC_state_debugHarnessActive) exitWith {hint "PARALLEL BENCH\nThe series harness is running"; false};
-if (missionNamespace getVariable ["USAFDC_state_pbenchActive", false]) exitWith {hint "PARALLEL BENCH\nAlready running"; false};
-if ((count USAFDC_state_dzPosASL) < 3) exitWith {hint "PARALLEL BENCH\nSelect a CARP DZ first"; false};
-if (isNil "USAFDC_fnc_buildDebugDropSolution") exitWith {hint "PARALLEL BENCH\nDiagnostics build required"; false};
+if (TLB_CARP_state_debugHarnessActive) exitWith {hint "PARALLEL BENCH\nThe series harness is running"; false};
+if (missionNamespace getVariable ["TLB_CARP_state_pbenchActive", false]) exitWith {hint "PARALLEL BENCH\nAlready running"; false};
+if ((count TLB_CARP_state_dzPosASL) < 3) exitWith {hint "PARALLEL BENCH\nSelect a CARP DZ first"; false};
+if (isNil "TLB_CARP_fnc_buildDebugDropSolution") exitWith {hint "PARALLEL BENCH\nDiagnostics build required"; false};
 
 // Grid spacing has to clear BOTH constraints, because one number sets spawn and
 // landing separation: a C-17 is ~52 m span / ~53 m long, and observed misses reach
@@ -83,21 +83,21 @@ if (_spacingM > 0 && {_spacingM < _minSpacingM}) then {
 
 // Resolve the carrier class from the profile so a batch can fly any supported
 // airframe. Refuse early and clearly rather than spawning nothing.
-private _carrierProfile = (([] call USAFDC_fnc_getModel) getOrDefault ["aircraft", createHashMap]) getOrDefault [_aircraftId, createHashMap];
+private _carrierProfile = (([] call TLB_CARP_fnc_getModel) getOrDefault ["aircraft", createHashMap]) getOrDefault [_aircraftId, createHashMap];
 private _carrierClass = ((_carrierProfile getOrDefault ["classNames", []]) param [0, ""]);
 if (_carrierClass isEqualTo "") exitWith {hint format ["PARALLEL BENCH
 Unknown aircraft profile: %1", _aircraftId]; false};
 if !(isClass (configFile >> "CfgVehicles" >> _carrierClass)) exitWith {hint format ["PARALLEL BENCH
 Missing class: %1", _carrierClass]; false};
 
-USAFDC_state_pbenchActive = true;
+TLB_CARP_state_pbenchActive = true;
 // Guided mode. fn_steerCargo refuses to run unless the CBA setting is on, so drive
 // it from the batch argument and restore it afterwards, exactly as with wind.
-private _jpadsBefore = missionNamespace getVariable ["USAFDC_state_jpadsEnabled", false];
-if (_jpads) then {USAFDC_state_jpadsEnabled = true};
-USAFDC_state_pbenchJpads = _jpads;
-USAFDC_state_pbenchSteer = [];
-private _realDz = +USAFDC_state_dzPosASL;
+private _jpadsBefore = missionNamespace getVariable ["TLB_CARP_state_jpadsEnabled", false];
+if (_jpads) then {TLB_CARP_state_jpadsEnabled = true};
+TLB_CARP_state_pbenchJpads = _jpads;
+TLB_CARP_state_pbenchSteer = [];
+private _realDz = +TLB_CARP_state_dzPosASL;
 private _windBefore = +(wind);
 private _gustsBefore = gusts;
 private _aceWindWasDefined = !(isNil "ace_weather_disableWindSimulation");
@@ -153,7 +153,7 @@ if !(_windMode isEqualTo "LIVE") then {
             "[PBENCH] ABORT wind never converged: requested %1 %2, engine reports %3, error %4 m/s. Every run would be solved against a wind that is not flying.",
             _windMode, _windTarget, _achieved, _errMs toFixed 3
         ];
-        USAFDC_state_pbenchActive = false;
+        TLB_CARP_state_pbenchActive = false;
         hint format ["PARALLEL BENCH ABORTED
 Wind would not settle
 wanted %1
@@ -165,7 +165,7 @@ got %2", _windTarget, _achieved];
 
 // The exitWith above only leaves the wind block, not the function, so the abort has
 // to be re-checked here or the batch would carry on with an unverified wind.
-if (!(_windMode isEqualTo "LIVE") && {!USAFDC_state_pbenchActive}) exitWith {false};
+if (!(_windMode isEqualTo "LIVE") && {!TLB_CARP_state_pbenchActive}) exitWith {false};
 
 private _batchId = round (time * 10);
 diag_log format [
@@ -220,11 +220,11 @@ private _perRow = ceil sqrt (count _headings);
         diag_log format ["[PBENCH] batch=%1 run=%2 SKIPPED hdg=%3 no land found near cell terrain=%4",
             _batchId, _index, _x, (_vdz # 2) toFixed 1];
     } else {
-        USAFDC_state_dzPosASL = +_vdz;
+        TLB_CARP_state_dzPosASL = +_vdz;
         // Same reason as the run spawn below: [0,0,200] is the map corner and
         // destroys the probe, which is audible even though the probe is discarded.
         private _probe = createVehicle [_cargoClass, [_vdz # 0, _vdz # 1, 0], [], 0, "NONE"];
-        private _build = [_x, _aglM, _groundSpeedKmh, _verticalSpeedMs, _cargoClass, _probe, _aircraftId] call USAFDC_fnc_buildDebugDropSolution;
+        private _build = [_x, _aglM, _groundSpeedKmh, _verticalSpeedMs, _cargoClass, _probe, _aircraftId] call TLB_CARP_fnc_buildDebugDropSolution;
         deleteVehicle _probe;
 
         if (_build getOrDefault ["valid", false]) then {
@@ -236,21 +236,21 @@ private _perRow = ceil sqrt (count _headings);
     };
 } forEach _headings;
 
-USAFDC_state_dzPosASL = +_realDz;
+TLB_CARP_state_dzPosASL = +_realDz;
 diag_log format ["[PBENCH] batch=%1 solved %2 of %3 requested runs", _batchId, count _plans, count _headings];
 
 if ((count _plans) isEqualTo 0) exitWith {
-    USAFDC_state_pbenchActive = false;
+    TLB_CARP_state_pbenchActive = false;
     hint "PARALLEL BENCH\nEvery run failed to solve";
     false
 };
 
 // ---- Phase 2: spawn and drop every run at once ------------------------------
-USAFDC_state_pbenchPending = count _plans;
-USAFDC_state_pbenchObjects = [];
-USAFDC_state_pbenchPins = [];
-USAFDC_state_pbenchChuteWatch = [];
-USAFDC_state_pbenchPinEh = addMissionEventHandler ["EachFrame", {
+TLB_CARP_state_pbenchPending = count _plans;
+TLB_CARP_state_pbenchObjects = [];
+TLB_CARP_state_pbenchPins = [];
+TLB_CARP_state_pbenchChuteWatch = [];
+TLB_CARP_state_pbenchPinEh = addMissionEventHandler ["EachFrame", {
     private _keep = [];
     {
         _x params ["_pinCarrier", "_pinCargo", "_pinOrigin", "_pinT0", "_pinVel", "_pinFwd"];
@@ -268,18 +268,18 @@ USAFDC_state_pbenchPinEh = addMissionEventHandler ["EachFrame", {
                 // taken here was misattributed to the release frame.
                 private _pinDmg = damage _pinCargo;
                 if (_pinDmg > 0) then {
-                    if ((_pinCarrier getVariable ["USAFDC_pbenchDmgPinnedAgl", -1]) < 0) then {
-                        _pinCarrier setVariable ["USAFDC_pbenchDmgPinnedAgl", (getPosATL _pinCargo) # 2, false];
+                    if ((_pinCarrier getVariable ["TLB_CARP_pbenchDmgPinnedAgl", -1]) < 0) then {
+                        _pinCarrier setVariable ["TLB_CARP_pbenchDmgPinnedAgl", (getPosATL _pinCargo) # 2, false];
                     };
                     _pinCargo setDamage 0;
                 };
                 _keep pushBack _x;
             } else {
-                _pinCarrier setVariable ["USAFDC_pbenchReleased", true, false];
+                _pinCarrier setVariable ["TLB_CARP_pbenchReleased", true, false];
             };
         };
-    } forEach USAFDC_state_pbenchPins;
-    USAFDC_state_pbenchPins = _keep;
+    } forEach TLB_CARP_state_pbenchPins;
+    TLB_CARP_state_pbenchPins = _keep;
 
     // Canopy open MUST be detected per frame. v0.4.22 detected it inside each run's
     // own waitUntil {uiSleep 0.05} loop; with 20 of those competing for Arma's
@@ -298,32 +298,32 @@ USAFDC_state_pbenchPinEh = addMissionEventHandler ["EachFrame", {
         if (!isNull _x) then {
             private _att = attachedTo _x;
             if (!isNull _att && {_att isKindOf "ParachuteBase"}) then {
-                _x setVariable ["USAFDC_pbenchChuteTime", time, false];
-                _x setVariable ["USAFDC_pbenchChutePos", getPosASL _x, false];
-                _x setVariable ["USAFDC_pbenchChuteAgl", (getPosATL _x) # 2, false];
-                if (USAFDC_state_pbenchJpads) then {USAFDC_state_pbenchSteer pushBack _x};
+                _x setVariable ["TLB_CARP_pbenchChuteTime", time, false];
+                _x setVariable ["TLB_CARP_pbenchChutePos", getPosASL _x, false];
+                _x setVariable ["TLB_CARP_pbenchChuteAgl", (getPosATL _x) # 2, false];
+                if (TLB_CARP_state_pbenchJpads) then {TLB_CARP_state_pbenchSteer pushBack _x};
             } else {
                 _watching pushBack _x;
             };
         };
-    } forEach USAFDC_state_pbenchChuteWatch;
-    USAFDC_state_pbenchChuteWatch = _watching;
+    } forEach TLB_CARP_state_pbenchChuteWatch;
+    TLB_CARP_state_pbenchChuteWatch = _watching;
 
     // Guided steering, per frame, per load. fn_steerCargo is the SAME function the
     // live package uses -- called with explicit [cargo, dz] so many loads can be
     // steered at once without touching each other's state or the pilot's HUD.
     // Per-frame is mandatory: at the 0.05 s guidance interval the parachute's own
     // physics reasserted between calls and only 41% of commanded steering survived.
-    if (USAFDC_state_pbenchJpads) then {
+    if (TLB_CARP_state_pbenchJpads) then {
         private _keepSteer = [];
         {
             if (!isNull _x) then {
-                private _sdz = _x getVariable ["USAFDC_pbenchDz", []];
-                if ((count _sdz) >= 3) then {[_x, _sdz] call USAFDC_fnc_steerCargo};
+                private _sdz = _x getVariable ["TLB_CARP_pbenchDz", []];
+                if ((count _sdz) >= 3) then {[_x, _sdz] call TLB_CARP_fnc_steerCargo};
                 _keepSteer pushBack _x;
             };
-        } forEach USAFDC_state_pbenchSteer;
-        USAFDC_state_pbenchSteer = _keepSteer;
+        } forEach TLB_CARP_state_pbenchSteer;
+        TLB_CARP_state_pbenchSteer = _keepSteer;
     };
 }];
 
@@ -348,7 +348,7 @@ private _launch = {
         // damaged, which is the evidence this location is safe.
         private _cargo = createVehicle [_cargoClass, [_spawnPosASL # 0, _spawnPosASL # 1, 0], [], 0, "NONE"];
         private _carrier = createVehicle [_carrierClass, [_spawnPosASL # 0, _spawnPosASL # 1, 0], [], 0, "FLY"];
-        USAFDC_state_pbenchObjects append [_cargo, _carrier];
+        TLB_CARP_state_pbenchObjects append [_cargo, _carrier];
 
         // Test articles are indestructible. A destroyed load cannot be measured, and
         // destruction is not what this bench measures.
@@ -432,7 +432,7 @@ private _launch = {
         if !(_cargo in (_carrier getVariable ["usaf_cargo", []])) exitWith {
             diag_log format ["[PBENCH] batch=%1 run=%2 LOAD FAILED", _batchId, _index];
             deleteVehicle _carrier; deleteVehicle _cargo;
-            USAFDC_state_pbenchPending = USAFDC_state_pbenchPending - 1;
+            TLB_CARP_state_pbenchPending = TLB_CARP_state_pbenchPending - 1;
         };
 
         private _dmgLoaded = damage _cargo;
@@ -444,11 +444,11 @@ private _launch = {
         // 14 loads were released at ~0 m/s instead of 139 m/s (they fell straight
         // down, landing ~3400 m short). One EachFrame handler over a registry is
         // guaranteed every frame regardless of batch size.
-        USAFDC_state_pbenchPins pushBack [_carrier, _cargo, getPosASL _carrier, time, _velocity, _forward];
-        USAFDC_state_pbenchChuteWatch pushBack _cargo;
+        TLB_CARP_state_pbenchPins pushBack [_carrier, _cargo, getPosASL _carrier, time, _velocity, _forward];
+        TLB_CARP_state_pbenchChuteWatch pushBack _cargo;
         // Each load carries its own aim point, so guided runs on the virtual grid
         // steer to their own cell rather than all converging on the real DZ.
-        _cargo setVariable ["USAFDC_pbenchDz", +_vdz, false];
+        _cargo setVariable ["TLB_CARP_pbenchDz", +_vdz, false];
 
         // Capture the drop COMMAND instant. releaseDelayS is not a physical
         // constant -- it is the script latency between canDrop being called and the
@@ -464,16 +464,16 @@ private _launch = {
         private _pinDeadline = diag_tickTime + 15;
         waitUntil {
             uiSleep 0.05;
-            (_carrier getVariable ["USAFDC_pbenchReleased", false]) || {isNull _carrier} || {diag_tickTime >= _pinDeadline}
+            (_carrier getVariable ["TLB_CARP_pbenchReleased", false]) || {isNull _carrier} || {diag_tickTime >= _pinDeadline}
         };
-        private _released = _carrier getVariable ["USAFDC_pbenchReleased", false];
+        private _released = _carrier getVariable ["TLB_CARP_pbenchReleased", false];
 
         private _relRealTime = diag_tickTime;
         private _relSimTime = time;
         private _fpsAtRelease = diag_fps;
         private _lagS = time - _cmdSimTime;
         private _lagM = (_cmdPosASL distance2D (getPosASL _carrier));
-        private _dmgPinnedAgl = _carrier getVariable ["USAFDC_pbenchDmgPinnedAgl", -1];
+        private _dmgPinnedAgl = _carrier getVariable ["TLB_CARP_pbenchDmgPinnedAgl", -1];
         private _releasePos = getPosASL _carrier;
         private _releaseVel = velocity _cargo;
         private _windAtRelease = +(wind);
@@ -483,7 +483,7 @@ private _launch = {
         if (!_released) exitWith {
             diag_log format ["[PBENCH] batch=%1 run=%2 NO RELEASE", _batchId, _index];
             deleteVehicle _cargo;
-            USAFDC_state_pbenchPending = USAFDC_state_pbenchPending - 1;
+            TLB_CARP_state_pbenchPending = TLB_CARP_state_pbenchPending - 1;
         };
 
         // Track to canopy open, then to rest.
@@ -513,11 +513,11 @@ private _launch = {
             if (_agl >= 10) then {_airborne = true};
             if (_chuteSimTime < 0) then {
                 // Read the per-frame handler's reading; do not re-detect here.
-                private _ct = _cargo getVariable ["USAFDC_pbenchChuteTime", -1];
+                private _ct = _cargo getVariable ["TLB_CARP_pbenchChuteTime", -1];
                 if (_ct >= 0) then {
                     _chuteSimTime = _ct;
-                    _chuteAgl = _cargo getVariable ["USAFDC_pbenchChuteAgl", -1];
-                    _chutePos = _cargo getVariable ["USAFDC_pbenchChutePos", []];
+                    _chuteAgl = _cargo getVariable ["TLB_CARP_pbenchChuteAgl", -1];
+                    _chutePos = _cargo getVariable ["TLB_CARP_pbenchChutePos", []];
                 };
             };
             if (_airborne && {isTouchingGround _cargo} && {_agl <= 2}) then {
@@ -598,7 +598,7 @@ private _launch = {
             if ((count _degraded) > 0) then {_degraded joinString "+"} else {"-"}
         ];
 
-        USAFDC_state_pbenchPending = USAFDC_state_pbenchPending - 1;
+        TLB_CARP_state_pbenchPending = TLB_CARP_state_pbenchPending - 1;
     };
 };
 
@@ -637,9 +637,9 @@ if (_spacingM <= 0 && {(_waveSize max 1) > 1}) then {
             if (_spacingM > 0) then {
                 uiSleep _waveGapS;
             } else {
-                waitUntil {uiSleep 0.5; USAFDC_state_pbenchPending <= _remainingAfterWave};
-                {if (!isNull _x) then {deleteVehicle _x}} forEach (missionNamespace getVariable ["USAFDC_state_pbenchObjects", []]);
-                USAFDC_state_pbenchObjects = [];
+                waitUntil {uiSleep 0.5; TLB_CARP_state_pbenchPending <= _remainingAfterWave};
+                {if (!isNull _x) then {deleteVehicle _x}} forEach (missionNamespace getVariable ["TLB_CARP_state_pbenchObjects", []]);
+                TLB_CARP_state_pbenchObjects = [];
                 uiSleep _waveGapS;
             };
         };
@@ -652,7 +652,7 @@ hint format ["PARALLEL BENCH
 // ---- Restore environment once every run has reported ------------------------
 [_batchId, _windBefore, _gustsBefore, _aceWindWasDefined, _aceWindBefore, _windMode, _jpadsBefore] spawn {
     params ["_batchId", "_windBefore", "_gustsBefore", "_aceWasDef", "_aceBefore", "_windMode", "_jpadsBefore"];
-    waitUntil {uiSleep 0.5; (USAFDC_state_pbenchPending <= 0)};
+    waitUntil {uiSleep 0.5; (TLB_CARP_state_pbenchPending <= 0)};
     if !(_windMode isEqualTo "LIVE") then {
         setWind [_windBefore # 0, _windBefore # 1, true];
         0 setGusts _gustsBefore;
@@ -662,18 +662,18 @@ hint format ["PARALLEL BENCH
             missionNamespace setVariable ["ace_weather_disableWindSimulation", nil];
         };
     };
-    {if (!isNull _x) then {deleteVehicle _x}} forEach (missionNamespace getVariable ["USAFDC_state_pbenchObjects", []]);
-    USAFDC_state_pbenchObjects = [];
-    USAFDC_state_pbenchPins = [];
-    USAFDC_state_pbenchChuteWatch = [];
-    USAFDC_state_pbenchSteer = [];
-    USAFDC_state_pbenchJpads = false;
-    USAFDC_state_jpadsEnabled = _jpadsBefore;
-    if ((missionNamespace getVariable ["USAFDC_state_pbenchPinEh", -1]) >= 0) then {
-        removeMissionEventHandler ["EachFrame", USAFDC_state_pbenchPinEh];
-        USAFDC_state_pbenchPinEh = -1;
+    {if (!isNull _x) then {deleteVehicle _x}} forEach (missionNamespace getVariable ["TLB_CARP_state_pbenchObjects", []]);
+    TLB_CARP_state_pbenchObjects = [];
+    TLB_CARP_state_pbenchPins = [];
+    TLB_CARP_state_pbenchChuteWatch = [];
+    TLB_CARP_state_pbenchSteer = [];
+    TLB_CARP_state_pbenchJpads = false;
+    TLB_CARP_state_jpadsEnabled = _jpadsBefore;
+    if ((missionNamespace getVariable ["TLB_CARP_state_pbenchPinEh", -1]) >= 0) then {
+        removeMissionEventHandler ["EachFrame", TLB_CARP_state_pbenchPinEh];
+        TLB_CARP_state_pbenchPinEh = -1;
     };
-    USAFDC_state_pbenchActive = false;
+    TLB_CARP_state_pbenchActive = false;
     // Expect one "Undefined variable in expression: _id" error per run from
     // USAF_Cargounctions\Cargon_dropCargo.sqf line 75. It is theirs, not ours,
     // and it is harmless -- it fires long after the load has landed and been

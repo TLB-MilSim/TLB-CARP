@@ -53,21 +53,21 @@ class AutopilotV2PathTests(unittest.TestCase):
 
     def test_locked_runin_still_uses_current_ground_track(self):
         text = read("addon/functions/guidance/fn_lockRunIn.sqf")
-        self.assertIn('USAFDC_state_runInDeg = _state get "trackDeg"', text)
+        self.assertIn('TLB_CARP_state_runInDeg = _state get "trackDeg"', text)
 
     def test_guidance_merges_path_before_ap_and_uses_path_desired_track(self):
         text = read("addon/functions/guidance/fn_updateGuidance.sqf")
-        self.assertIn("USAFDC_fnc_buildPathSolution", text)
+        self.assertIn("TLB_CARP_fnc_buildPathSolution", text)
         self.assertIn("keys _path", text)
         self.assertIn('getOrDefault ["pathDesiredTrackDeg"', text)
-        self.assertLess(text.index("USAFDC_fnc_buildPathSolution"), text.index("USAFDC_fnc_updateAutopilot"))
+        self.assertLess(text.index("TLB_CARP_fnc_buildPathSolution"), text.index("TLB_CARP_fnc_updateAutopilot"))
 
     def test_ap_consumes_path_commands_without_old_final_vertical_clamps(self):
         text = read("addon/functions/autopilot/fn_updateAutopilot.sqf")
         self.assertIn('getOrDefault ["pathState"', text)
         self.assertIn('getOrDefault ["pathDesiredTrackDeg"', text)
         self.assertIn('getOrDefault ["commandVerticalSpeedMs"', text)
-        self.assertNotIn("USAFDC_fnc_interceptLimitDeg", text)
+        self.assertNotIn("TLB_CARP_fnc_interceptLimitDeg", text)
         self.assertNotIn("max -2 min 2", text)
         self.assertNotIn("max -1 min 1", text)
         self.assertIn("_newGroundSpeed * sin _newHeading", text)
@@ -88,7 +88,7 @@ class AutopilotV2PathTests(unittest.TestCase):
         # first flown session refused five passes -- one with crossTrack -1.19 m and
         # trackError -0.57 deg -- on 16.6 m of drift. The gate is still geometry-only.
         self.assertIn("(abs _preChuteLateralDriftM) <= _driftLimitM", text)
-        self.assertIn('getVariable ["USAFDC_setting_releaseDriftLimitM", 25]', text)
+        self.assertIn('getVariable ["TLB_CARP_setting_releaseDriftLimitM", 25]', text)
         final_gate = text[text.index("private _insideFinal"):text.index("private _finalRunLineOffsetM")]
         self.assertNotIn("altitudeErrorM", final_gate)
         self.assertNotIn("targetGroundSpeedKmh", final_gate)
@@ -100,20 +100,20 @@ class InputFocusTests(unittest.TestCase):
         text = read("addon/functions/autopilot/fn_inputFocusActive.sqf")
         self.assertIn("findDisplay 9300", text)
         self.assertIn("findDisplay 312", text)
-        self.assertIn("USAFDC_state_apAceInteractOpen", text)
+        self.assertIn("TLB_CARP_state_apAceInteractOpen", text)
 
     def test_postinit_registers_ace_open_close_and_grace_period(self):
         text = read("addon/functions/fn_postInit.sqf")
-        self.assertIn("USAFDC_state_apAceInteractOpen", text)
+        self.assertIn("TLB_CARP_state_apAceInteractOpen", text)
         self.assertIn('"ace_interactMenuOpened"', text)
         self.assertIn('"ace_interactMenuClosed"', text)
         self.assertIn("diag_tickTime + 0.5", text)
-        self.assertIn("USAFDC_fnc_inputFocusActive", text)
+        self.assertIn("TLB_CARP_fnc_inputFocusActive", text)
 
     def test_ap_override_uses_focus_helper_and_keeps_debounce(self):
         text = read("addon/functions/autopilot/fn_updateAutopilot.sqf")
-        self.assertIn("USAFDC_fnc_inputFocusActive", text)
-        self.assertIn("USAFDC_state_apOverrideInhibitUntil", text)
+        self.assertIn("TLB_CARP_fnc_inputFocusActive", text)
+        self.assertIn("TLB_CARP_state_apOverrideInhibitUntil", text)
         self.assertIn("0.12", text)
         self.assertIn("PILOT OVERRIDE", text)
 
@@ -123,11 +123,11 @@ class PackageTimingV2Tests(unittest.TestCase):
         text = read("addon/functions/timing/fn_resetPackageTiming.sqf")
         self.assertTrue(text, "missing package timing reset")
         for marker in [
-            "USAFDC_state_packageTimingState", "IDLE",
-            "USAFDC_state_packageCargoSnapshot", "USAFDC_state_packagePrimaryCargo",
-            "USAFDC_state_packageReleaseSimTime", "USAFDC_state_packagePredictedChuteSimTime",
-            "USAFDC_state_packagePredictedTouchdownSimTime", "USAFDC_state_packageActualChuteSimTime",
-            "USAFDC_state_packageActualTouchdownSimTime",
+            "TLB_CARP_state_packageTimingState", "IDLE",
+            "TLB_CARP_state_packageCargoSnapshot", "TLB_CARP_state_packagePrimaryCargo",
+            "TLB_CARP_state_packageReleaseSimTime", "TLB_CARP_state_packagePredictedChuteSimTime",
+            "TLB_CARP_state_packagePredictedTouchdownSimTime", "TLB_CARP_state_packageActualChuteSimTime",
+            "TLB_CARP_state_packageActualTouchdownSimTime",
         ]:
             self.assertIn(marker, text)
 
@@ -135,7 +135,7 @@ class PackageTimingV2Tests(unittest.TestCase):
         text = read("addon/functions/guidance/fn_estimatePackageTiming.sqf")
         self.assertIn("pathValid", text)
         self.assertIn("routeEtaS", text)
-        self.assertIn("USAFDC_state_apArmed", text)
+        self.assertIn("TLB_CARP_state_apArmed", text)
         self.assertIn('get "releaseDelayS"', text)
         self.assertIn("chuteAttachTimeS", text)
         self.assertIn("predictedCanopyTimeS", text)
@@ -148,7 +148,7 @@ class PackageTimingV2Tests(unittest.TestCase):
             # than usaf_cargo, so an ACE or vehicle-in-vehicle load leaving the aircraft
             # is now seen. The detection mechanism -- set difference against the
             # previous snapshot -- is unchanged.
-            "USAFDC_fnc_getLoadedCargo", "select {!(_x in _currentCargo)}",
+            "TLB_CARP_fnc_getLoadedCargo", "select {!(_x in _currentCargo)}",
             '"RELEASED"', '"CHUTE"', '"ARRIVED"', '"LOST"',
             "attachedTo", 'isKindOf "ParachuteBase"', "isTouchingGround",
             "predictedTouchdownSimTime", "predictedTouchdownSimTime - time",
@@ -156,14 +156,14 @@ class PackageTimingV2Tests(unittest.TestCase):
             "packageState", "totTMinusText", "totClockText",
         ]:
             self.assertIn(marker, text)
-        self.assertNotIn("USAFDC_setting_calibrationRecorder", text)
+        self.assertNotIn("TLB_CARP_setting_calibrationRecorder", text)
 
     def test_chute_rebases_touchdown_and_arrived_latches_actual_clock(self):
         text = read("addon/functions/timing/fn_updatePackageTiming.sqf")
-        self.assertIn("USAFDC_state_packageActualChuteSimTime = time", text)
-        self.assertIn("time + USAFDC_state_packagePredictedCanopyTimeS", text)
-        self.assertIn("USAFDC_state_packageActualTouchdownSimTime = time", text)
-        self.assertIn("USAFDC_state_packageActualTouchdownClockSeconds", text)
+        self.assertIn("TLB_CARP_state_packageActualChuteSimTime = time", text)
+        self.assertIn("time + TLB_CARP_state_packagePredictedCanopyTimeS", text)
+        self.assertIn("TLB_CARP_state_packageActualTouchdownSimTime = time", text)
+        self.assertIn("TLB_CARP_state_packageActualTouchdownClockSeconds", text)
 
     def test_guidance_calls_lifecycle_tracker_and_reset_paths_exist(self):
         update = read("addon/functions/guidance/fn_updateGuidance.sqf")
@@ -171,11 +171,11 @@ class PackageTimingV2Tests(unittest.TestCase):
         disarm = read("addon/functions/guidance/fn_disarmGuidance.sqf")
         clear = read("addon/functions/dz/fn_clearDZ.sqf")
         set_dz = read("addon/functions/dz/fn_setDZ.sqf")
-        self.assertIn("USAFDC_fnc_updatePackageTiming", update)
-        self.assertIn("USAFDC_fnc_resetPackageTiming", post)
-        self.assertIn("USAFDC_fnc_updatePackageTiming", post)
+        self.assertIn("TLB_CARP_fnc_updatePackageTiming", update)
+        self.assertIn("TLB_CARP_fnc_resetPackageTiming", post)
+        self.assertIn("TLB_CARP_fnc_updatePackageTiming", post)
         for text in [disarm, clear, set_dz]:
-            self.assertIn("USAFDC_fnc_resetPackageTiming", text)
+            self.assertIn("TLB_CARP_fnc_resetPackageTiming", text)
 
 
 class HudAndPanelV2Tests(unittest.TestCase):

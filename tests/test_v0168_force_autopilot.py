@@ -145,8 +145,8 @@ class ForceModeTests(unittest.TestCase):
         manoeuvre never poisons the trim."""
         b = force_branch()
         self.assertIn("if ((abs _pitchForce) < 20) then {", b)
-        self.assertIn("USAFDC_state_apTrimCount >= 100", b)
-        self.assertIn("USAFDC_state_apTrimSum / 100", b)
+        self.assertIn("TLB_CARP_state_apTrimCount >= 100", b)
+        self.assertIn("TLB_CARP_state_apTrimSum / 100", b)
 
     def test_the_impulse_is_rate_compensated_and_clamped(self):
         """addForce acts for ONE simulation step, so actuating at 20 Hz on a 60 fps machine
@@ -175,22 +175,22 @@ class LegacyPathTests(unittest.TestCase):
         """The old path is measured and this one is not. A fallback nobody can select is not
         a fallback."""
         src = code(AP)
-        self.assertIn('private _forceMode = missionNamespace getVariable ["USAFDC_setting_apForceMode", true];', src)
-        self.assertIn('["USAFDC_setting_apForceMode", "CHECKBOX"', read(POSTINIT))
+        self.assertIn('private _forceMode = missionNamespace getVariable ["TLB_CARP_setting_apForceMode", true];', src)
+        self.assertIn('["TLB_CARP_setting_apForceMode", "CHECKBOX"', read(POSTINIT))
 
     def test_the_legacy_invariants_still_hold_where_they_apply(self):
         """v0.3.0: setDir wipes velocity so it must come first. v0.6.3: velocity every
         actuation, orientation frame-gated. Both still true inside the legacy branch."""
         b = legacy_branch()
         self.assertLess(b.index("_vehicle setDir _newHeading;"), b.index("_vehicle setVelocity _newVel;"))
-        self.assertIn("diag_frameNo - (missionNamespace getVariable [\"USAFDC_state_apLastDirFrame\", -1])) >= 2", b)
+        self.assertIn("diag_frameNo - (missionNamespace getVariable [\"TLB_CARP_state_apLastDirFrame\", -1])) >= 2", b)
 
     def test_the_default_is_the_new_behaviour(self):
         """Stated explicitly: the crew asked for this, so it ships on."""
         src = code(AP)
-        self.assertIn('"USAFDC_setting_apForceMode", true]', src)
+        self.assertIn('"TLB_CARP_setting_apForceMode", true]', src)
         for line in read(POSTINIT).splitlines():
-            if '"USAFDC_setting_apForceMode"' in line and "addSetting" in line:
+            if '"TLB_CARP_setting_apForceMode"' in line and "addSetting" in line:
                 self.assertIn("], true, 0] call CBA_fnc_addSetting;", line)
 
 
@@ -198,15 +198,15 @@ class StateTests(unittest.TestCase):
     def test_the_trim_state_is_initialised(self):
         """nil in the accumulator throws inside the AP on every frame."""
         src = read(POSTINIT)
-        for v in ["USAFDC_state_apTrimCount = 0;", "USAFDC_state_apTrimSum = 0;",
-                  "USAFDC_state_apTrimOffset = 0;"]:
+        for v in ["TLB_CARP_state_apTrimCount = 0;", "TLB_CARP_state_apTrimSum = 0;",
+                  "TLB_CARP_state_apTrimOffset = 0;"]:
             self.assertIn(v, src, v)
 
     def test_the_trim_is_cleared_on_arm(self):
         """It belongs to one engagement on one aircraft. Carrying it across arms would apply
         a C-17's standing force deficit to a C-130."""
         src = code(ARM)
-        self.assertIn("USAFDC_state_apTrimOffset = 0;", src)
+        self.assertIn("TLB_CARP_state_apTrimOffset = 0;", src)
 
 
 class ThrottleTests(unittest.TestCase):
@@ -267,13 +267,13 @@ class TurnDampingTests(unittest.TestCase):
     def test_the_rate_history_is_cleared_on_arm(self):
         """A stale sample across an arm reads as a huge turn rate on the first tick."""
         src = code(ARM)
-        self.assertIn("USAFDC_state_apPrevDir = -1e9;", src)
-        self.assertIn("USAFDC_state_apPrevBank = -1e9;", src)
+        self.assertIn("TLB_CARP_state_apPrevDir = -1e9;", src)
+        self.assertIn("TLB_CARP_state_apPrevBank = -1e9;", src)
 
     def test_the_rate_history_is_initialised_at_load(self):
         src = read(POSTINIT)
-        self.assertIn("USAFDC_state_apPrevDir = -1e9;", src)
-        self.assertIn("USAFDC_state_apPrevBank = -1e9;", src)
+        self.assertIn("TLB_CARP_state_apPrevDir = -1e9;", src)
+        self.assertIn("TLB_CARP_state_apPrevBank = -1e9;", src)
 
 
 class YawCoordinationTests(unittest.TestCase):
@@ -299,7 +299,7 @@ class YawCoordinationTests(unittest.TestCase):
         """Zero leaves the rudder answering sideslip only -- the pre-v0.16.10 behaviour, in
         case the feedforward is wrong on some airframe."""
         src = read(POSTINIT)
-        self.assertIn('["USAFDC_setting_apYawCoordination", "SLIDER"', src)
+        self.assertIn('["TLB_CARP_setting_apYawCoordination", "SLIDER"', src)
         self.assertIn("[0, 150, 40, 0], 0] call CBA_fnc_addSetting;", src)
 
 
@@ -313,11 +313,11 @@ class TuningIsReachableTests(unittest.TestCase):
         for name, default in [("apTurnLeadS", "[0, 10, 4, 1], 0]"),
                               ("apRollDamping", "[0, 600, 150, 0], 0]"),
                               ("apYawCoordination", "[0, 150, 40, 0], 0]")]:
-            self.assertIn(f'["USAFDC_setting_{name}", "SLIDER"', src, name)
+            self.assertIn(f'["TLB_CARP_setting_{name}", "SLIDER"', src, name)
             self.assertIn(default, src, name)
 
     def test_the_ap_defaults_match_the_settings(self):
         b = force_branch()
-        self.assertIn('getVariable ["USAFDC_setting_apTurnLeadS", 4]', b)
-        self.assertIn('getVariable ["USAFDC_setting_apRollDamping", 150]', b)
-        self.assertIn('getVariable ["USAFDC_setting_apYawCoordination", 40]', b)
+        self.assertIn('getVariable ["TLB_CARP_setting_apTurnLeadS", 4]', b)
+        self.assertIn('getVariable ["TLB_CARP_setting_apRollDamping", 150]', b)
+        self.assertIn('getVariable ["TLB_CARP_setting_apYawCoordination", 40]', b)

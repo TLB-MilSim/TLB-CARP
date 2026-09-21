@@ -28,22 +28,22 @@
 // non-breaking fallback if a build turns out to collapse them.
 
 if (!hasInterface) exitWith {false};
-if (!USAFDC_state_guidanceArmed || {!USAFDC_setting_hudEnabled}) exitWith {
-    if !(isNil "USAFDC_state_hudLayer") then {USAFDC_state_hudLayer cutText ["", "PLAIN"]};
+if (!TLB_CARP_state_guidanceArmed || {!TLB_CARP_setting_hudEnabled}) exitWith {
+    if !(isNil "TLB_CARP_state_hudLayer") then {TLB_CARP_state_hudLayer cutText ["", "PLAIN"]};
     false
 };
 
-private _liveSolution = missionNamespace getVariable ["USAFDC_state_solution", createHashMap];
-private _displaySolution = missionNamespace getVariable ["USAFDC_state_displaySolution", createHashMap];
+private _liveSolution = missionNamespace getVariable ["TLB_CARP_state_solution", createHashMap];
+private _displaySolution = missionNamespace getVariable ["TLB_CARP_state_displaySolution", createHashMap];
 private _solution = if (_liveSolution getOrDefault ["valid", false]) then {_liveSolution} else {_displaySolution};
 private _packageTrackingOnly = _solution getOrDefault ["packageTrackingOnly", false];
 if ((count _solution) isEqualTo 0) exitWith {false};
 if (!(_solution getOrDefault ["valid", false]) && {!_packageTrackingOnly}) exitWith {false};
 
-private _display = uiNamespace getVariable ["USAFDC_HUD_display", displayNull];
+private _display = uiNamespace getVariable ["TLB_CARP_HUD_display", displayNull];
 if (isNull _display) then {
-    USAFDC_state_hudLayer cutRsc ["USAFDC_HUD", "PLAIN", 0, false];
-    _display = uiNamespace getVariable ["USAFDC_HUD_display", displayNull];
+    TLB_CARP_state_hudLayer cutRsc ["TLB_CARP_HUD", "PLAIN", 0, false];
+    _display = uiNamespace getVariable ["TLB_CARP_HUD_display", displayNull];
 };
 if (isNull _display) exitWith {false};
 
@@ -70,21 +70,21 @@ if (isNull _display) exitWith {false};
 private _rawRp = _solution getOrDefault ["signedRpM", 0];
 private _rawXtk = _solution getOrDefault ["crossTrackM", 0];
 private _alpha = 0.25;
-if (isNil "USAFDC_state_displayRpM") then {USAFDC_state_displayRpM = _rawRp};
-if (isNil "USAFDC_state_displayXtkM") then {USAFDC_state_displayXtkM = _rawXtk};
+if (isNil "TLB_CARP_state_displayRpM") then {TLB_CARP_state_displayRpM = _rawRp};
+if (isNil "TLB_CARP_state_displayXtkM") then {TLB_CARP_state_displayXtkM = _rawXtk};
 if (!_packageTrackingOnly) then {
-    USAFDC_state_displayRpM = USAFDC_state_displayRpM + ((_rawRp - USAFDC_state_displayRpM) * _alpha);
-    USAFDC_state_displayXtkM = USAFDC_state_displayXtkM + ((_rawXtk - USAFDC_state_displayXtkM) * _alpha);
+    TLB_CARP_state_displayRpM = TLB_CARP_state_displayRpM + ((_rawRp - TLB_CARP_state_displayRpM) * _alpha);
+    TLB_CARP_state_displayXtkM = TLB_CARP_state_displayXtkM + ((_rawXtk - TLB_CARP_state_displayXtkM) * _alpha);
 };
 
-private _rp = USAFDC_state_displayRpM;
+private _rp = TLB_CARP_state_displayRpM;
 private _rpValue = if ((abs _rp) >= 1000) then {format ["%1", ((abs _rp) / 1000) toFixed 2]} else {format ["%1", round (abs _rp)]};
 private _rpUnit = if ((abs _rp) >= 1000) then {"km"} else {"m"};
 // Keep the unit when passed. "RP 18.85 PASSED" gave no way to tell 18.85 m from
 // 18.85 km, and the difference matters rather a lot on a run-in.
 private _rpNote = if (_rp < 0) then {format ["%1 PASSED", _rpUnit]} else {_rpUnit};
 
-private _xtk = USAFDC_state_displayXtkM;
+private _xtk = TLB_CARP_state_displayXtkM;
 private _xtkCentered = (abs _xtk) < 1;
 private _xtkValue = if (_xtkCentered) then {"0"} else {format ["%1", round (abs _xtk)]};
 private _xtkNote = if (_xtkCentered) then {"CENTRE"} else {if (_xtk > 0) then {"m LEFT"} else {"m RIGHT"}};
@@ -128,7 +128,7 @@ if (!_packageTrackingOnly) then {
         _cueText = "NO DROP";
         _cueColor = C_ALERT;
     } else {
-        if (time <= USAFDC_state_dropCueUntil) then {
+        if (time <= TLB_CARP_state_dropCueUntil) then {
             _cueText = "DROP";
             _cueColor = C_WARN;
         } else {
@@ -141,11 +141,11 @@ if (!_packageTrackingOnly) then {
 };
 
 // ---- remaining telemetry -----------------------------------------------------
-private _targetAgl = _solution getOrDefault ["targetAglM", USAFDC_state_targetAglM];
-private _targetGs = _solution getOrDefault ["targetGroundSpeedKmh", USAFDC_state_targetGroundSpeedKmh];
+private _targetAgl = _solution getOrDefault ["targetAglM", TLB_CARP_state_targetAglM];
+private _targetGs = _solution getOrDefault ["targetGroundSpeedKmh", TLB_CARP_state_targetGroundSpeedKmh];
 private _actualAgl = _solution getOrDefault ["actualAglM", 0];
 private _actualGs = _solution getOrDefault ["actualGroundSpeedKmh", 0];
-private _apState = missionNamespace getVariable ["USAFDC_state_apState", "OFF"];
+private _apState = missionNamespace getVariable ["TLB_CARP_state_apState", "OFF"];
 private _preChute = _solution getOrDefault ["preChuteLateralDriftM", 0];
 private _commandVerticalSpeedMs = _solution getOrDefault ["commandVerticalSpeedMs", 0];
 private _dropT = _solution getOrDefault ["dropTMinusText", "T---:--"];
@@ -166,7 +166,7 @@ private _packageColor = switch (_packageState) do {
     default {C_WARN};
 };
 
-private _scale = USAFDC_setting_hudScale max 0.7 min 1.5;
+private _scale = TLB_CARP_setting_hudScale max 0.7 min 1.5;
 
 // ---- type scale --------------------------------------------------------------
 // Three steps, ratio ~1.4 apart, and EVERY one multiplied by _scale. That last part
@@ -293,9 +293,9 @@ if (!(_packageState isEqualTo "IDLE")) then {
     // says guided cargo is switched on, a canopy is open, and no machine anywhere is
     // flying it. That is the difference between working and appearing to work, and it
     // had nowhere to appear.
-    private _jpadsPhase = missionNamespace getVariable ["USAFDC_state_jpadsPhase", "IDLE"];
-    private _jpads = if (missionNamespace getVariable ["USAFDC_state_jpadsActive", false]) then {
-        format ["JPADS %1 m", round (missionNamespace getVariable ["USAFDC_state_jpadsErrorM", 0])]
+    private _jpadsPhase = missionNamespace getVariable ["TLB_CARP_state_jpadsPhase", "IDLE"];
+    private _jpads = if (missionNamespace getVariable ["TLB_CARP_state_jpadsActive", false]) then {
+        format ["JPADS %1 m", round (missionNamespace getVariable ["TLB_CARP_state_jpadsErrorM", 0])]
     } else {
         if (_jpadsPhase in ["IDLE", "RELEASED"]) then {""} else {format ["JPADS %1", _jpadsPhase]}
     };
@@ -430,12 +430,12 @@ _ctrl ctrlSetStructuredText parseText format [
     MONO,
     _fData, C_GOOD,
     _fLabel, C_LABEL,
-    missionNamespace getVariable ["USAFDC_VERSION", "?"],
+    missionNamespace getVariable ["TLB_CARP_VERSION", "?"],
     // A DZ named "MAP DZ" rendered as "DZ MAP DZ". Only add the prefix when the name
     // does not already carry it.
-    if (USAFDC_state_dzName isEqualTo "") then {"DZ CUSTOM"} else {
-        if ("DZ" in (toUpper USAFDC_state_dzName splitString " ")) then {USAFDC_state_dzName}
-        else {format ["DZ %1", USAFDC_state_dzName]}
+    if (TLB_CARP_state_dzName isEqualTo "") then {"DZ CUSTOM"} else {
+        if ("DZ" in (toUpper TLB_CARP_state_dzName splitString " ")) then {TLB_CARP_state_dzName}
+        else {format ["DZ %1", TLB_CARP_state_dzName]}
     },
     _statusColor, _statusText,
     _fData,
@@ -456,7 +456,7 @@ private _cueW = safeZoneW * 0.025;
 private _cueY = _hudBottomY + 0.013;
 private _centerY = _cueY + _fdGapY;
 private _glyphH = safeZoneH * (0.026 * _scale);
-private _steerCtrl = uiNamespace getVariable ["USAFDC_HUD_STEER", controlNull];
+private _steerCtrl = uiNamespace getVariable ["TLB_CARP_HUD_STEER", controlNull];
 private _centerCtrl = _display displayCtrl 9403;
 if (!isNull _steerCtrl) then {
     _steerCtrl ctrlShow (!_packageTrackingOnly);

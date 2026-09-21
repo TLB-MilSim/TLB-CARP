@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_canUseCarp
+    TLB_CARP_fnc_canUseCarp
 
     The one access rule for the CARP panel and for crew sync.
 
-        [unit, aircraft] call USAFDC_fnc_canUseCarp
+        [unit, aircraft] call TLB_CARP_fnc_canUseCarp
 
     A unit may use CARP when it is inside that aircraft, the aircraft resolves to a
     profile, and -- unless the mission has switched the requirement off -- the unit
@@ -18,5 +18,5 @@
 params [["_unit", objNull, [objNull]], ["_aircraft", objNull, [objNull]]];
 if (isNull _unit || {isNull _aircraft}) exitWith {false};
 if !((objectParent _unit) isEqualTo _aircraft) exitWith {false};
-if (([_aircraft] call USAFDC_fnc_resolveAircraftProfile) isEqualTo "") exitWith {false};
-!(missionNamespace getVariable ["USAFDC_setting_requireComputer", true]) || {[_unit] call USAFDC_fnc_hasComputer}
+if (([_aircraft] call TLB_CARP_fnc_resolveAircraftProfile) isEqualTo "") exitWith {false};
+!(missionNamespace getVariable ["TLB_CARP_setting_requireComputer", true]) || {[_unit] call TLB_CARP_fnc_hasComputer}

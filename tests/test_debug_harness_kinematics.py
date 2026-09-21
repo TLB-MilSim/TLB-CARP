@@ -12,11 +12,11 @@ class DebugHarnessKinematicPinTests(unittest.TestCase):
 
     def test_release_window_pins_position_from_elapsed_sim_time(self):
         self.assertIn(
-            'private _pinOriginPosASL = +(USAFDC_state_calibrationRun getOrDefault ["cueAircraftPosASL", getPosASL _carrier]);',
+            'private _pinOriginPosASL = +(TLB_CARP_state_calibrationRun getOrDefault ["cueAircraftPosASL", getPosASL _carrier]);',
             self.text,
         )
         self.assertIn(
-            'private _pinOriginSimTime = USAFDC_state_calibrationRun getOrDefault ["cueSimTime", time];',
+            'private _pinOriginSimTime = TLB_CARP_state_calibrationRun getOrDefault ["cueSimTime", time];',
             self.text,
         )
         self.assertIn("private _pinElapsedS = (time - _pinOriginSimTime) max 0;", self.text)
@@ -26,7 +26,7 @@ class DebugHarnessKinematicPinTests(unittest.TestCase):
         self.assertIn("_carrier setPosASL _pinPosASL;", self.text)
 
     def test_position_pin_is_limited_to_real_usaf_release_window(self):
-        pin_marker = 'private _pinOriginPosASL = +(USAFDC_state_calibrationRun getOrDefault ["cueAircraftPosASL", getPosASL _carrier]);'
+        pin_marker = 'private _pinOriginPosASL = +(TLB_CARP_state_calibrationRun getOrDefault ["cueAircraftPosASL", getPosASL _carrier]);'
         self.assertIn(pin_marker, self.text)
         can_drop = self.text.index("[_carrier] spawn USAF_CARGO_fnc_canDrop;")
         pin_origin = self.text.index(pin_marker)

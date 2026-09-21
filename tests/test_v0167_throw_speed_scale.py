@@ -181,7 +181,7 @@ class WiringTests(unittest.TestCase):
         """The load enters the canopy phase at essentially its release ground speed -- a
         flown release at 97.27 m/s along reached the canopy at 97.3."""
         # v0.16.9 appended the freefall time after it; the speed argument is unmoved.
-        self.assertIn('_canopyRoot get _canopyRef, _velocityAlongMs, _ballistic get "attachTimeS"] call USAFDC_fnc_empiricalCanopyC17;',
+        self.assertIn('_canopyRoot get _canopyRef, _velocityAlongMs, _ballistic get "attachTimeS"] call TLB_CARP_fnc_empiricalCanopyC17;',
                       code(SOLVER))
 
     def test_the_ratio_of_logs_makes_the_log_base_irrelevant(self):

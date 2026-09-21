@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_loadAttach
+    TLB_CARP_fnc_loadAttach
 
     CARP's own load: attach the vehicle in the hold, run where the CARGO is local.
 
-        [_carrier, _cargo, _offset] call USAFDC_fnc_loadAttach
+        [_carrier, _cargo, _offset] call TLB_CARP_fnc_loadAttach
 
     MUST RUN WHERE THE CARGO IS LOCAL. attachTo, setDir and disableCollisionWith are all
     local-effect, and on a dedicated server a Zeus-spawned or Eden-placed vehicle belongs
@@ -48,6 +48,6 @@ _cargo setVectorDirAndUp [[0, -1, 0], [0, 0, 1]];
 
 // Stamped so the manifest's next rebuild does not have to guess, and so an unload knows
 // this was ours rather than something a mission maker attached by hand.
-_cargo setVariable ["USAFDC_cargoSource", "attached", true];
-_cargo setVariable ["USAFDC_loadedByCarp", true, true];
+_cargo setVariable ["TLB_CARP_cargoSource", "attached", true];
+_cargo setVariable ["TLB_CARP_loadedByCarp", true, true];
 true

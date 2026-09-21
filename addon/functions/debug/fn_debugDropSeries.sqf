@@ -26,11 +26,11 @@ if (_windMode isEqualTo "FIXED" && {(count _controlledWindVector) < 2}) exitWith
     hint "TLB CARP DEBUG SERIES\nFIXED mode requires [eastMs, northMs] wind vector";
     false
 };
-if (USAFDC_state_debugHarnessActive) exitWith {
+if (TLB_CARP_state_debugHarnessActive) exitWith {
     hint "TLB CARP DEBUG SERIES\nAnother harness run is active";
     false
 };
-if ((count USAFDC_state_dzPosASL) < 3) exitWith {
+if ((count TLB_CARP_state_dzPosASL) < 3) exitWith {
     hint "TLB CARP DEBUG SERIES\nSelect a CARP DZ first";
     false
 };
@@ -115,12 +115,12 @@ if (!_windControlReady) exitWith {
     false
 };
 
-USAFDC_state_debugHarnessActive = true;
-USAFDC_state_debugHarnessObjects = [];
-USAFDC_state_debugSeriesSerial = USAFDC_state_debugSeriesSerial + 1;
-private _seriesId = USAFDC_state_debugSeriesSerial;
-USAFDC_state_debugSeriesResults = [];
-USAFDC_state_lastDebugSeriesText = "";
+TLB_CARP_state_debugHarnessActive = true;
+TLB_CARP_state_debugHarnessObjects = [];
+TLB_CARP_state_debugSeriesSerial = TLB_CARP_state_debugSeriesSerial + 1;
+private _seriesId = TLB_CARP_state_debugSeriesSerial;
+TLB_CARP_state_debugSeriesResults = [];
+TLB_CARP_state_lastDebugSeriesText = "";
 
 private _seriesIndex = 0;
 {
@@ -155,24 +155,24 @@ private _seriesIndex = 0;
         true,
         _windMode,
         +_requestedWindVector
-    ] spawn USAFDC_fnc_debugDropTest;
+    ] spawn TLB_CARP_fnc_debugDropTest;
 
     waitUntil {
         uiSleep 0.1;
         scriptDone _handle
     };
 
-    private _lastRun = USAFDC_state_lastCalibrationRun;
+    private _lastRun = TLB_CARP_state_lastCalibrationRun;
     private _status = _lastRun getOrDefault ["status", ""];
     private _sameSeries = (_lastRun getOrDefault ["testHarness", false])
         && {(_lastRun getOrDefault ["testSeriesId", -1]) isEqualTo _seriesId}
         && {(_lastRun getOrDefault ["testSeriesIndex", -1]) isEqualTo _seriesIndex};
     private _text = "";
     if (_sameSeries && {_status in ["COMPLETE", "FAILED"]}) then {
-        _text = USAFDC_state_lastCalibrationText;
+        _text = TLB_CARP_state_lastCalibrationText;
     } else {
         _text = format [
-            "USAFDC_CAL_V3\nrunId=-1\nstatus=FAILED\nfailureReason=HARNESS RUN DID NOT PRODUCE CAL RECORD\ntestHarness=true\ntestSeriesId=%1\ntestSeriesIndex=%2\ntestRequestedHeadingDeg=%3\ntestWindMode=%4\ntestRequestedWindVector=%5",
+            "TLB_CARP_CAL_V3\nrunId=-1\nstatus=FAILED\nfailureReason=HARNESS RUN DID NOT PRODUCE CAL RECORD\ntestHarness=true\ntestSeriesId=%1\ntestSeriesIndex=%2\ntestRequestedHeadingDeg=%3\ntestWindMode=%4\ntestRequestedWindVector=%5",
             _seriesId,
             _seriesIndex,
             _headingDeg,
@@ -180,20 +180,20 @@ private _seriesIndex = 0;
             _requestedWindVector
         ];
     };
-    USAFDC_state_debugSeriesResults pushBack _text;
+    TLB_CARP_state_debugSeriesResults pushBack _text;
 
     // The single-run function cleans its tagged carrier/cargo before returning.
     waitUntil {
         uiSleep 0.05;
-        (count USAFDC_state_debugHarnessObjects) isEqualTo 0
+        (count TLB_CARP_state_debugHarnessObjects) isEqualTo 0
     };
 
     diag_log format ["[TLB CARP][HARNESS] series=%1 index=%2 status=%3 complete", _seriesId, _seriesIndex, if (_sameSeries) then {_status} else {"FAILED"}];
 } forEach _headings;
 
-USAFDC_state_lastDebugSeriesText = USAFDC_state_debugSeriesResults joinString "\n\n";
-USAFDC_state_debugHarnessObjects = [];
-USAFDC_state_debugHarnessActive = false;
+TLB_CARP_state_lastDebugSeriesText = TLB_CARP_state_debugSeriesResults joinString "\n\n";
+TLB_CARP_state_debugHarnessObjects = [];
+TLB_CARP_state_debugHarnessActive = false;
 call _restoreEnvironment;
 
 private _completeCount = 0;
@@ -201,7 +201,7 @@ private _failedCount = 0;
 {
     if ((_x find "status=COMPLETE") >= 0) then {_completeCount = _completeCount + 1};
     if ((_x find "status=FAILED") >= 0) then {_failedCount = _failedCount + 1};
-} forEach USAFDC_state_debugSeriesResults;
+} forEach TLB_CARP_state_debugSeriesResults;
 
 diag_log format [
     "[TLB CARP][HARNESS] series=%1 finished complete=%2 failed=%3 windMode=%4 wind=%5",
@@ -212,7 +212,7 @@ diag_log format [
     _requestedWindVector
 ];
 hint format [
-    "TLB CARP DEBUG SERIES COMPLETE\n%1 complete | %2 failed\nWIND %3\nRun [] call USAFDC_fnc_copyLastDebugSeries",
+    "TLB CARP DEBUG SERIES COMPLETE\n%1 complete | %2 failed\nWIND %3\nRun [] call TLB_CARP_fnc_copyLastDebugSeries",
     _completeCount,
     _failedCount,
     _windMode

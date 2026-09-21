@@ -1,5 +1,5 @@
 /*
-    USAFDC_fnc_unloadAttach -- detach a load and set it down, where the CARGO is local.
+    TLB_CARP_fnc_unloadAttach -- detach a load and set it down, where the CARGO is local.
 
     detach, setPos and setVectorDirAndUp are local-effect, so this runs on the cargo's
     machine for the same reason fn_loadAttach does.
@@ -22,7 +22,7 @@ _cargo setVelocity [0, 0, 0];
 
 _cargo enableCollisionWith _carrier;
 _carrier enableCollisionWith _cargo;
-_cargo setVariable ["USAFDC_loadedByCarp", nil, true];
-_cargo setVariable ["USAFDC_loadSlotY", nil, false];
-_cargo setVariable ["USAFDC_loadSlotEndY", nil, false];
+_cargo setVariable ["TLB_CARP_loadedByCarp", nil, true];
+_cargo setVariable ["TLB_CARP_loadSlotY", nil, false];
+_cargo setVariable ["TLB_CARP_loadSlotEndY", nil, false];
 true

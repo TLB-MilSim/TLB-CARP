@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_loadCargo
+    TLB_CARP_fnc_loadCargo
 
     Load a vehicle into an aircraft, by whichever mechanism that airframe supports.
 
-        [_carrier, _cargo] call USAFDC_fnc_loadCargo  ->  "viv" | "usaf" | "carp" | ""
+        [_carrier, _cargo] call TLB_CARP_fnc_loadCargo  ->  "viv" | "usaf" | "carp" | ""
 
     CARP CAN NOW LOAD AS WELL AS DROP, AND NEITHER NEEDS THE USAF MOD
 
@@ -12,7 +12,7 @@
     maker's attachTo, and a vehicle Zeus merely placed in the fuselage was a car standing
     on the floor of a flying building -- carried by nothing, so droppable by nothing.
 
-    USAFDC_fnc_canLoadCargo picks the mechanism and explains itself; this executes it.
+    TLB_CARP_fnc_canLoadCargo picks the mechanism and explains itself; this executes it.
 
     WHERE EACH MECHANISM HAS TO RUN, WHICH IS NOT THE SAME PLACE
 
@@ -37,7 +37,7 @@
 params ["_carrier", "_cargo"];
 if (isNull _carrier || {isNull _cargo}) exitWith {""};
 
-([_carrier, _cargo] call USAFDC_fnc_canLoadCargo) params ["_method", "_reason"];
+([_carrier, _cargo] call TLB_CARP_fnc_canLoadCargo) params ["_method", "_reason"];
 if (_method isEqualTo "") exitWith {
     diag_log format ["[TLB CARP][LOAD] refused carrier=%1 cargo=%2 reason=%3",
         typeOf _carrier, typeOf _cargo, _reason];
@@ -47,7 +47,7 @@ if (_method isEqualTo "") exitWith {
 switch (_method) do {
     // ---- the engine's own, on the carrier's machine ---------------------------------
     case "viv": {
-        [_carrier, _cargo] remoteExec ["USAFDC_fnc_loadViv", _carrier];
+        [_carrier, _cargo] remoteExec ["TLB_CARP_fnc_loadViv", _carrier];
     };
 
     // ---- ours, on the cargo's machine, because attachTo is local-effect -------------
@@ -56,9 +56,9 @@ switch (_method) do {
         // branch here and read USAF_Cargo_LoadPos directly -- a property that does not
         // exist anywhere in the USAF mod, so the branch was dead and the load fell through
         // to the derivation with nothing saying so.
-        private _offset = [_carrier, _cargo] call USAFDC_fnc_loadModelOffset;
+        private _offset = [_carrier, _cargo] call TLB_CARP_fnc_loadModelOffset;
         if ((count _offset) < 3) exitWith {};
-        [_carrier, _cargo, _offset] remoteExec ["USAFDC_fnc_loadAttach", _cargo];
+        [_carrier, _cargo, _offset] remoteExec ["TLB_CARP_fnc_loadAttach", _cargo];
     };
 };
 

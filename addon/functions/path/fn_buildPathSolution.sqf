@@ -15,15 +15,15 @@ private _invalid = createHashMapFromArray [
     ["altitudePathState", "ALT UNAVAILABLE"],
     ["altitudeReachable", false]
 ];
-if (isNull _vehicle || {!(_solution getOrDefault ["valid", false])} || {!USAFDC_state_runInLocked}) exitWith {_invalid};
+if (isNull _vehicle || {!(_solution getOrDefault ["valid", false])} || {!TLB_CARP_state_runInLocked}) exitWith {_invalid};
 
 private _plannedRp = +(_solution getOrDefault ["plannedRpPosASL", []]);
 private _liveRp = +(_solution getOrDefault ["liveRpPosASL", _solution getOrDefault ["rpPosASL", []]]);
-private _dz = +(_solution getOrDefault ["dzPosASL", USAFDC_state_dzPosASL]);
+private _dz = +(_solution getOrDefault ["dzPosASL", TLB_CARP_state_dzPosASL]);
 if ((count _plannedRp) < 3 || {(count _liveRp) < 3} || {(count _dz) < 3}) exitWith {_invalid};
 
-private _runInDeg = _solution getOrDefault ["runInDeg", USAFDC_state_runInDeg];
-private _basis = [_runInDeg] call USAFDC_fnc_basisFromHeading;
+private _runInDeg = _solution getOrDefault ["runInDeg", TLB_CARP_state_runInDeg];
+private _basis = [_runInDeg] call TLB_CARP_fnc_basisFromHeading;
 private _forward = _basis get "forward";
 private _right = _basis get "right";
 private _airPos = getPosASL _vehicle;
@@ -39,7 +39,7 @@ private _signedRpM = _solution getOrDefault ["signedRpM", 1e9];
 private _remainingUpstreamM = 0 max (-_alongM);
 
 private _dzTerrainAsl = getTerrainHeightASL [_dz # 0, _dz # 1];
-private _targetDropAslM = _dzTerrainAsl + USAFDC_state_targetAglM;
+private _targetDropAslM = _dzTerrainAsl + TLB_CARP_state_targetAglM;
 private _finalAnchor = +_plannedRp;
 _finalAnchor set [2, _targetDropAslM];
 
@@ -125,7 +125,7 @@ if (_pathState isEqualTo "CAPTURE FINAL") then {
 };
 if (_pathState isEqualTo "POST DROP") then {_routeDistanceM = 0};
 
-private _targetGroundSpeedMs = (USAFDC_state_targetGroundSpeedKmh max 100) / 3.6;
+private _targetGroundSpeedMs = (TLB_CARP_state_targetGroundSpeedKmh max 100) / 3.6;
 private _routeEtaS = if (_routeDistanceM > 0) then {_routeDistanceM / (_targetGroundSpeedMs max 1)} else {0};
 private _altitudeErrorM = _targetDropAslM - (_airPos # 2);
 // Capture altitude early instead of spreading the correction all the way to the RP.

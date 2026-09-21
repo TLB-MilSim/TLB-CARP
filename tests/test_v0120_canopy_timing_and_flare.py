@@ -71,7 +71,7 @@ class CanopyTriggerTests(unittest.TestCase):
 
     def test_the_release_hands_the_load_to_the_frame_loop(self):
         src = code(RELEASE)
-        self.assertIn("[_cargo, _carrier, _smoke] call USAFDC_fnc_canopyWatch;", src)
+        self.assertIn("[_cargo, _carrier, _smoke] call TLB_CARP_fnc_canopyWatch;", src)
 
     def test_the_timed_release_sequence_is_untouched(self):
         """releaseDelayS was measured against the attach / sleep 0.5 / detach / inherit
@@ -95,7 +95,7 @@ class CanopyTriggerTests(unittest.TestCase):
         """A spawn here would put the scheduler back between the crossing and the chute,
         which is the whole fault."""
         src = code(WATCH)
-        cross = src.index("_cargo setVariable [\"USAFDC_canopyPending\", false, false]")
+        cross = src.index("_cargo setVariable [\"TLB_CARP_canopyPending\", false, false]")
         chute = src.index("private _chute = _chuteClass createVehicle")
         self.assertLess(cross, chute)
         self.assertNotIn("spawn", src[cross:chute])
@@ -105,21 +105,21 @@ class CanopyTriggerTests(unittest.TestCase):
         costume: a stick of eight would be eight handlers competing."""
         src = code(WATCH)
         self.assertEqual(src.count("CBA_fnc_addPerFrameHandler"), 1)
-        self.assertIn("if !(isNil \"USAFDC_state_canopyPfh\") exitWith {true};", src)
-        self.assertIn("} forEach USAFDC_state_canopyPending;", src)
+        self.assertIn("if !(isNil \"TLB_CARP_state_canopyPfh\") exitWith {true};", src)
+        self.assertIn("} forEach TLB_CARP_state_canopyPending;", src)
 
     def test_the_handler_stops_when_nothing_is_falling(self):
         """Otherwise it runs every frame for the rest of the mission."""
         src = code(WATCH)
         self.assertIn("CBA_fnc_removePerFrameHandler", src)
-        self.assertIn("USAFDC_state_canopyPfh = nil;", src)
+        self.assertIn("TLB_CARP_state_canopyPfh = nil;", src)
 
     def test_the_pending_list_is_initialised(self):
-        self.assertIn("USAFDC_state_canopyPending = [];", read(POSTINIT))
+        self.assertIn("TLB_CARP_state_canopyPending = [];", read(POSTINIT))
 
     def test_the_watcher_is_registered_in_the_compile_table(self):
         """config.bin is pre-binarized, so this is the only way a new function exists."""
-        self.assertIn("USAFDC_fnc_canopyWatch", read(POSTINIT))
+        self.assertIn("TLB_CARP_fnc_canopyWatch", read(POSTINIT))
         self.assertIn("fn_canopyWatch.sqf", read(POSTINIT))
 
     def test_the_opening_altitude_is_logged(self):
@@ -150,7 +150,7 @@ class CanopyTriggerTests(unittest.TestCase):
 class FlareTests(unittest.TestCase):
     def test_the_steering_term_tapers_near_the_ground(self):
         src = code(STEER)
-        self.assertIn('missionNamespace getVariable ["USAFDC_setting_jpadsFlareAglM", 25]', src)
+        self.assertIn('missionNamespace getVariable ["TLB_CARP_setting_jpadsFlareAglM", 25]', src)
         self.assertIn("private _taper = (_aglM / _flareAglM) max 0;", src)
 
     def test_the_wind_term_is_kept_in_full(self):
@@ -174,7 +174,7 @@ class FlareTests(unittest.TestCase):
         may run on a machine that has never had the panel open."""
         lines = [
             ln for ln in read(POSTINIT).splitlines()
-            if "USAFDC_setting_jpadsFlareAglM" in ln and "addSetting" in ln
+            if "TLB_CARP_setting_jpadsFlareAglM" in ln and "addSetting" in ln
         ]
         self.assertEqual(len(lines), 1)
         self.assertIn("[0, 100, 25, 0], 1]", lines[0])

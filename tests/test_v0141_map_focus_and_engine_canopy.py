@@ -81,12 +81,12 @@ class MapFocusTests(unittest.TestCase):
         """Each cost a flown session to find. The map is a fifth case, not a replacement."""
         src = code(FOCUS)
         for owner in ["findDisplay 9300", "findDisplay 312",
-                      "USAFDC_state_apAceInteractOpen", 'inputAction "lookAround"']:
+                      "TLB_CARP_state_apAceInteractOpen", 'inputAction "lookAround"']:
             self.assertIn(owner, src)
 
     def test_the_grace_period_still_exists(self):
         """Focus ending and the mouse settling are not the same instant."""
-        self.assertIn("USAFDC_state_apOverrideInhibitUntil", read("addon/functions/fn_postInit.sqf"))
+        self.assertIn("TLB_CARP_state_apOverrideInhibitUntil", read("addon/functions/fn_postInit.sqf"))
 
 
 class EngineCanopyTests(unittest.TestCase):
@@ -163,14 +163,14 @@ class EngineCanopyTests(unittest.TestCase):
         """THE CASE THAT WOULD OTHERWISE BREAK. A drop from low enough that canopyWatch
         opens ours inside the window."""
         src = code(RELEASE)
-        self.assertIn('{!(_cargo getVariable ["USAFDC_canopyPending", true])}', src)
+        self.assertIn('{!(_cargo getVariable ["TLB_CARP_canopyPending", true])}', src)
         # The flag the guard reads is the one canopyWatch actually clears.
-        self.assertIn('_cargo setVariable ["USAFDC_canopyPending", false, false]', code(WATCH))
+        self.assertIn('_cargo setVariable ["TLB_CARP_canopyPending", false, false]', code(WATCH))
 
     def test_the_default_keeps_the_sweep_alive_before_registration(self):
         """canopyWatch registers half a second into the release, so before that the guard
         reads its default -- which has to be true or the sweep never starts."""
-        self.assertIn('getVariable ["USAFDC_canopyPending", true]', code(RELEASE))
+        self.assertIn('getVariable ["TLB_CARP_canopyPending", true]', code(RELEASE))
 
     def test_the_timed_release_sequence_is_still_untouched(self):
         """attach, sleep 0.5, detach, inherit velocity -- unchanged by the move. Nothing was

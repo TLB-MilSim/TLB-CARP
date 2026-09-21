@@ -1,12 +1,12 @@
 params [["_writeLog", false]];
 private _vehicle = objectParent player;
-private _air = if (isNull _vehicle) then {createHashMapFromArray [["valid", false]]} else {[_vehicle] call USAFDC_fnc_getAircraftState};
-private _solution = USAFDC_state_solution;
-if ((count _solution) isEqualTo 0 && {!isNull _vehicle} && {(count USAFDC_state_dzPosASL) >= 3}) then {
-    _solution = [_vehicle] call USAFDC_fnc_buildWorldSolution;
+private _air = if (isNull _vehicle) then {createHashMapFromArray [["valid", false]]} else {[_vehicle] call TLB_CARP_fnc_getAircraftState};
+private _solution = TLB_CARP_state_solution;
+if ((count _solution) isEqualTo 0 && {!isNull _vehicle} && {(count TLB_CARP_state_dzPosASL) >= 3}) then {
+    _solution = [_vehicle] call TLB_CARP_fnc_buildWorldSolution;
 };
 private _relative = _solution getOrDefault ["relative", createHashMap];
-private _model = [] call USAFDC_fnc_getModel;
+private _model = [] call TLB_CARP_fnc_getModel;
 private _profileId = _air getOrDefault ["profileId", ""];
 private _profiles = _model getOrDefault ["aircraft", createHashMap];
 private _profile = _profiles getOrDefault [_profileId, createHashMap];
@@ -21,7 +21,7 @@ private _snapshot = createHashMapFromArray [
     ["verticalSpeedMs", _air getOrDefault ["verticalSpeedMs", 0]],
     ["trackDeg", _air getOrDefault ["trackDeg", 0]],
     ["aircraftPosASL", _air getOrDefault ["posASL", []]],
-    ["dzPosASL", _solution getOrDefault ["dzPosASL", +USAFDC_state_dzPosASL]],
+    ["dzPosASL", _solution getOrDefault ["dzPosASL", +TLB_CARP_state_dzPosASL]],
     ["openingTerrainAslM", _solution getOrDefault ["openingTerrainAslM", 0]],
     ["windVector", _solution getOrDefault ["windVector", wind]],
     ["windFromDeg", _solution getOrDefault ["windFromDeg", 0]],
@@ -44,8 +44,8 @@ private _snapshot = createHashMapFromArray [
     ["interceptAngleDeg", _solution getOrDefault ["interceptAngleDeg", 0]],
     ["guidanceState", _solution getOrDefault ["guidanceState", ""]],
     ["finalRunLineOffsetM", _solution getOrDefault ["finalRunLineOffsetM", 0]],
-    ["targetAglM", _solution getOrDefault ["targetAglM", USAFDC_state_targetAglM]],
-    ["targetGroundSpeedKmh", _solution getOrDefault ["targetGroundSpeedKmh", USAFDC_state_targetGroundSpeedKmh]],
+    ["targetAglM", _solution getOrDefault ["targetAglM", TLB_CARP_state_targetAglM]],
+    ["targetGroundSpeedKmh", _solution getOrDefault ["targetGroundSpeedKmh", TLB_CARP_state_targetGroundSpeedKmh]],
     ["actualAglM", _solution getOrDefault ["actualAglM", 0]],
     ["actualGroundSpeedKmh", _solution getOrDefault ["actualGroundSpeedKmh", 0]],
     ["plannedRpPosASL", _solution getOrDefault ["plannedRpPosASL", []]],
@@ -56,15 +56,15 @@ private _snapshot = createHashMapFromArray [
     ["trackErrorDeg", _solution getOrDefault ["trackErrorDeg", 0]],
     ["confidence", _solution getOrDefault ["confidence", "INVALID"]],
     ["warnings", _solution getOrDefault ["warnings", []]],
-    ["autoArmed", USAFDC_state_autoArmed],
+    ["autoArmed", TLB_CARP_state_autoArmed],
     // Without these a refused pass cannot be attributed to the AP or the pilot.
-    ["apArmed", missionNamespace getVariable ["USAFDC_state_apArmed", false]],
-    ["apState", missionNamespace getVariable ["USAFDC_state_apState", "OFF"]],
-    ["apDisconnectReason", missionNamespace getVariable ["USAFDC_state_apDisconnectReason", ""]],
-    ["pathState", (missionNamespace getVariable ["USAFDC_state_pathSolution", createHashMap]) getOrDefault ["pathState", ""]],
-    ["passMissed", missionNamespace getVariable ["USAFDC_state_passMissed", false]],
+    ["apArmed", missionNamespace getVariable ["TLB_CARP_state_apArmed", false]],
+    ["apState", missionNamespace getVariable ["TLB_CARP_state_apState", "OFF"]],
+    ["apDisconnectReason", missionNamespace getVariable ["TLB_CARP_state_apDisconnectReason", ""]],
+    ["pathState", (missionNamespace getVariable ["TLB_CARP_state_pathSolution", createHashMap]) getOrDefault ["pathState", ""]],
+    ["passMissed", missionNamespace getVariable ["TLB_CARP_state_passMissed", false]],
     ["cargoCount", _air getOrDefault ["cargoCount", 0]],
-    ["selectedCargoCount", USAFDC_state_cargoCount],
+    ["selectedCargoCount", TLB_CARP_state_cargoCount],
     ["stickLengthM", _solution getOrDefault ["stickLengthM", 0]],
     ["firstReleaseLeadM", _solution getOrDefault ["firstReleaseLeadM", 0]]
 ];

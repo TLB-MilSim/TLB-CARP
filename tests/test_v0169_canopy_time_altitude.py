@@ -184,7 +184,7 @@ class WiringTests(unittest.TestCase):
     def test_the_solver_passes_the_ballistic_attach_time(self):
         """The same number the freefall along-track distance is built from, so the two can
         never disagree about how long the load fell."""
-        self.assertIn('_velocityAlongMs, _ballistic get "attachTimeS"] call USAFDC_fnc_empiricalCanopyC17;',
+        self.assertIn('_velocityAlongMs, _ballistic get "attachTimeS"] call TLB_CARP_fnc_empiricalCanopyC17;',
                       code(SOLVER))
 
     def test_the_slope_is_interpolated_per_heading(self):

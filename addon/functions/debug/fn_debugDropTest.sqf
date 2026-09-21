@@ -15,26 +15,26 @@ if (isMultiplayer) exitWith {
     hint "TLB CARP DEBUG HARNESS\nEden / Single Player only";
     false
 };
-if (!_seriesOwnsHarness && {USAFDC_state_debugHarnessActive}) exitWith {
+if (!_seriesOwnsHarness && {TLB_CARP_state_debugHarnessActive}) exitWith {
     hint "TLB CARP DEBUG HARNESS\nAnother test is already active";
     false
 };
-if (_seriesOwnsHarness && {!USAFDC_state_debugHarnessActive}) exitWith {
+if (_seriesOwnsHarness && {!TLB_CARP_state_debugHarnessActive}) exitWith {
     diag_log "[TLB CARP][HARNESS] series-owned run rejected because series reservation is missing";
     false
 };
 
-if (!_seriesOwnsHarness) then {USAFDC_state_debugHarnessActive = true};
-USAFDC_state_debugHarnessObjects = [];
+if (!_seriesOwnsHarness) then {TLB_CARP_state_debugHarnessActive = true};
+TLB_CARP_state_debugHarnessObjects = [];
 
 private _cleanup = {
     {
-        if (!isNull _x && {_x getVariable ["USAFDC_debugHarnessOwned", false]}) then {
+        if (!isNull _x && {_x getVariable ["TLB_CARP_debugHarnessOwned", false]}) then {
             deleteVehicle _x;
         };
-    } forEach +USAFDC_state_debugHarnessObjects;
-    USAFDC_state_debugHarnessObjects = [];
-    if (!_seriesOwnsHarness) then {USAFDC_state_debugHarnessActive = false};
+    } forEach +TLB_CARP_state_debugHarnessObjects;
+    TLB_CARP_state_debugHarnessObjects = [];
+    if (!_seriesOwnsHarness) then {TLB_CARP_state_debugHarnessActive = false};
 };
 private _fail = {
     params ["_reason", "_cleanup"];
@@ -44,22 +44,22 @@ private _fail = {
     false
 };
 
-if ((count USAFDC_state_dzPosASL) < 3) exitWith {["Select a CARP DZ first", _cleanup] call _fail};
+if ((count TLB_CARP_state_dzPosASL) < 3) exitWith {["Select a CARP DZ first", _cleanup] call _fail};
 if !(isClass (configFile >> "CfgVehicles" >> _cargoClass)) exitWith {[format ["Cargo class missing: %1", _cargoClass], _cleanup] call _fail};
 
 private _cargo = createVehicle [_cargoClass, [0, 0, 100], [], 0, "NONE"];
 if (isNull _cargo) exitWith {[format ["Could not create cargo: %1", _cargoClass], _cleanup] call _fail};
-_cargo setVariable ["USAFDC_debugHarnessOwned", true, false];
-USAFDC_state_debugHarnessObjects pushBack _cargo;
+_cargo setVariable ["TLB_CARP_debugHarnessOwned", true, false];
+TLB_CARP_state_debugHarnessObjects pushBack _cargo;
 
-private _build = [_headingDeg, _aglM, _groundSpeedKmh, _verticalSpeedMs, _cargoClass, _cargo] call USAFDC_fnc_buildDebugDropSolution;
+private _build = [_headingDeg, _aglM, _groundSpeedKmh, _verticalSpeedMs, _cargoClass, _cargo] call TLB_CARP_fnc_buildDebugDropSolution;
 if !(_build getOrDefault ["valid", false]) exitWith {[_build getOrDefault ["reason", "Invalid debug solution"], _cleanup] call _fail};
 
 private _spawnPosASL = +(_build get "spawnPosASL");
 private _carrier = createVehicle ["USAF_C17", [_spawnPosASL # 0, _spawnPosASL # 1, 0], [], 0, "FLY"];
 if (isNull _carrier) exitWith {["Could not create USAF_C17", _cleanup] call _fail};
-_carrier setVariable ["USAFDC_debugHarnessOwned", true, false];
-USAFDC_state_debugHarnessObjects pushBack _carrier;
+_carrier setVariable ["TLB_CARP_debugHarnessOwned", true, false];
+TLB_CARP_state_debugHarnessObjects pushBack _carrier;
 
 private _exactHeading = _build get "headingDeg";
 private _forward = +(_build get "forward");
@@ -117,13 +117,13 @@ private _metadata = createHashMapFromArray [
     ["testGustsAtHarnessStart", gusts]
 ];
 
-private _oldRecorderSetting = USAFDC_setting_calibrationRecorder;
-USAFDC_setting_calibrationRecorder = true;
-private _recorderStarted = [_carrier, _solution, _metadata] call USAFDC_fnc_beginCalibrationRun;
-USAFDC_setting_calibrationRecorder = _oldRecorderSetting;
+private _oldRecorderSetting = TLB_CARP_setting_calibrationRecorder;
+TLB_CARP_setting_calibrationRecorder = true;
+private _recorderStarted = [_carrier, _solution, _metadata] call TLB_CARP_fnc_beginCalibrationRun;
+TLB_CARP_setting_calibrationRecorder = _oldRecorderSetting;
 if (!_recorderStarted) exitWith {["Calibration recorder did not start", _cleanup] call _fail};
 
-private _runId = USAFDC_state_calibrationRun getOrDefault ["runId", -1];
+private _runId = TLB_CARP_state_calibrationRun getOrDefault ["runId", -1];
 diag_log format ["[TLB CARP][HARNESS] run=%1 heading=%2 agl=%3 speed=%4 vz=%5 spawn=%6", _runId, _exactHeading, _aglM, _groundSpeedKmh, _verticalSpeedMs, _spawnPosASL];
 hint format ["TLB CARP DEBUG DROP\nHDG %1 | %2 m | %3 km/h", round _exactHeading, round _aglM, round _groundSpeedKmh];
 
@@ -132,8 +132,8 @@ hint format ["TLB CARP DEBUG DROP\nHDG %1 | %2 m | %3 km/h", round _exactHeading
 // action-to-detach window, pin the carrier to the exact requested kinematic path
 // from the recorder cue. The cargo remains attached through USAF's own loader and
 // USAF_CARGO_fnc_dropCargo still owns the actual 0.5 s detach timing.
-private _pinOriginPosASL = +(USAFDC_state_calibrationRun getOrDefault ["cueAircraftPosASL", getPosASL _carrier]);
-private _pinOriginSimTime = USAFDC_state_calibrationRun getOrDefault ["cueSimTime", time];
+private _pinOriginPosASL = +(TLB_CARP_state_calibrationRun getOrDefault ["cueAircraftPosASL", getPosASL _carrier]);
+private _pinOriginSimTime = TLB_CARP_state_calibrationRun getOrDefault ["cueSimTime", time];
 
 [_carrier] spawn USAF_CARGO_fnc_canDrop;
 
@@ -161,23 +161,23 @@ waitUntil {
 private _trackingDeadline = diag_tickTime + 2;
 waitUntil {
     uiSleep 0.01;
-    private _activeRun = USAFDC_state_calibrationRun;
+    private _activeRun = TLB_CARP_state_calibrationRun;
     ((_activeRun getOrDefault ["runId", -2]) isEqualTo _runId && {!((_activeRun getOrDefault ["status", ""]) isEqualTo "WAITING_RELEASE")})
         || {diag_tickTime >= _trackingDeadline}
 };
-if (!isNull _carrier && {_carrier getVariable ["USAFDC_debugHarnessOwned", false]}) then {
+if (!isNull _carrier && {_carrier getVariable ["TLB_CARP_debugHarnessOwned", false]}) then {
     deleteVehicle _carrier;
 };
 
 private _runDeadline = diag_tickTime + 220;
 waitUntil {
     uiSleep 0.1;
-    private _lastRun = USAFDC_state_lastCalibrationRun;
+    private _lastRun = TLB_CARP_state_lastCalibrationRun;
     private _done = ((_lastRun getOrDefault ["runId", -2]) isEqualTo _runId) && {(_lastRun getOrDefault ["status", ""]) in ["COMPLETE", "FAILED"]};
     _done || {diag_tickTime >= _runDeadline}
 };
 
-private _lastRun = USAFDC_state_lastCalibrationRun;
+private _lastRun = TLB_CARP_state_lastCalibrationRun;
 private _completed = ((_lastRun getOrDefault ["runId", -2]) isEqualTo _runId) && {(_lastRun getOrDefault ["status", ""]) in ["COMPLETE", "FAILED"]};
 if (!_completed) exitWith {["Recorder did not finish within harness timeout", _cleanup] call _fail};
 

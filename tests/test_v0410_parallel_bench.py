@@ -1,6 +1,6 @@
 """Parallel drop bench.
 
-USAFDC_fnc_debugDropSeries is hard-serialised: USAFDC_state_debugHarnessActive
+TLB_CARP_fnc_debugDropSeries is hard-serialised: TLB_CARP_state_debugHarnessActive
 admits one run at a time and the calibration recorder is a singleton, so a batch
 of N runs costs N descents. Time acceleration is not a workaround either -- the
 carrier kinematic pin uses real-time uiSleep, so accelerating degrades the very
@@ -30,19 +30,19 @@ def code(rel: str) -> str:
 class ParallelBenchTests(unittest.TestCase):
     def test_registered_at_runtime(self):
         post_init = read("addon/functions/fn_postInit.sqf")
-        self.assertIn("USAFDC_fnc_parallelDropBench", post_init)
+        self.assertIn("TLB_CARP_fnc_parallelDropBench", post_init)
         self.assertIn("debug\\fn_parallelDropBench.sqf", post_init)
 
     def test_does_not_use_the_singleton_calibration_recorder(self):
         text = read(SRC)
         for singleton in ("beginCalibrationRun", "pollCalibrationRun",
-                          "USAFDC_state_calibrationRun", "USAFDC_setting_calibrationRecorder"):
+                          "TLB_CARP_state_calibrationRun", "TLB_CARP_setting_calibrationRecorder"):
             self.assertNotIn(singleton, text, f"{singleton} would serialise the batch")
 
     def test_refuses_to_run_alongside_the_series_harness(self):
         text = read(SRC)
-        self.assertIn("USAFDC_state_debugHarnessActive", text)
-        self.assertIn("USAFDC_state_pbenchActive", text)
+        self.assertIn("TLB_CARP_state_debugHarnessActive", text)
+        self.assertIn("TLB_CARP_state_pbenchActive", text)
 
     def test_each_run_gets_its_own_virtual_dz(self):
         """Shared DZ would pile every load into one spot and let them collide."""
@@ -53,7 +53,7 @@ class ParallelBenchTests(unittest.TestCase):
 
     def test_restores_the_real_dz_before_spawning_anything(self):
         text = read(SRC)
-        solve_restore = text.index("USAFDC_state_dzPosASL = +_realDz;")
+        solve_restore = text.index("TLB_CARP_state_dzPosASL = +_realDz;")
         spawn_phase = text.index("Phase 2")
         self.assertLess(solve_restore, spawn_phase)
 
@@ -75,7 +75,7 @@ class ParallelBenchTests(unittest.TestCase):
 
     def test_restores_wind_and_cleans_up_after_the_last_run(self):
         text = read(SRC)
-        self.assertIn("USAFDC_state_pbenchPending <= 0", text)
+        self.assertIn("TLB_CARP_state_pbenchPending <= 0", text)
         self.assertIn("setWind", text)
         self.assertIn("deleteVehicle _x", text)
 
@@ -108,8 +108,8 @@ class ParallelBenchV0413FixTests(unittest.TestCase):
     def test_pins_every_carrier_from_one_per_frame_handler(self):
         text = read(SRC)
         self.assertIn('addMissionEventHandler ["EachFrame"', text)
-        self.assertIn("USAFDC_state_pbenchPins", text)
-        self.assertIn("USAFDC_pbenchReleased", text)
+        self.assertIn("TLB_CARP_state_pbenchPins", text)
+        self.assertIn("TLB_CARP_pbenchReleased", text)
 
     def test_no_per_run_pin_loop_remains(self):
         """A per-run pin loop is what starved the scheduler.
@@ -152,7 +152,7 @@ class ParallelBenchWaveTests(unittest.TestCase):
     def test_zero_spacing_uses_the_real_dz_and_waits_for_each_wave(self):
         text = read(SRC)
         self.assertIn("if (_spacingM <= 0) then {_offE = 0; _offN = 0}", text)
-        self.assertIn("USAFDC_state_pbenchPending <= _remainingAfterWave", text)
+        self.assertIn("TLB_CARP_state_pbenchPending <= _remainingAfterWave", text)
 
     def test_water_check_only_applies_to_the_virtual_grid(self):
         """Superseded form: the check moved into a nudge loop guarded by
@@ -325,14 +325,14 @@ class DamageWindowInstrumentationTests(unittest.TestCase):
 
     def test_pinned_flight_window_is_observed_inside_the_per_frame_handler(self):
         handler = self.src[self.src.index('addMissionEventHandler ["EachFrame"'):]
-        handler = handler[:handler.index("} forEach USAFDC_state_pbenchPins")]
+        handler = handler[:handler.index("} forEach TLB_CARP_state_pbenchPins")]
         self.assertIn("private _pinDmg = damage _pinCargo;", handler)
-        self.assertIn("USAFDC_pbenchDmgPinnedAgl", handler)
+        self.assertIn("TLB_CARP_pbenchDmgPinnedAgl", handler)
 
     def test_pin_window_reading_is_read_before_the_carrier_is_deleted(self):
         # The value lives on the carrier, so reading it after deleteVehicle _carrier
         # would silently always return the -1 default.
-        read_at = self.src.index('_carrier getVariable ["USAFDC_pbenchDmgPinnedAgl"')
+        read_at = self.src.index('_carrier getVariable ["TLB_CARP_pbenchDmgPinnedAgl"')
         # Anchor on the deletion that FOLLOWS the read: the first "deleteVehicle
         # _carrier;" in the file belongs to the LOAD FAILED branch, which never
         # reaches this code, so comparing against it asserted nothing.
@@ -362,14 +362,14 @@ class CanopyOpenSamplingTests(unittest.TestCase):
         self.handler = self.handler[:self.handler.index("private _launch =")]
 
     def test_canopy_open_is_detected_inside_the_per_frame_handler(self):
-        self.assertIn("USAFDC_state_pbenchChuteWatch", self.handler)
+        self.assertIn("TLB_CARP_state_pbenchChuteWatch", self.handler)
         self.assertIn('_att isKindOf "ParachuteBase"', self.handler)
-        for key in ("USAFDC_pbenchChuteTime", "USAFDC_pbenchChutePos", "USAFDC_pbenchChuteAgl"):
+        for key in ("TLB_CARP_pbenchChuteTime", "TLB_CARP_pbenchChutePos", "TLB_CARP_pbenchChuteAgl"):
             self.assertIn(key, self.handler)
 
     def test_scheduled_loop_reads_the_reading_instead_of_re_detecting(self):
         loop = self.src[self.src.index("private _damageFirstAgl = -1;"):self.src.index("private _settled =")]
-        self.assertIn('_cargo getVariable ["USAFDC_pbenchChuteTime"', loop)
+        self.assertIn('_cargo getVariable ["TLB_CARP_pbenchChuteTime"', loop)
         # Re-detecting here would reintroduce the starvation lag.
         self.assertNotIn("ParachuteBase", loop)
 
@@ -381,9 +381,9 @@ class CanopyOpenSamplingTests(unittest.TestCase):
         self.assertNotIn("isTouchingGround", self.handler)
 
     def test_watch_registry_is_initialised_and_torn_down(self):
-        self.assertIn("USAFDC_state_pbenchChuteWatch = [];", self.src)
+        self.assertIn("TLB_CARP_state_pbenchChuteWatch = [];", self.src)
         post = read("addon/functions/fn_postInit.sqf")
-        self.assertIn("USAFDC_state_pbenchChuteWatch = [];", post)
+        self.assertIn("TLB_CARP_state_pbenchChuteWatch = [];", post)
 
 
 class CargoSpawnPositionTests(unittest.TestCase):
@@ -448,15 +448,15 @@ class WindVerificationTests(unittest.TestCase):
 
     def test_batch_aborts_rather_than_running_with_unverified_wind(self):
         self.assertIn("[PBENCH] ABORT wind never converged", self.block)
-        self.assertIn("USAFDC_state_pbenchActive = false;", self.block)
+        self.assertIn("TLB_CARP_state_pbenchActive = false;", self.block)
         # exitWith inside the wind block leaves only that block, so the abort has to
         # be re-checked at function scope or the batch runs on regardless.
         self.assertIn(
-            'if (!(_windMode isEqualTo "LIVE") && {!USAFDC_state_pbenchActive}) exitWith {false};',
+            'if (!(_windMode isEqualTo "LIVE") && {!TLB_CARP_state_pbenchActive}) exitWith {false};',
             self.src,
         )
         self.assertLess(
-            self.src.index('&& {!USAFDC_state_pbenchActive}) exitWith'),
+            self.src.index('&& {!TLB_CARP_state_pbenchActive}) exitWith'),
             self.src.index("Phase 1: solve every run"),
         )
 
@@ -523,7 +523,7 @@ class DoorStateBeforeDropTests(unittest.TestCase):
         """Waiting after the pin starts would mean the carrier flies unpinned."""
         self.assertLess(
             self.src.index("animationPhase"),
-            self.src.index("USAFDC_state_pbenchPins pushBack"),
+            self.src.index("TLB_CARP_state_pbenchPins pushBack"),
         )
 
     def test_door_wait_is_bounded_and_reports_failure(self):
@@ -659,37 +659,37 @@ class BenchGuidedModeTests(unittest.TestCase):
         # v0.11.1 made guided cargo a panel toggle and crew state. The bench still has
         # to force it on and put back what it found, or a batch run with jpads=false
         # would leave it on for the crew.
-        self.assertIn("if (_jpads) then {USAFDC_state_jpadsEnabled = true}", self.src)
-        self.assertIn("USAFDC_state_jpadsEnabled = _jpadsBefore;", self.src)
+        self.assertIn("if (_jpads) then {TLB_CARP_state_jpadsEnabled = true}", self.src)
+        self.assertIn("TLB_CARP_state_jpadsEnabled = _jpadsBefore;", self.src)
         self.assertIn('"_jpadsBefore"', self.src)
 
     def test_steering_calls_the_real_function_with_explicit_target(self):
         """Reimplementing the control law here would test the bench, not the mod."""
-        self.assertIn("[_x, _sdz] call USAFDC_fnc_steerCargo", self.src)
+        self.assertIn("[_x, _sdz] call TLB_CARP_fnc_steerCargo", self.src)
 
     def test_steering_runs_in_the_per_frame_handler(self):
         """At the 0.05 s guidance interval only 41% of commanded steering survived
         the parachute's own physics."""
         handler = self.src[self.src.index('addMissionEventHandler ["EachFrame"'):]
         handler = handler[:handler.index("private _launch =")]
-        self.assertIn("USAFDC_fnc_steerCargo", handler)
+        self.assertIn("TLB_CARP_fnc_steerCargo", handler)
 
     def test_each_load_steers_to_its_own_virtual_cell(self):
         """Otherwise every guided load converges on the real DZ and they collide."""
-        self.assertIn('_cargo setVariable ["USAFDC_pbenchDz", +_vdz, false]', self.src)
-        self.assertIn('_x getVariable ["USAFDC_pbenchDz", []]', self.src)
+        self.assertIn('_cargo setVariable ["TLB_CARP_pbenchDz", +_vdz, false]', self.src)
+        self.assertIn('_x getVariable ["TLB_CARP_pbenchDz", []]', self.src)
 
     def test_loads_enter_the_steer_list_only_after_canopy_open(self):
         """Steering during inflation deletes the forward throw the RP is built on."""
-        idx = self.src.index("USAFDC_state_pbenchSteer pushBack _x")
-        chute = self.src.index('_x setVariable ["USAFDC_pbenchChuteTime"')
+        idx = self.src.index("TLB_CARP_state_pbenchSteer pushBack _x")
+        chute = self.src.index('_x setVariable ["TLB_CARP_pbenchChuteTime"')
         self.assertLess(chute, idx)
 
     def test_guided_flag_is_logged_and_state_is_reset(self):
         self.assertIn("jpads=%2", self.src)
         post = read("addon/functions/fn_postInit.sqf")
-        self.assertIn("USAFDC_state_pbenchSteer = [];", post)
-        self.assertIn("USAFDC_state_pbenchJpads = false;", post)
+        self.assertIn("TLB_CARP_state_pbenchSteer = [];", post)
+        self.assertIn("TLB_CARP_state_pbenchJpads = false;", post)
 
 
 if __name__ == "__main__":

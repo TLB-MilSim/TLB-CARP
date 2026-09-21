@@ -1,11 +1,11 @@
 params ["_input", "_model", "_dz"];
 
 private _runInDeg = _input get "runInDeg";
-private _basis = [_runInDeg] call USAFDC_fnc_basisFromHeading;
+private _basis = [_runInDeg] call TLB_CARP_fnc_basisFromHeading;
 private _forward = _basis get "forward";
 private _right = _basis get "right";
 
-private _first = [_input, _model] call USAFDC_fnc_solveRelative;
+private _first = [_input, _model] call TLB_CARP_fnc_solveRelative;
 if ((_first getOrDefault ["confidence", "INVALID"]) isEqualTo "INVALID") exitWith {
     createHashMapFromArray [["valid", false], ["relative", _first]]
 };
@@ -20,7 +20,7 @@ private _secondInput = createHashMap;
 {_secondInput set [_x, _input get _x]} forEach keys _input;
 _secondInput set ["openingTerrainAslM", _openingTerrain];
 
-private _relative = [_secondInput, _model] call USAFDC_fnc_solveRelative;
+private _relative = [_secondInput, _model] call TLB_CARP_fnc_solveRelative;
 if ((_relative getOrDefault ["confidence", "INVALID"]) isEqualTo "INVALID") exitWith {
     createHashMapFromArray [["valid", false], ["relative", _relative]]
 };

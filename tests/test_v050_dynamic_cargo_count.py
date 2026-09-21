@@ -6,7 +6,7 @@ directions: it offered "2" with a single vehicle aboard, and gave no way to rele
 panel opens.
 
 The combo's onLBSelChanged handler is compiled into the pre-binarized config.bin:
-    USAFDC_state_cargoCount = parseNumber ((_this#0) lbData (_this#1))
+    TLB_CARP_state_cargoCount = parseNumber ((_this#0) lbData (_this#1))
 so lbData must stay a numeric string. That handler cannot be changed, which is why
 these tests pin the data format rather than the display text.
 """
@@ -40,7 +40,7 @@ class DynamicCargoCountTests(unittest.TestCase):
         and offered nothing to select. The manifest counts every carriage source, and
         returns exactly usaf_cargo when that is all there is.
         """
-        self.assertIn("count ([_cargoVehicle] call USAFDC_fnc_getLoadedCargo)", self.src)
+        self.assertIn("count ([_cargoVehicle] call TLB_CARP_fnc_getLoadedCargo)", self.src)
         self.assertNotIn('getVariable ["usaf_cargo"', self.src)
         self.assertIn("objectParent player", self.src)
 
@@ -74,13 +74,13 @@ class DynamicCargoCountTests(unittest.TestCase):
         after every load and every release -- would reset the count and then publish
         that reset over the pilot's deliberate stick size.
         """
-        self.assertIn("USAFDC_state_cargoCount > _availableCargo", self.src)
+        self.assertIn("TLB_CARP_state_cargoCount > _availableCargo", self.src)
         self.assertIn("local _cargoVehicle", self.src)
-        self.assertIn("USAFDC_state_cargoCount = -1;", self.src)
+        self.assertIn("TLB_CARP_state_cargoCount = -1;", self.src)
 
     def test_reset_happens_before_the_list_is_built(self):
         self.assertLess(
-            self.src.index("USAFDC_state_cargoCount = -1;"),
+            self.src.index("TLB_CARP_state_cargoCount = -1;"),
             self.src.index("lbClear _cargoCtrl"),
         )
 
@@ -90,8 +90,8 @@ class DynamicCargoCountTests(unittest.TestCase):
     def test_refresh_guard_still_wraps_the_rebuild(self):
         """lbClear/lbAdd fire onLBSelChanged; without the guard the rebuild would
         disarm auto drop and reset the selection on every panel refresh."""
-        self.assertIn("USAFDC_state_panelRefreshing", self.src)
-        self.assertLess(self.src.index("USAFDC_state_panelRefreshing"), self.src.index("lbClear _cargoCtrl"))
+        self.assertIn("TLB_CARP_state_panelRefreshing", self.src)
+        self.assertLess(self.src.index("TLB_CARP_state_panelRefreshing"), self.src.index("lbClear _cargoCtrl"))
 
 
 class PostReleaseSolverThrottleTests(unittest.TestCase):
@@ -131,7 +131,7 @@ class PostReleaseSolverThrottleTests(unittest.TestCase):
 
     def test_package_timing_still_runs_on_the_skipped_path(self):
         """TOT must keep counting through CHUTE to ARRIVED -- confirmed in flight."""
-        self.assertLess(self.src.index("_skipSolve"), self.src.index("USAFDC_fnc_updatePackageTiming"))
+        self.assertLess(self.src.index("_skipSolve"), self.src.index("TLB_CARP_fnc_updatePackageTiming"))
 
 
 if __name__ == "__main__":

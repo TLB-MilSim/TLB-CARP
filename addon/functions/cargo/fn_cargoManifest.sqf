@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_cargoManifest
+    TLB_CARP_fnc_cargoManifest
 
     Everything droppable that is currently aboard this aircraft, however it got there.
 
-    [_carrier] call USAFDC_fnc_cargoManifest  ->  [object, object, ...]
+    [_carrier] call TLB_CARP_fnc_cargoManifest  ->  [object, object, ...]
 
     CARP read `usaf_cargo` directly in six places, which tied the whole system to one
     mod's loading action. This is the single place that question is answered now, and
@@ -66,8 +66,8 @@ private _add = {
     // here put one network write per load per tick on the wire for the whole sortie, for
     // a value that changes at most once in a load's life. The compare is free; the
     // broadcast was not.
-    if !((_obj getVariable ["USAFDC_cargoSource", ""]) isEqualTo _source) then {
-        _obj setVariable ["USAFDC_cargoSource", _source, true];
+    if !((_obj getVariable ["TLB_CARP_cargoSource", ""]) isEqualTo _source) then {
+        _obj setVariable ["TLB_CARP_cargoSource", _source, true];
     };
     _out pushBack _obj;
 };

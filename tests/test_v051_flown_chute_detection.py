@@ -55,10 +55,10 @@ class PerFrameChuteDetectionTests(unittest.TestCase):
 
     def test_attach_is_stamped_in_a_per_frame_handler(self):
         self.assertIn('addMissionEventHandler ["EachFrame"', self.src)
-        self.assertIn('_c setVariable ["USAFDC_calChuteStamp"', self.handler)
+        self.assertIn('_c setVariable ["TLB_CARP_calChuteStamp"', self.handler)
 
     def test_handler_stamps_once_only(self):
-        self.assertIn('if !(isNil {_c getVariable "USAFDC_calChuteStamp"}) exitWith {}', self.handler)
+        self.assertIn('if !(isNil {_c getVariable "TLB_CARP_calChuteStamp"}) exitWith {}', self.handler)
 
     def test_handler_still_rejects_the_carrier(self):
         """The cargo is attached to the carrier during release; only a ParachuteBase
@@ -68,7 +68,7 @@ class PerFrameChuteDetectionTests(unittest.TestCase):
 
     def test_loop_reads_the_stamp_and_does_not_re_detect(self):
         loop = self.src[self.src.index("private _touchdownConfirmed"):]
-        self.assertIn('_releasedCargo getVariable ["USAFDC_calChuteStamp", []]', loop)
+        self.assertIn('_releasedCargo getVariable ["TLB_CARP_calChuteStamp", []]', loop)
         self.assertNotIn("attachedTo _releasedCargo", loop)
 
     def test_every_attach_field_comes_from_the_stamp(self):
@@ -91,19 +91,19 @@ class PerFrameChuteDetectionTests(unittest.TestCase):
     def test_watcher_is_torn_down_on_every_exit_path(self):
         """A leaked EachFrame handler would stamp the NEXT run's cargo."""
         self.assertIn("private _stopChuteWatch = {", self.src)
-        self.assertIn('removeMissionEventHandler ["EachFrame", USAFDC_state_calChuteWatchEh]', self.src)
+        self.assertIn('removeMissionEventHandler ["EachFrame", TLB_CARP_state_calChuteWatchEh]', self.src)
         # the abort path and the success path must both call it
         self.assertGreaterEqual(self.src.count("call _stopChuteWatch"), 2)
         self.assertLess(self.src.index("private _stopChuteWatch = {"), self.src.index("private _abort = {"))
 
     def test_stale_handler_is_replaced_not_stacked(self):
         head = self.src[:self.src.index("private _touchdownConfirmed")]
-        self.assertIn('if ((missionNamespace getVariable ["USAFDC_state_calChuteWatchEh", -1]) >= 0) then {', head)
+        self.assertIn('if ((missionNamespace getVariable ["TLB_CARP_state_calChuteWatchEh", -1]) >= 0) then {', head)
 
     def test_state_globals_are_initialised(self):
         post = read("addon/functions/fn_postInit.sqf")
-        for g in ("USAFDC_state_calChuteWatchEh", "USAFDC_state_calChuteWatchCargo",
-                  "USAFDC_state_calChuteWatchCarrier"):
+        for g in ("TLB_CARP_state_calChuteWatchEh", "TLB_CARP_state_calChuteWatchCargo",
+                  "TLB_CARP_state_calChuteWatchCarrier"):
             self.assertIn(f"{g} = ", post)
 
     def test_no_compiled_sibling_shadows_this_file(self):
@@ -147,7 +147,7 @@ class DropCommandInstantTests(unittest.TestCase):
 
     def test_trigger_stamps_the_command(self):
         src = read("addon/functions/auto/fn_triggerAutoDrop.sqf")
-        self.assertIn("USAFDC_state_autoDropCommand = [time, diag_tickTime, getPosASL _carrier];", src)
+        self.assertIn("TLB_CARP_state_autoDropCommand = [time, diag_tickTime, getPosASL _carrier];", src)
 
     def test_stamp_precedes_the_actual_drop_call(self):
         """Stamping after canDrop would fold the door wait into the measurement."""
@@ -156,8 +156,8 @@ class DropCommandInstantTests(unittest.TestCase):
         # airframe carrying USAF-loaded cargo back to USAF's own canDrop unchanged. The
         # stamp must still precede whichever path runs, for the same reason as before.
         self.assertLess(
-            src.index("USAFDC_state_autoDropCommand ="),
-            src.index("USAFDC_fnc_releaseSelected"),
+            src.index("TLB_CARP_state_autoDropCommand ="),
+            src.index("TLB_CARP_fnc_releaseSelected"),
         )
 
     def test_command_to_release_distance_uses_a_live_position(self):
@@ -168,7 +168,7 @@ class DropCommandInstantTests(unittest.TestCase):
         self.assertNotIn("distance2D _releaseAircraftPosASL", src)
 
     def test_recorder_reads_the_command_stamp(self):
-        self.assertIn('missionNamespace getVariable ["USAFDC_state_autoDropCommand", []]', read(SRC))
+        self.assertIn('missionNamespace getVariable ["TLB_CARP_state_autoDropCommand", []]', read(SRC))
         for f in ("cueToCommandM", "commandToReleaseM", "commandToReleaseS"):
             self.assertIn(f, read(SRC), f)
 
@@ -178,7 +178,7 @@ class DropCommandInstantTests(unittest.TestCase):
             self.assertIn(f, fmt, f)
 
     def test_state_global_is_initialised(self):
-        self.assertIn("USAFDC_state_autoDropCommand = [];", read("addon/functions/fn_postInit.sqf"))
+        self.assertIn("TLB_CARP_state_autoDropCommand = [];", read("addon/functions/fn_postInit.sqf"))
 
     def test_trigger_has_no_compiled_shadow(self):
         self.assertFalse((ROOT / "addon/functions/auto/fn_triggerAutoDrop.sqfc").exists())

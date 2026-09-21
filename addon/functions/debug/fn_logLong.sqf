@@ -1,15 +1,15 @@
 /*
-    USAFDC_fnc_logLong
+    TLB_CARP_fnc_logLong
 
     diag_log a string that is longer than Arma will write on one line.
 
-        [_tag, _text] call USAFDC_fnc_logLong
+        [_tag, _text] call TLB_CARP_fnc_logLong
 
     WHY THIS EXISTS
 
     Arma truncates a diag_log string at about a kilobyte. It does not warn, it does not
     wrap, and it does not mark the cut -- the line simply stops. Flown 2026-09-20: every
-    USAFDC_CAL_V3 record in the RPT ends mid-field at `interceptAngleDeg`, and every
+    TLB_CARP_CAL_V3 record in the RPT ends mid-field at `interceptAngleDeg`, and every
     [TLB CARP][DROP] line is exactly 1031 bytes and stops inside an array.
 
     What was lost is precisely what the record exists for: the release geometry, the chute
@@ -25,7 +25,7 @@
     line is still a whole field wherever possible. Every part carries the tag and its own
     index, so a grep for the tag reassembles the record in order:
 
-        [TLB CARP][CAL 1/4] USAFDC_CAL_V3
+        [TLB CARP][CAL 1/4] TLB_CARP_CAL_V3
         [TLB CARP][CAL 2/4] ...
 
     A single-part record still prints its 1/1, because a reader that special-cases the

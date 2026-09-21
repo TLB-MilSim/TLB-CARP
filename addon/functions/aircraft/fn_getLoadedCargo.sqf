@@ -1,7 +1,7 @@
 /*
-    USAFDC_fnc_getLoadedCargo
+    TLB_CARP_fnc_getLoadedCargo
 
-    What is aboard and droppable. Thin wrapper over USAFDC_fnc_cargoManifest, kept
+    What is aboard and droppable. Thin wrapper over TLB_CARP_fnc_cargoManifest, kept
     because it is declared in the pre-binarized config.bin and several call sites reach
     it by that name.
 
@@ -16,5 +16,5 @@
 
 params ["_vehicle"];
 if (isNull _vehicle) exitWith {[]};
-if (isNil "USAFDC_fnc_cargoManifest") exitWith {+(_vehicle getVariable ["usaf_cargo", []])};
-[_vehicle] call USAFDC_fnc_cargoManifest
+if (isNil "TLB_CARP_fnc_cargoManifest") exitWith {+(_vehicle getVariable ["usaf_cargo", []])};
+[_vehicle] call TLB_CARP_fnc_cargoManifest

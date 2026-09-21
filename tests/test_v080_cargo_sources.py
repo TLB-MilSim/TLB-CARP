@@ -24,7 +24,7 @@ WHY A GENERIC PROFILE RATHER THAN A REFUSAL
 An airframe that cannot solve can never be measured. calibrationState
 "provisional-borrowed" already existed for exactly this: fn_solveRelative raises a
 warning for it, any warning forces DEGRADED, and fn_validateAutoDrop then gates Auto
-Drop behind USAFDC_setting_allowDegradedAuto. Every guard the C-130 gets, for free.
+Drop behind TLB_CARP_setting_allowDegradedAuto. Every guard the C-130 gets, for free.
 """
 from pathlib import Path
 import json
@@ -74,7 +74,7 @@ class CargoModuleRegistrationTests(unittest.TestCase):
         for rel in CARGO_FILES:
             self.assertTrue((ROOT / rel).exists(), rel)
             name = Path(rel).stem.replace("fn_", "")
-            self.assertIn(f'"USAFDC_fnc_{name}"', post)
+            self.assertIn(f'"TLB_CARP_fnc_{name}"', post)
             self.assertIn(Path(rel).name, post)
 
     def test_no_cargo_function_has_a_compiled_sibling(self):
@@ -86,7 +86,7 @@ class CargoModuleRegistrationTests(unittest.TestCase):
 
         On a dedicated server a load placed in Eden, spawned by Zeus or spawned by the
         server is local to the SERVER. If the compile table still sat behind the
-        blanket hasInterface guard that v0.7.0 removed, USAFDC_fnc_releaseCargo would
+        blanket hasInterface guard that v0.7.0 removed, TLB_CARP_fnc_releaseCargo would
         be nil there and the remoteExec would resolve nothing at all -- silently.
         """
         src = code(POSTINIT)
@@ -121,7 +121,7 @@ class ManifestTests(unittest.TestCase):
     def test_the_source_is_stamped_on_the_object_and_broadcast(self):
         """The release may run on another machine, so the source has to travel with the
         object rather than in a parallel array on this one."""
-        self.assertIn('setVariable ["USAFDC_cargoSource", _source, true]', code(MANIFEST))
+        self.assertIn('setVariable ["TLB_CARP_cargoSource", _source, true]', code(MANIFEST))
 
     def test_attached_objects_are_filtered_to_droppable_types(self):
         src = code(MANIFEST)
@@ -165,9 +165,9 @@ class ManifestCostTests(unittest.TestCase):
         network write per load per tick on the wire for a value that changes at most once
         in a load's life."""
         src = code(MANIFEST)
-        guard = 'if !((_obj getVariable ["USAFDC_cargoSource", ""]) isEqualTo _source) then {'
+        guard = 'if !((_obj getVariable ["TLB_CARP_cargoSource", ""]) isEqualTo _source) then {'
         self.assertIn(guard, src)
-        self.assertLess(src.index(guard), src.index('setVariable ["USAFDC_cargoSource", _source, true]'))
+        self.assertLess(src.index(guard), src.index('setVariable ["TLB_CARP_cargoSource", _source, true]'))
 
     def test_an_empty_manifest_can_still_be_explained_on_demand(self):
         """WAS on the panel: naming the vehicles that are present but held by nothing, so
@@ -193,7 +193,7 @@ class ManifestCostTests(unittest.TestCase):
 class ReleaseOffsetTests(unittest.TestCase):
     def test_priority_is_override_then_config_then_derivation(self):
         src = code(OFFSET)
-        self.assertLess(src.index("USAFDC_dropPos"), src.index("USAF_Cargo_DropPos"))
+        self.assertLess(src.index("TLB_CARP_dropPos"), src.index("USAF_Cargo_DropPos"))
         self.assertLess(src.index("USAF_Cargo_DropPos"), src.index("boundingBoxReal _carrier"))
 
     def test_a_usaf_airframe_still_gets_its_configured_value(self):
@@ -229,7 +229,7 @@ class CarpReleaseTests(unittest.TestCase):
         self.assertIn("if !(local _cargo) exitWith", code(RELEASE))
 
     def test_it_is_dispatched_to_the_cargo_owner(self):
-        self.assertIn('remoteExec ["USAFDC_fnc_releaseCargo", _cargo]', code(SELECT))
+        self.assertIn('remoteExec ["TLB_CARP_fnc_releaseCargo", _cargo]', code(SELECT))
 
     def test_it_spawns_so_the_sleeps_are_legal(self):
         """remoteExec does not guarantee a scheduled environment, and the whole
@@ -291,14 +291,14 @@ class CarpReleaseTests(unittest.TestCase):
         dedicated-server drop could never be measured end to end without a synchronised
         clock at both ends."""
         src = code(RELEASE)
-        self.assertIn('setVariable ["USAFDC_releaseSimTime", time, true]', src)
-        self.assertIn('setVariable ["USAFDC_releasePath", "carp", true]', src)
+        self.assertIn('setVariable ["TLB_CARP_releaseSimTime", time, true]', src)
+        self.assertIn('setVariable ["TLB_CARP_releasePath", "carp", true]', src)
 
     def test_a_busy_flag_is_raised_across_the_release(self):
         src = code(RELEASE)
-        self.assertIn('setVariable ["USAFDC_releaseInProgress", true, true]', src)
-        self.assertIn('setVariable ["USAFDC_releaseInProgress", false, true]', src)
-        self.assertIn("USAFDC_releaseInProgress", code("addon/functions/auto/fn_validateAutoDrop.sqf"))
+        self.assertIn('setVariable ["TLB_CARP_releaseInProgress", true, true]', src)
+        self.assertIn('setVariable ["TLB_CARP_releaseInProgress", false, true]', src)
+        self.assertIn("TLB_CARP_releaseInProgress", code("addon/functions/auto/fn_validateAutoDrop.sqf"))
 
     def test_ace_bookkeeping_follows_aces_own_order(self):
         """ACE reads the space left AFTER removing the item and then adds its size back.
@@ -340,8 +340,8 @@ class ReleasePathSplitTests(unittest.TestCase):
         it is how a difference between the two paths gets measured rather than argued
         about. Deleting it would remove the only instrument for that."""
         src = code(SELECT)
-        self.assertIn("USAFDC_setting_useUsafRelease", src)
-        self.assertIn("USAFDC_setting_useUsafRelease", read(POSTINIT))
+        self.assertIn("TLB_CARP_setting_useUsafRelease", src)
+        self.assertIn("TLB_CARP_setting_useUsafRelease", read(POSTINIT))
         self.assertNotIn("forceCarpRelease", src)
 
     def test_a_dry_run_reports_the_path_without_taking_it(self):
@@ -359,7 +359,7 @@ class ReleasePathSplitTests(unittest.TestCase):
         only way to answer the question without a second copy of the predicate, and the
         console diagnostic uses the manifest the same way."""
         self.assertIn("_dryRun", code(SELECT))
-        self.assertIn("USAFDC_fnc_getLoadedCargo", read("testing/mp_carp_diagnostic.sqf"))
+        self.assertIn("TLB_CARP_fnc_getLoadedCargo", read("testing/mp_carp_diagnostic.sqf"))
 
 
 class GenericProfileTests(unittest.TestCase):
@@ -437,7 +437,7 @@ class ConfidenceLineTests(unittest.TestCase):
         pre-binarized CfgFunctions in the same release that changes solver behaviour --
         dead code is cheaper than two risky changes at once."""
         self.assertNotIn(
-            "USAFDC_fnc_confidenceReason",
+            "TLB_CARP_fnc_confidenceReason",
             code("addon/functions/guidance/fn_buildWorldSolution.sqf"),
         )
 

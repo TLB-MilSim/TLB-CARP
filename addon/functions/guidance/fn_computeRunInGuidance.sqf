@@ -1,6 +1,6 @@
 params ["_airPos", "_stableAnchor", "_liveRp", "_runInDeg", "_currentTrackDeg"];
 
-private _basis = [_runInDeg] call USAFDC_fnc_basisFromHeading;
+private _basis = [_runInDeg] call TLB_CARP_fnc_basisFromHeading;
 private _forward = _basis get "forward";
 private _right = _basis get "right";
 
@@ -11,7 +11,7 @@ private _crossTrackM = ((_fromStable # 0) * (_right # 0)) + ((_fromStable # 1) *
 private _trackErrorDeg = (((_currentTrackDeg - _runInDeg + 540) mod 360) - 180);
 
 private _lookAheadM = ((_signedRpM * 0.5) max 500) min 2000;
-private _limitDeg = [_signedRpM] call USAFDC_fnc_interceptLimitDeg;
+private _limitDeg = [_signedRpM] call TLB_CARP_fnc_interceptLimitDeg;
 private _rawInterceptDeg = if ((abs _crossTrackM) <= 15 || {_limitDeg <= 0}) then {0} else {((-_crossTrackM) atan2 _lookAheadM)};
 private _interceptAngleDeg = (_rawInterceptDeg max (-_limitDeg)) min _limitDeg;
 private _rawDesiredTrackDeg = (_runInDeg + _interceptAngleDeg + 360) mod 360;

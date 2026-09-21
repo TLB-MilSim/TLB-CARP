@@ -54,7 +54,7 @@
     private _rail     = true;                // hold the aircraft on the run-in line
 
     // ---- preconditions -----------------------------------------------------
-    if (isNil "USAFDC_fnc_setDZ") exitWith {
+    if (isNil "TLB_CARP_fnc_setDZ") exitWith {
         systemChat "TLB CARP is not loaded.";
     };
     if !(isClass (configFile >> "CfgVehicles" >> _planeClass)) exitWith {
@@ -69,17 +69,17 @@
 
     // ---- DZ ----------------------------------------------------------------
     if ((count _dzPosASL) < 3) then {
-        private _existing = missionNamespace getVariable ["USAFDC_state_dzPosASL", []];
+        private _existing = missionNamespace getVariable ["TLB_CARP_state_dzPosASL", []];
         if ((count _existing) > 2) then {
             _dzPosASL = +_existing;
-            _dzName = missionNamespace getVariable ["USAFDC_state_dzName", _dzName];
+            _dzName = missionNamespace getVariable ["TLB_CARP_state_dzName", _dzName];
             systemChat format ["DZ: reusing the CARP DZ already set (%1)", _dzName];
         } else {
             _dzPosASL = getPosASL player;
             systemChat "DZ: using where you are standing right now.";
         };
     };
-    [_dzPosASL, _dzName] call USAFDC_fnc_setDZ;
+    [_dzPosASL, _dzName] call TLB_CARP_fnc_setDZ;
 
     // ---- run-in track ------------------------------------------------------
     // Default: fly ALONG the wind, so the exit point lies on the flown line.
@@ -197,10 +197,10 @@
     //
     // This is a test harness, not the autopilot, and validates nothing about it.
     if (_rail) then {
-        if (!isNil "USAFDC_JUMPTEST_RAIL") then {
-            [USAFDC_JUMPTEST_RAIL] call CBA_fnc_removePerFrameHandler;
+        if (!isNil "TLB_CARP_JUMPTEST_RAIL") then {
+            [TLB_CARP_JUMPTEST_RAIL] call CBA_fnc_removePerFrameHandler;
         };
-        USAFDC_JUMPTEST_RAIL = [{
+        TLB_CARP_JUMPTEST_RAIL = [{
             params ["_args", "_pfID"];
             _args params ["_plane", "_dz", "_tE", "_tN", "_speedMs", "_flightASL"];
             if (isNull _plane || {!alive _plane}) exitWith {
@@ -238,7 +238,7 @@
     // The wait is for the ground track to mean something. lockRunIn captures the
     // aircraft's CURRENT ground track as the required final heading, so capturing it
     // before the AI has settled onto the leg locks a track it is not actually flying.
-    if (_armJump && {!isNil "USAFDC_fnc_armJumpRun"}) then {
+    if (_armJump && {!isNil "TLB_CARP_fnc_armJumpRun"}) then {
         // Wait until the aircraft is actually TRACKING AT THE DZ before locking, not
         // merely up to speed. fn_lockRunIn captures the current ground track as the
         // required final heading -- by design, and that invariant is not up for
@@ -261,10 +261,10 @@
         };
         uiSleep 1;
         if (!isNull _plane) then {
-            if ([] call USAFDC_fnc_lockRunIn) then {
-                private _probe = [_plane] call USAFDC_fnc_buildJumpSolution;
+            if ([] call TLB_CARP_fnc_lockRunIn) then {
+                private _probe = [_plane] call TLB_CARP_fnc_buildJumpSolution;
                 if (_probe getOrDefault ["valid", false]) then {
-                    [] call USAFDC_fnc_armJumpRun;
+                    [] call TLB_CARP_fnc_armJumpRun;
                     systemChat format [
                         "JUMP ARMED: exit %1 m upwind, open %2 m, freefall %3 s, wind %4 m/s",
                         round (_probe get "exitRangeM"),
@@ -282,7 +282,7 @@
     };
 
     // ---- recorder ----------------------------------------------------------
-    USAFDC_JUMPTEST = createHashMapFromArray [
+    TLB_CARP_JUMPTEST = createHashMapFromArray [
         ["phase", "ABOARD"], ["plane", _plane], ["dz", _dzPosASL],
         ["toldRamp", false], ["lastReport", -1],
         ["exitTime", -1], ["exitPosASL", []], ["exitVel", []], ["wind", [0, 0, 0]],
@@ -299,8 +299,8 @@
         ["canMarkTime", -1], ["canMarkPosASL", []]
     ];
 
-    if !(isNil "USAFDC_JUMPTEST_EH") then {
-        removeMissionEventHandler ["EachFrame", USAFDC_JUMPTEST_EH];
+    if !(isNil "TLB_CARP_JUMPTEST_EH") then {
+        removeMissionEventHandler ["EachFrame", TLB_CARP_JUMPTEST_EH];
     };
 
     // PER FRAME, deliberately, not a uiSleep loop. In the cargo campaign a
@@ -308,9 +308,9 @@
     // trigger and that artefact was mistaken for physics for a full release.
     // The same poll here would put the canopy open point tens of metres low and
     // corrupt the descent rate this test exists to measure.
-    USAFDC_JUMPTEST_EH = addMissionEventHandler ["EachFrame", {
+    TLB_CARP_JUMPTEST_EH = addMissionEventHandler ["EachFrame", {
 
-        private _r = USAFDC_JUMPTEST;
+        private _r = TLB_CARP_JUMPTEST;
         private _phase = _r get "phase";
         private _veh = objectParent player;
         private _agl = (getPosATL player) # 2;
@@ -324,7 +324,7 @@
         // recorder's readout and fn_updateJumpCue's both writing it at a few Hz
         // makes the two flicker over each other -- which is exactly what the first
         // flown test reported. The recorder's readout is the expendable one.
-        if (!(missionNamespace getVariable ["USAFDC_state_jumpArmed", false])
+        if (!(missionNamespace getVariable ["TLB_CARP_state_jumpArmed", false])
             && {(time - (_r get "lastReport")) >= 1}) then {
             _r set ["lastReport", time];
             private _plane = _r get "plane";
@@ -385,7 +385,7 @@
                         (wind # 0) toFixed 2, (wind # 1) toFixed 2
                     ];
                     systemChat _line;
-                    diag_log ("USAFDC_JUMPTEST " + _line);
+                    diag_log ("TLB_CARP_JUMPTEST " + _line);
                 };
             };
 
@@ -405,7 +405,7 @@
                         round (((_r get "exitPosASL") # 2) - ((getPosASL player) # 2))
                     ];
                     systemChat _line;
-                    diag_log ("USAFDC_JUMPTEST " + _line);
+                    diag_log ("TLB_CARP_JUMPTEST " + _line);
                 };
                 if (_agl < 2) then {
                     _r set ["phase", "DONE"];
@@ -528,7 +528,7 @@
                         _stAirSpeed toFixed 2
                     ];
                     systemChat _line;
-                    diag_log ("USAFDC_JUMPTEST " + _line);
+                    diag_log ("TLB_CARP_JUMPTEST " + _line);
                     copyToClipboard _line;
                     systemChat "Result copied to clipboard.";
                     removeMissionEventHandler ["EachFrame", _thisEventHandler];

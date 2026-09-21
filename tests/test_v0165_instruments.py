@@ -7,7 +7,7 @@ than an obvious failure.
 
 1. ARMA TRUNCATES diag_log AT ABOUT A KILOBYTE, SILENTLY
 
-   Every USAFDC_CAL_V3 record in every RPT ends mid-field at `interceptAngleDeg`. Every
+   Every TLB_CARP_CAL_V3 record in every RPT ends mid-field at `interceptAngleDeg`. Every
    [TLB CARP][DROP] line is exactly 1031 bytes and stops inside an array. What was cut is
    what the record exists for -- release geometry, the chute event, the impact position, the
    computed miss, and commandToReleaseS.
@@ -30,9 +30,9 @@ than an obvious failure.
 
 3. THE HINT TOLD THE PILOT TO RUN A FUNCTION WITHOUT `call`
 
-   "Run USAFDC_fnc_copyLastCalibrationRun to copy it". A bare function name is a variable
+   "Run TLB_CARP_fnc_copyLastCalibrationRun to copy it". A bare function name is a variable
    reference. The RPT carries the result four times:
-       Error in expression <[] USAFDC_fnc_copyLastCalibrationRun;>
+       Error in expression <[] TLB_CARP_fnc_copyLastCalibrationRun;>
 
 4. A VEHICLE-IN-VEHICLE DROP LATCHED THE ENGINE'S OWN PARACHUTE
 
@@ -86,7 +86,7 @@ class TruncationTests(unittest.TestCase):
         """A new .sqf reaches the engine only through the compile table -- there is no other
         way to register one."""
         self.assertTrue(read(LOGLONG).strip())
-        self.assertIn('["USAFDC_fnc_logLong", "', read(POSTINIT))
+        self.assertIn('["TLB_CARP_fnc_logLong", "', read(POSTINIT))
 
     def test_every_part_is_numbered_so_the_record_can_be_reassembled(self):
         """A split record that cannot be put back together is no better than a cut one."""
@@ -107,11 +107,11 @@ class TruncationTests(unittest.TestCase):
         self.assertIn("while {(count _rest) > CHUNK} do {", src)
 
     def test_both_long_records_go_through_it(self):
-        self.assertIn('["CAL", _text] call USAFDC_fnc_logLong;', code(POLL))
-        self.assertEqual(code(POLL).count("call USAFDC_fnc_logLong"), 2,
+        self.assertIn('["CAL", _text] call TLB_CARP_fnc_logLong;', code(POLL))
+        self.assertEqual(code(POLL).count("call TLB_CARP_fnc_logLong"), 2,
                          "the failure record needs it as much as the success one")
         self.assertIn('["DROP", format [', code(GUIDANCE))
-        self.assertIn("call USAFDC_fnc_logLong", code(GUIDANCE))
+        self.assertIn("call TLB_CARP_fnc_logLong", code(GUIDANCE))
 
     def test_no_long_record_is_still_written_the_old_way(self):
         self.assertNotIn('diag_log format ["[TLB CARP][CAL] %1", _text]', code(POLL))
@@ -123,21 +123,21 @@ class RecorderSourceTests(unittest.TestCase):
         """THE DEFECT. initialCargo comes from the manifest; this compared it against
         usaf_cargo, so a viv or attached load matched on the first poll."""
         src = code(POLL)
-        self.assertIn("private _currentCargo = [_carrier] call USAFDC_fnc_getLoadedCargo;", src)
+        self.assertIn("private _currentCargo = [_carrier] call TLB_CARP_fnc_getLoadedCargo;", src)
         self.assertNotIn('_carrier getVariable ["usaf_cargo", []]', src)
 
     def test_both_halves_of_the_recorder_now_read_the_same_source(self):
         """They disagreed for a day. One function's list and another function's test are
         the same contract and have to be checked together."""
-        self.assertIn("USAFDC_fnc_getLoadedCargo", code(BEGIN))
-        self.assertIn("USAFDC_fnc_getLoadedCargo", code(POLL))
+        self.assertIn("TLB_CARP_fnc_getLoadedCargo", code(BEGIN))
+        self.assertIn("TLB_CARP_fnc_getLoadedCargo", code(POLL))
 
 
 class HintTests(unittest.TestCase):
     def test_the_hint_is_something_the_pilot_can_actually_type(self):
         src = read(POLL)
-        self.assertEqual(src.count("Run: [] call USAFDC_fnc_copyLastCalibrationRun"), 2)
-        self.assertNotIn("Run USAFDC_fnc_copyLastCalibrationRun to copy it", src)
+        self.assertEqual(src.count("Run: [] call TLB_CARP_fnc_copyLastCalibrationRun"), 2)
+        self.assertNotIn("Run TLB_CARP_fnc_copyLastCalibrationRun to copy it", src)
 
 
 class ChuteDetectionTests(unittest.TestCase):
@@ -146,33 +146,33 @@ class ChuteDetectionTests(unittest.TestCase):
         seconds. A canopy seven hundred metres above the altitude that creates canopies is
         an instrument reading, not an event."""
         src = code(TIMING)
-        self.assertIn('private _chuteCeilingM = (missionNamespace getVariable ["USAFDC_setting_canopyTriggerAglM", 300]) + 100;', src)
+        self.assertIn('private _chuteCeilingM = (missionNamespace getVariable ["TLB_CARP_setting_canopyTriggerAglM", 300]) + 100;', src)
         self.assertIn('{_aglM <= _chuteCeilingM}', src)
 
     def test_the_margin_is_generous_rather_than_tight(self):
         """The real trigger is tested per frame at about 230 m/s, so a true event can land
         a few metres high. It can never land hundreds."""
         src = code(TIMING)
-        self.assertIn('"USAFDC_setting_canopyTriggerAglM", 300]) + 100', src)
+        self.assertIn('"TLB_CARP_setting_canopyTriggerAglM", 300]) + 100', src)
 
 
 class OneJobPerLoadTests(unittest.TestCase):
     def test_a_load_can_only_publish_one_steer_job(self):
         src = code(STEER)
-        self.assertIn('if (_cargo getVariable ["USAFDC_steerPublished", false]) exitWith {""};', src)
-        self.assertIn('_cargo setVariable ["USAFDC_steerPublished", true, true];', src)
+        self.assertIn('if (_cargo getVariable ["TLB_CARP_steerPublished", false]) exitWith {""};', src)
+        self.assertIn('_cargo setVariable ["TLB_CARP_steerPublished", true, true];', src)
 
     def test_the_guard_runs_before_any_slot_index_is_consumed(self):
         """A duplicate call that exits after taking an index is worse than no guard: it
         silently shifts every later load in the stick onto the wrong slot."""
         src = code(STEER)
-        self.assertLess(src.index('"USAFDC_steerPublished", false'),
-                        src.index('"USAFDC_stickTotal"'))
+        self.assertLess(src.index('"TLB_CARP_steerPublished", false'),
+                        src.index('"TLB_CARP_stickTotal"'))
 
     def test_the_stamp_is_public(self):
         """The release runs where the cargo is local, which need not be where the tracker
         that calls this is running."""
-        self.assertIn('setVariable ["USAFDC_steerPublished", true, true]', code(STEER))
+        self.assertIn('setVariable ["TLB_CARP_steerPublished", true, true]', code(STEER))
 
 
 class NothingBallisticMovedTests(unittest.TestCase):

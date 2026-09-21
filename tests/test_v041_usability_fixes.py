@@ -31,23 +31,23 @@ class FreelookFocusTests(unittest.TestCase):
 
     def test_ap_keeps_existing_half_second_handoff_after_freelook_focus(self):
         text = read("addon/functions/autopilot/fn_updateAutopilot.sqf")
-        self.assertIn("USAFDC_fnc_inputFocusActive", text)
+        self.assertIn("TLB_CARP_fnc_inputFocusActive", text)
         self.assertIn("diag_tickTime + 0.5", text)
-        self.assertIn("USAFDC_state_apOverrideInhibitUntil", text)
+        self.assertIn("TLB_CARP_state_apOverrideInhibitUntil", text)
 
 
 class PersistentTotDisplayTests(unittest.TestCase):
     def test_guidance_refreshes_ui_when_solution_invalid_but_package_is_tracking(self):
         text = read("addon/functions/guidance/fn_updateGuidance.sqf")
         invalid = text[text.index('if !(_solution getOrDefault ["valid", false])'):text.index("private _path")]
-        self.assertIn("USAFDC_state_displaySolution", invalid)
-        self.assertIn("USAFDC_fnc_updateHud", invalid)
-        self.assertIn("USAFDC_fnc_updatePanelTelemetry", invalid)
+        self.assertIn("TLB_CARP_state_displaySolution", invalid)
+        self.assertIn("TLB_CARP_fnc_updateHud", invalid)
+        self.assertIn("TLB_CARP_fnc_updatePanelTelemetry", invalid)
         self.assertIn('in ["RELEASED", "CHUTE", "ARRIVED"]', invalid)
 
     def test_valid_guidance_latches_display_solution_for_post_release_use(self):
         text = read("addon/functions/guidance/fn_updateGuidance.sqf")
-        self.assertIn("USAFDC_state_displaySolution = _solution", text)
+        self.assertIn("TLB_CARP_state_displaySolution = _solution", text)
         self.assertIn('set ["packageTrackingOnly", false]', text)
 
     def test_the_hud_uses_display_solution_during_post_release_tracking(self):
@@ -57,7 +57,7 @@ class PersistentTotDisplayTests(unittest.TestCase):
         keep refreshing through RELEASED / CHUTE / ARRIVED after the solver goes invalid,
         which is the display-lifecycle bug this test was written for."""
         hud = read("addon/functions/ui/fn_updateHud.sqf")
-        self.assertIn("USAFDC_state_displaySolution", hud)
+        self.assertIn("TLB_CARP_state_displaySolution", hud)
         self.assertIn("packageTrackingOnly", hud)
         self.assertNotIn('if !(_solution getOrDefault ["valid", false]) exitWith {false};', hud)
 

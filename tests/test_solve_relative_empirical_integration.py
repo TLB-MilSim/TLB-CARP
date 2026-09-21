@@ -11,7 +11,7 @@ class SolveRelativeEmpiricalIntegrationTests(unittest.TestCase):
         cls.text = SOLVER.read_text(encoding="utf-8")
 
     def test_lazily_loads_and_calls_empirical_c17_solver(self):
-        self.assertIn('isNil "USAFDC_fnc_empiricalCanopyC17"', self.text)
+        self.assertIn('isNil "TLB_CARP_fnc_empiricalCanopyC17"', self.text)
         self.assertIn('fn_empiricalCanopyC17.sqf', self.text)
         # The table is now selected per aircraft via the profile's canopyRef rather
         # than hardcoded to c17. Hardcoding meant any other airframe would silently
@@ -19,7 +19,7 @@ class SolveRelativeEmpiricalIntegrationTests(unittest.TestCase):
         self.assertIn("_canopyRef = _aircraft getOrDefault", self.text)
         self.assertIn("_canopyRoot get _canopyRef", self.text)
         self.assertNotIn('_canopyRoot get "empiricalC17"', self.text)
-        self.assertIn('call USAFDC_fnc_empiricalCanopyC17', self.text)
+        self.assertIn('call TLB_CARP_fnc_empiricalCanopyC17', self.text)
 
     def test_touchdown_uses_world_canopy_and_wind_correction_projection(self):
         self.assertIn('private _canopyWorld = +(_empirical get "canopyWorld")', self.text)
@@ -31,7 +31,7 @@ class SolveRelativeEmpiricalIntegrationTests(unittest.TestCase):
         self.assertNotIn('_canopy get "forwardThrowM"', self.text)
         self.assertNotIn('_canopy get "intrinsicRightM"', self.text)
         self.assertNotIn('_canopy get "windTauS"', self.text)
-        self.assertNotIn('USAFDC_fnc_acquiredWindDisplacement', self.text)
+        self.assertNotIn('TLB_CARP_fnc_acquiredWindDisplacement', self.text)
 
     def test_chute_mode_keeps_zero_canopy_displacement_and_time(self):
         self.assertIn('if (_chuteMode) then', self.text)

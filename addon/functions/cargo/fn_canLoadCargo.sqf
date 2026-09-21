@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_canLoadCargo
+    TLB_CARP_fnc_canLoadCargo
 
     Whether this vehicle can be loaded into this aircraft, and by which mechanism.
 
-        [_carrier, _cargo] call USAFDC_fnc_canLoadCargo
+        [_carrier, _cargo] call TLB_CARP_fnc_canLoadCargo
             -> ["viv" | "usaf" | "carp" | "", reason]
 
     THREE MECHANISMS, IN PREFERENCE ORDER, AND THE ORDER IS THE POINT
@@ -26,7 +26,7 @@
             any airframe in either USAF mod, so the branch never once fired.
 
       carp  Neither. The hold is derived from the bounding box -- see
-            USAFDC_fnc_loadModelOffset, which explains why a derivation is acceptable for
+            TLB_CARP_fnc_loadModelOffset, which explains why a derivation is acceptable for
             a load position and would not be for a release point.
 
     WHY "" IS A RESULT AND NOT AN ERROR
@@ -44,7 +44,7 @@ if !(alive _carrier && {alive _cargo}) exitWith {["", "DESTROYED"]};
 
 // Already aboard by any mechanism. Asked before anything else, because the answer to
 // "can I load this" when it is already loaded is not "no room".
-if (_cargo in ([_carrier] call USAFDC_fnc_getLoadedCargo)) exitWith {["", "ALREADY ABOARD"]};
+if (_cargo in ([_carrier] call TLB_CARP_fnc_getLoadedCargo)) exitWith {["", "ALREADY ABOARD"]};
 if !(isNull (attachedTo _cargo)) exitWith {["", "ATTACHED TO SOMETHING ELSE"]};
 if !(isNull (isVehicleCargo _cargo)) exitWith {["", "LOADED IN SOMETHING ELSE"]};
 if ((count (crew _cargo)) > 0) exitWith {["", "CREW ABOARD THE LOAD"]};
@@ -68,11 +68,11 @@ if ((_viv param [0, false]) && {_viv param [1, false]}) exitWith {["viv", "VEHIC
 // which is what put a vehicle behind the tail of a C-130 whose hold is placed by hand in
 // its own config. Two readers of one config key is also how they come to disagree.
 //
-// USAFDC_fnc_loadModelOffset is now the single answer: it prefers a mission override,
+// TLB_CARP_fnc_loadModelOffset is now the single answer: it prefers a mission override,
 // then the airframe author's published hold, then its own derivation, and reports which
 // it used. The mechanism name here is that answer relabelled, so "can I load this" and
 // "where does it go" can no longer give different results.
-private _offset = [_carrier, _cargo] call USAFDC_fnc_loadModelOffset;
+private _offset = [_carrier, _cargo] call TLB_CARP_fnc_loadModelOffset;
 if ((count _offset) < 4) exitWith {["", "WILL NOT FIT"]};
 
 switch (_offset # 3) do {

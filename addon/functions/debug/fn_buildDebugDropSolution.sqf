@@ -17,13 +17,13 @@ private _invalid = {
 };
 
 if (isMultiplayer) exitWith {["DEBUG HARNESS IS EDEN / SINGLE PLAYER ONLY"] call _invalid};
-if ((count USAFDC_state_dzPosASL) < 3) exitWith {["NO DZ"] call _invalid};
+if ((count TLB_CARP_state_dzPosASL) < 3) exitWith {["NO DZ"] call _invalid};
 if (_aglM <= 300) exitWith {["TEST AGL MUST BE ABOVE 300 M"] call _invalid};
 if (_groundSpeedKmh <= 0) exitWith {["TEST GROUND SPEED MUST BE POSITIVE"] call _invalid};
 // Carrier class comes from the profile, so the harness can drop from any calibrated
 // or provisionally-borrowed airframe rather than only the C-17. getModel is called
 // here because _model is not resolved until later in this file.
-private _profileForClass = (([] call USAFDC_fnc_getModel) getOrDefault ["aircraft", createHashMap]) getOrDefault [_aircraftId, createHashMap];
+private _profileForClass = (([] call TLB_CARP_fnc_getModel) getOrDefault ["aircraft", createHashMap]) getOrDefault [_aircraftId, createHashMap];
 private _carrierClass = ((_profileForClass getOrDefault ["classNames", []]) param [0, ""]);
 if (_carrierClass isEqualTo "") exitWith {[format ["NO CLASSNAME FOR PROFILE: %1", _aircraftId]] call _invalid};
 if !(isClass (configFile >> "CfgVehicles" >> _carrierClass)) exitWith {[format ["%1 CLASS MISSING", _carrierClass]] call _invalid};
@@ -69,7 +69,7 @@ if (_windSpeedMs > 0.01) then {
     _windFromDeg = (_windToDeg + 180) % 360;
 };
 
-private _model = [] call USAFDC_fnc_getModel;
+private _model = [] call TLB_CARP_fnc_getModel;
 private _aircraftProfiles = _model get "aircraft";
 private _profile = _aircraftProfiles getOrDefault [_aircraftId, createHashMap];
 if ((count _profile) isEqualTo 0) exitWith {["C-17 PROFILE MISSING"] call _invalid};
@@ -86,7 +86,7 @@ if !(_harnessCalState in ["ready", "zero-wind-measured", "provisional-borrowed"]
 };
 _profile set ["dropPos", +_dropPos];
 
-private _dz = +USAFDC_state_dzPosASL;
+private _dz = +TLB_CARP_state_dzPosASL;
 private _dzTerrainAslM = _dz # 2;
 private _input = createHashMapFromArray [
     ["aircraft", _aircraftId],
@@ -109,7 +109,7 @@ private _input = createHashMapFromArray [
 private _reference = createHashMap;
 private _solveFailed = false;
 for "_pass" from 0 to 4 do {
-    _reference = [_input, _model, _dz] call USAFDC_fnc_solveWorldReference;
+    _reference = [_input, _model, _dz] call TLB_CARP_fnc_solveWorldReference;
     if !(_reference getOrDefault ["valid", false]) exitWith {_solveFailed = true};
     private _rp = _reference get "rpPosASL";
     private _actionTerrainAslM = getTerrainHeightASL [_rp # 0, _rp # 1];
@@ -124,7 +124,7 @@ if (_solveFailed || {!(_reference getOrDefault ["valid", false])}) exitWith {
 // Re-solve once with the altitude tied to terrain under the final action point.
 private _lastRp = _reference get "rpPosASL";
 _input set ["actionAltitudeAslM", (getTerrainHeightASL [_lastRp # 0, _lastRp # 1]) + _aglM];
-_reference = [_input, _model, _dz] call USAFDC_fnc_solveWorldReference;
+_reference = [_input, _model, _dz] call TLB_CARP_fnc_solveWorldReference;
 if !(_reference getOrDefault ["valid", false]) exitWith {["FINAL TEST SOLUTION INVALID"] call _invalid};
 
 private _rp = +(_reference get "rpPosASL");

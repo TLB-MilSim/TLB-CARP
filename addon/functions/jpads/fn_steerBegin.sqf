@@ -1,15 +1,15 @@
 /*
-    USAFDC_fnc_steerBegin
+    TLB_CARP_fnc_steerBegin
 
     Hand a released load's steering job to whichever machine owns it.
 
-    [_carrier, _cargo] call USAFDC_fnc_steerBegin
+    [_carrier, _cargo] call TLB_CARP_fnc_steerBegin
 
     Called by the AIRCRAFT'S OWNER when its package tracker latches RELEASED. That client
     is the only one holding all the inputs: the crew's DZ, and the pilot's own guided
     cargo settings. Every one of them goes into the job, because the machine that will
-    actually fly the canopy has none of it -- USAFDC_setting_jpads* are CBA scope-0
-    settings and read their defaults on a dedicated server, and USAFDC_state_dzPosASL is
+    actually fly the canopy has none of it -- TLB_CARP_setting_jpads* are CBA scope-0
+    settings and read their defaults on a dedicated server, and TLB_CARP_state_dzPosASL is
     client-local. That is the third of the three reasons guided cargo did nothing on a
     server: even once the command reached the right machine, that machine had no idea
     where the drop zone was or that guided cargo was switched on at all.
@@ -47,20 +47,20 @@ if (isNull _cargo) exitWith {""};
 //
 // Stamped on the cargo rather than held in a list, because the object is the thing that
 // can only be dropped once, and the stamp travels with it to whichever machine asks.
-if (_cargo getVariable ["USAFDC_steerPublished", false]) exitWith {""};
+if (_cargo getVariable ["TLB_CARP_steerPublished", false]) exitWith {""};
 
 // The crew's own switch, from the panel. With guided cargo off no job exists, so nothing
 // anywhere steers -- which is what the switch means, even though the machine that would do
 // the steering cannot read it. Read HERE for that reason, and shared between the seats so
 // a loadmaster and a pilot cannot disagree about whether the load they drop is guided.
-if !(missionNamespace getVariable ["USAFDC_state_jpadsEnabled", false]) exitWith {""};
+if !(missionNamespace getVariable ["TLB_CARP_state_jpadsEnabled", false]) exitWith {""};
 
-private _dz = +(missionNamespace getVariable ["USAFDC_state_dzPosASL", []]);
+private _dz = +(missionNamespace getVariable ["TLB_CARP_state_dzPosASL", []]);
 if ((count _dz) < 3) exitWith {""};
 
 // Derived from netId rather than generated, so any machine can name this job later --
 // including one that has to retire it after the publisher has gone.
-private _jipID = format ["USAFDC_steer_%1", netId _cargo];
+private _jipID = format ["TLB_CARP_steer_%1", netId _cargo];
 
 // ---- where in the stick is this load, and therefore where does it aim ------------
 //
@@ -87,44 +87,44 @@ private _jipID = format ["USAFDC_steer_%1", netId _cargo];
 // so a release this code did not see commanded (USAF's own action, a mission script) gets
 // NO slot and aims at the drop zone. An unknown stick must cost accuracy nothing; a wrong
 // offset is far worse than no offset.
-private _spacing = missionNamespace getVariable ["USAFDC_setting_jpadsStickSpacingM", 35];
+private _spacing = missionNamespace getVariable ["TLB_CARP_setting_jpadsStickSpacingM", 35];
 private _index = 0;
 private _total = 1;
 if (!isNull _carrier) then {
-    _total = _carrier getVariable ["USAFDC_stickTotal", 1];
+    _total = _carrier getVariable ["TLB_CARP_stickTotal", 1];
     // Within a stick the index advances. Ten seconds after the last release the stick is
     // over, whatever the stamp still says -- that covers a pass abandoned part-way.
-    private _lastS = _carrier getVariable ["USAFDC_stickLastReleaseS", -1e9];
+    private _lastS = _carrier getVariable ["TLB_CARP_stickLastReleaseS", -1e9];
     if ((time - _lastS) > 10) then {
         _index = 0;
     } else {
-        _index = (_carrier getVariable ["USAFDC_stickIndex", -1]) + 1;
+        _index = (_carrier getVariable ["TLB_CARP_stickIndex", -1]) + 1;
     };
     if (_index >= _total) then {
         // More loads left than the stick was told to expect. Spreading past the end of the
         // pattern would put them progressively further downrange, so stop spreading.
         _total = 1;
     };
-    _carrier setVariable ["USAFDC_stickIndex", _index, false];
-    _carrier setVariable ["USAFDC_stickLastReleaseS", time, false];
+    _carrier setVariable ["TLB_CARP_stickIndex", _index, false];
+    _carrier setVariable ["TLB_CARP_stickLastReleaseS", time, false];
 };
 
 // Centred on the DZ, so the drop zone stays the middle of the pattern rather than its
 // leading edge. Along the LOCKED run-in; with no lock there is no axis to spread along
 // and an empty offset lets fn_steerCargo fall back to its random scatter.
 private _aimOffset = [];
-if (_spacing > 0 && {_total > 1} && {USAFDC_state_runInLocked}) then {
+if (_spacing > 0 && {_total > 1} && {TLB_CARP_state_runInLocked}) then {
     private _alongM = (_index - ((_total - 1) / 2)) * _spacing;
-    _aimOffset = [_alongM * (sin USAFDC_state_runInDeg), _alongM * (cos USAFDC_state_runInDeg)];
+    _aimOffset = [_alongM * (sin TLB_CARP_state_runInDeg), _alongM * (cos TLB_CARP_state_runInDeg)];
 };
 
 private _job = [
     _cargo,
     _dz,
-    missionNamespace getVariable ["USAFDC_setting_jpadsGlideMs", 12],
-    missionNamespace getVariable ["USAFDC_setting_jpadsScatterM", 2],
-    missionNamespace getVariable ["USAFDC_setting_jpadsReleaseAglM", 3],
-    missionNamespace getVariable ["USAFDC_setting_jpadsEngageVzMs", 12],
+    missionNamespace getVariable ["TLB_CARP_setting_jpadsGlideMs", 12],
+    missionNamespace getVariable ["TLB_CARP_setting_jpadsScatterM", 2],
+    missionNamespace getVariable ["TLB_CARP_setting_jpadsReleaseAglM", 3],
+    missionNamespace getVariable ["TLB_CARP_setting_jpadsEngageVzMs", 12],
     // Mission time, which is synchronised. diag_tickTime is this machine's own uptime
     // and would mean nothing to whichever machine ends up pruning the job.
     time,
@@ -135,8 +135,8 @@ private _job = [
     _aimOffset
 ];
 
-_cargo setVariable ["USAFDC_steerPublished", true, true];
-["USAFDC_steerBegin", [_job], _jipID] call CBA_fnc_globalEventJIP;
+_cargo setVariable ["TLB_CARP_steerPublished", true, true];
+["TLB_CARP_steerBegin", [_job], _jipID] call CBA_fnc_globalEventJIP;
 
 diag_log format [
     "[TLB CARP][JPADS] steer job published cargo=%1 carrier=%2 dz=%3 glide=%4 jip=%5 slot=%6/%7 aim=%8",

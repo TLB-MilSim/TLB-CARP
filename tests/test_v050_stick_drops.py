@@ -76,7 +76,7 @@ class StickSolverContractTests(unittest.TestCase):
         above 85 m/s, and the calibrated drop band is 480-525 km/h, so this fired on every
         multi-cargo pass the system has ever flown."""
         self.assertIn("_slotSpacingM = missionNamespace getVariable "
-                      '["USAFDC_setting_jpadsStickSpacingM", 35]', self.src)
+                      '["TLB_CARP_setting_jpadsStickSpacingM", 35]', self.src)
         self.assertIn("_predictedFootprintM = if (_guidedSlots) then "
                       "{_slotSpacingM * (_cargoSequenceCount - 1)} else {_stickLengthM};",
                       self.src)
@@ -85,17 +85,17 @@ class StickSolverContractTests(unittest.TestCase):
         """Two copies of a condition is how they drift, and this pair drifting would put a
         number on the HUD describing a pattern that was never assigned."""
         solver = [l.strip() for l in self.src.splitlines()
-                  if "_guidedSlots =" in l and "USAFDC_state_jpadsEnabled" in l]
+                  if "_guidedSlots =" in l and "TLB_CARP_state_jpadsEnabled" in l]
         self.assertEqual(len(solver), 1, "one place decides whether slots will be assigned")
         begin = read("addon/functions/jpads/fn_steerBegin.sqf")
         gate = [l.strip() for l in begin.splitlines()
-                if "_spacing > 0" in l and "USAFDC_state_runInLocked" in l]
+                if "_spacing > 0" in l and "TLB_CARP_state_runInLocked" in l]
         self.assertEqual(len(gate), 1, "fn_steerBegin's slot gate moved -- re-pair them")
-        for term in ["_slotSpacingM > 0", "USAFDC_state_runInLocked",
-                     "USAFDC_state_jpadsEnabled"]:
+        for term in ["_slotSpacingM > 0", "TLB_CARP_state_runInLocked",
+                     "TLB_CARP_state_jpadsEnabled"]:
             self.assertIn(term, solver[0])
         # steerBegin exits early on jpadsEnabled rather than testing it inline.
-        self.assertIn('["USAFDC_state_jpadsEnabled", false]) exitWith', begin)
+        self.assertIn('["TLB_CARP_state_jpadsEnabled", false]) exitWith', begin)
 
     def test_release_geometry_is_untouched_by_the_warning_change(self):
         """THE TRAP THAT WAS AVOIDED. Redefining _stickLengthM as the guided span would
@@ -109,7 +109,7 @@ class StickSolverContractTests(unittest.TestCase):
         self.assertIn("_firstReleaseLeadM = _stickLengthM * 0.5;", self.src)
 
     def test_interval_matches_the_measured_value(self):
-        """0.5880 s from USAFDC_fnc_stickTimingProbe over 39 gaps / 10 reps, sd 0.0159.
+        """0.5880 s from TLB_CARP_fnc_stickTimingProbe over 39 gaps / 10 reps, sd 0.0159.
 
         NOT 0.7603 -- that value shipped in v0.4.40 from a 12-gap sample which was the
         probe's first invocation and warm-up contaminated (reps trended
@@ -156,7 +156,7 @@ class SequenceCargoTests(unittest.TestCase):
         reading usaf_cargo alone, a non-USAF load never appeared to clear and every
         iteration ran to its 3 s timeout.
         """
-        self.assertIn("_after = count ([_carrier] call USAFDC_fnc_getLoadedCargo)", self.src)
+        self.assertIn("_after = count ([_carrier] call TLB_CARP_fnc_getLoadedCargo)", self.src)
         self.assertIn("(_after < _before)", self.src)
 
     def test_uses_the_same_drop_entry_point_as_a_single_release(self):
@@ -168,7 +168,7 @@ class SequenceCargoTests(unittest.TestCase):
         else takes CARP's release. What matters here is that the sequencer and the
         single release cannot drift apart, which is why both go through the same call.
         """
-        self.assertIn("USAFDC_fnc_releaseSelected", self.src)
+        self.assertIn("TLB_CARP_fnc_releaseSelected", self.src)
         self.assertNotIn("spawn USAF_CARGO_fnc_canDrop", self.src)
 
     def test_per_load_timeout_is_bounded_and_logged(self):
@@ -184,7 +184,7 @@ class StickTimingProbeTests(unittest.TestCase):
         """config.bin is pre-binarized, so a new function reaches the engine only via
         the fn_postInit compile table."""
         post = read("addon/functions/fn_postInit.sqf")
-        self.assertIn('["USAFDC_fnc_stickTimingProbe", "', post)
+        self.assertIn('["TLB_CARP_fnc_stickTimingProbe", "', post)
         sep = chr(92)  # literal backslash; the SQF path separator
         self.assertIn(sep.join(["functions", "debug", "fn_stickTimingProbe.sqf"]), post)
 
@@ -192,16 +192,16 @@ class StickTimingProbeTests(unittest.TestCase):
         """A 0.05 s scheduled poll would quantise a ~0.6 s interval by up to 8% --
         the same order as the discrepancy being measured."""
         handler = self.src[self.src.index('addMissionEventHandler ["EachFrame"'):]
-        self.assertIn('_x setVariable ["USAFDC_stickReleaseTime", time, false]', handler)
+        self.assertIn('_x setVariable ["TLB_CARP_stickReleaseTime", time, false]', handler)
 
     def test_each_load_is_stamped_only_once(self):
-        self.assertIn('isNil {_x getVariable "USAFDC_stickReleaseTime"}', self.src)
+        self.assertIn('isNil {_x getVariable "TLB_CARP_stickReleaseTime"}', self.src)
 
     def test_doors_are_opened_before_commanding(self):
         """Commanding in the same frame as the animate adds the door animation to the
         measured interval; the parallel bench needed the same correction."""
         self.assertIn("animationPhase", self.src)
-        self.assertLess(self.src.index("animationPhase"), self.src.index("spawn USAFDC_fnc_sequenceCargo"))
+        self.assertLess(self.src.index("animationPhase"), self.src.index("spawn TLB_CARP_fnc_sequenceCargo"))
 
     def test_intervals_are_computed_from_sorted_times(self):
         """Stamps arrive in frame order but the list must not be assumed ordered."""
@@ -225,14 +225,14 @@ class StickTimingProbeTests(unittest.TestCase):
         self.assertIn("if (_cargoCount < 2) exitWith", self.src)
 
     def test_cleans_up_handler_and_objects(self):
-        self.assertIn('removeMissionEventHandler ["EachFrame", USAFDC_state_stickProbeEh]', self.src)
+        self.assertIn('removeMissionEventHandler ["EachFrame", TLB_CARP_state_stickProbeEh]', self.src)
         self.assertIn("deleteVehicle _carrier;", self.src)
-        self.assertIn("USAFDC_state_stickProbeActive = false;", self.src)
+        self.assertIn("TLB_CARP_state_stickProbeActive = false;", self.src)
 
     def test_state_globals_are_initialised(self):
         post = read("addon/functions/fn_postInit.sqf")
-        for g in ("USAFDC_state_stickProbeActive", "USAFDC_state_stickProbeEh",
-                  "USAFDC_state_stickProbePin", "USAFDC_state_stickProbeStamps"):
+        for g in ("TLB_CARP_state_stickProbeActive", "TLB_CARP_state_stickProbeEh",
+                  "TLB_CARP_state_stickProbePin", "TLB_CARP_state_stickProbeStamps"):
             self.assertIn(f"{g} = ", post)
 
     def test_does_not_use_setpos_as_a_position_rail_on_cargo(self):

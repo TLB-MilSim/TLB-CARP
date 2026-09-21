@@ -1,11 +1,11 @@
-private _model = [] call USAFDC_fnc_getModel;
-private _fixtureRoot = [] call USAFDC_fnc_getTestVectors;
+private _model = [] call TLB_CARP_fnc_getModel;
+private _fixtureRoot = [] call TLB_CARP_fnc_getTestVectors;
 private _fixtures = _fixtureRoot get "vectors";
 private _allPass = true;
 
 {
     private _fixture = _x;
-    private _result = [_fixture, _model] call USAFDC_fnc_solveRelative;
+    private _result = [_fixture, _model] call TLB_CARP_fnc_solveRelative;
     private _expected = _fixture get "expected";
     private _alongError = abs ((_result get "totalAlongM") - (_expected get "totalAlongM"));
     private _rightError = abs ((_result get "totalRightM") - (_expected get "totalRightM"));

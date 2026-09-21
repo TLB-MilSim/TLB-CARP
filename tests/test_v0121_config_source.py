@@ -154,10 +154,10 @@ class ConfigBinaryMatchesSourceTests(unittest.TestCase):
         """The 22 handler strings are what make a runtime-built replacement unnecessary.
         Losing them in a rebuild would be silent until a control was clicked."""
         text = self._decompiled()
-        self.assertIn("USAFDC_RscDialog", text)
-        self.assertIn("USAFDC_fnc_refreshPanel", text)
-        self.assertIn("USAFDC_fnc_beginMapDZ", text)
-        self.assertGreaterEqual(text.count("USAFDC_fnc_"), 15)
+        self.assertIn("TLB_CARP_RscDialog", text)
+        self.assertIn("TLB_CARP_fnc_refreshPanel", text)
+        self.assertIn("TLB_CARP_fnc_beginMapDZ", text)
+        self.assertGreaterEqual(text.count("TLB_CARP_fnc_"), 15)
 
 
 if __name__ == "__main__":

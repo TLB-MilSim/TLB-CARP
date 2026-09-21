@@ -15,9 +15,9 @@ WHY IT DID NOTHING, IN THREE PARTS
    also the one machine not trying to steer it.
 
 3. THE GATE WAS CLIENT STATE. Steering required
-   `USAFDC_state_packageTimingState isEqualTo "CHUTE"`, a global written only by the
-   guidance loop, on a client, with a panel open, plus `USAFDC_state_dzPosASL` and five
-   `USAFDC_setting_jpads*` values that are CBA scope-0 and read their defaults on a
+   `TLB_CARP_state_packageTimingState isEqualTo "CHUTE"`, a global written only by the
+   guidance loop, on a client, with a panel open, plus `TLB_CARP_state_dzPosASL` and five
+   `TLB_CARP_setting_jpads*` values that are CBA scope-0 and read their defaults on a
    server. Even with 1 and 2 fixed, the server would not have known where the drop zone
    was or that guided cargo was switched on.
 
@@ -64,7 +64,7 @@ class RegistrationTests(unittest.TestCase):
         for rel in [LAW, BEGIN, TICK]:
             self.assertTrue((ROOT / rel).exists(), rel)
             self.assertIn(Path(rel).name, post)
-            self.assertIn(f'"USAFDC_fnc_{Path(rel).stem.replace("fn_", "")}"', post)
+            self.assertIn(f'"TLB_CARP_fnc_{Path(rel).stem.replace("fn_", "")}"', post)
 
     def test_no_compiled_sibling_shadows_them(self):
         for rel in [LAW, BEGIN, TICK]:
@@ -75,10 +75,10 @@ class RegistrationTests(unittest.TestCase):
         normally the one that owns the canopy."""
         src = code(POSTINIT)
         head = src[:src.index("if (!hasInterface) exitWith {")]
-        self.assertIn('["USAFDC_steerBegin", {', head)
+        self.assertIn('["TLB_CARP_steerBegin", {', head)
         self.assertIn('addMissionEventHandler ["EachFrame"', head)
-        self.assertIn("USAFDC_fnc_steerTick", head)
-        self.assertIn("USAFDC_state_steerJobs = [];", head)
+        self.assertIn("TLB_CARP_fnc_steerTick", head)
+        self.assertIn("TLB_CARP_state_steerJobs = [];", head)
 
 
 class JobDeliveryTests(unittest.TestCase):
@@ -94,27 +94,27 @@ class JobDeliveryTests(unittest.TestCase):
     def test_the_jip_id_is_derived_from_the_load_so_anyone_can_retire_it(self):
         src = code(BEGIN)
         self.assertIn("netId _cargo", src)
-        self.assertIn("USAFDC_steer_", src)
+        self.assertIn("TLB_CARP_steer_", src)
         self.assertIn("CBA_fnc_removeGlobalEventJIP", code(TICK))
 
     def test_the_job_carries_the_pilots_settings_not_the_servers(self):
-        """Every USAFDC_setting_jpads* is CBA scope 0. On a dedicated server they read
+        """Every TLB_CARP_setting_jpads* is CBA scope 0. On a dedicated server they read
         their defaults, so a server asked to steer would use 12 m/s glide and a 3 m
         release height no matter what the crew had configured -- and would never even
         start, because jpadsEnabled defaults to false."""
         src = code(BEGIN)
         for setting in ["jpadsGlideMs", "jpadsScatterM", "jpadsReleaseAglM", "jpadsEngageVzMs"]:
             self.assertIn(setting, src)
-        self.assertIn("USAFDC_state_dzPosASL", src)
+        self.assertIn("TLB_CARP_state_dzPosASL", src)
 
     def test_guided_cargo_off_means_no_job_at_all(self):
         """The switch still belongs to the pilot. With it off nothing is published, so
         nothing anywhere steers."""
         src = code(BEGIN)
-        gate = src[:src.index("USAFDC_state_dzPosASL")]
+        gate = src[:src.index("TLB_CARP_state_dzPosASL")]
         # Crew state since v0.11.1, so both seats agree on it; still read HERE, on the
         # publishing machine, because the machine that steers cannot read the panel.
-        self.assertIn("USAFDC_state_jpadsEnabled", gate)
+        self.assertIn("TLB_CARP_state_jpadsEnabled", gate)
         self.assertIn("exitWith", gate)
 
     def test_exactly_one_machine_publishes_and_it_is_a_human(self):
@@ -127,8 +127,8 @@ class JobDeliveryTests(unittest.TestCase):
         which every machine sees identically, so no election is needed.
         """
         src = code(TRACKER)
-        self.assertIn("USAFDC_fnc_steerPublisher", src)
-        self.assertIn("USAFDC_fnc_steerBegin", src)
+        self.assertIn("TLB_CARP_fnc_steerPublisher", src)
+        self.assertIn("TLB_CARP_fnc_steerBegin", src)
         pub = code("addon/functions/jpads/fn_steerPublisher.sqf")
         self.assertIn("isPlayer _driver", pub)
         self.assertIn("getPlayerUID", pub)
@@ -144,14 +144,14 @@ class JobDeliveryTests(unittest.TestCase):
         """
         src = code(TRACKER)
         self.assertIn("forEach _departed", src)
-        self.assertIn("USAFDC_state_steerSeenCargo", src)
+        self.assertIn("TLB_CARP_state_steerSeenCargo", src)
         # The carrier check stops "the player changed aircraft" reading as a mass release.
-        self.assertIn("USAFDC_state_steerSeenCarrier", src)
+        self.assertIn("TLB_CARP_state_steerSeenCarrier", src)
 
     def test_an_unsteered_canopy_is_reported_rather_than_assumed_fine(self):
         """"Another machine is flying it" and "no machine can fly it" look identical from
         the cockpit. The heartbeat is what separates them."""
-        self.assertIn('setVariable ["USAFDC_steerBeat", time, true]', code(LAW))
+        self.assertIn('setVariable ["TLB_CARP_steerBeat", time, true]', code(LAW))
         self.assertIn("UNSTEERED - NO OWNER", code(TICK))
 
     def test_a_canopy_is_a_precondition_not_a_choice_of_target(self):
@@ -184,26 +184,26 @@ class JobDeliveryTests(unittest.TestCase):
         is open, and no machine is flying it. Showing only the closing error left it with
         nowhere to appear -- indistinguishable from an unguided load."""
         hud = code("addon/functions/ui/fn_updateHud.sqf")
-        self.assertIn("USAFDC_state_jpadsPhase", hud)
+        self.assertIn("TLB_CARP_state_jpadsPhase", hud)
         self.assertIn('format ["JPADS %1", _jpadsPhase]', hud)
 
     # Read by the HUD, which is where a pilot needs them.
     ON_THE_HUD = [
-        "USAFDC_state_jpadsActive", "USAFDC_state_jpadsPhase", "USAFDC_state_jpadsErrorM",
+        "TLB_CARP_state_jpadsActive", "TLB_CARP_state_jpadsPhase", "TLB_CARP_state_jpadsErrorM",
     ]
     # Written every frame and read by no UI since v0.11.2 removed the panel status block (control 9314).
     #
     # They are KEPT rather than deleted, and the distinction is the open measurement
     # question: these are the numbers that decide whether the 0.76 m / 1.15 m guided
     # accuracy transfers to a dedicated server, and that has not been measured yet. They
-    # are console instruments now -- `USAFDC_state_jpadsClosingMs` in the debug console
+    # are console instruments now -- `TLB_CARP_state_jpadsClosingMs` in the debug console
     # while a load descends -- rather than a panel line.
     #
     # If that measurement is ever made and closed, delete the writes with the question.
     CONSOLE_INSTRUMENTS = [
-        "USAFDC_state_jpadsClosingMs", "USAFDC_state_jpadsGroundMs",
-        "USAFDC_state_jpadsTimeRemainingS", "USAFDC_state_jpadsTargetOffset",
-        "USAFDC_state_jpadsPackage", "USAFDC_steerSurvival",
+        "TLB_CARP_state_jpadsClosingMs", "TLB_CARP_state_jpadsGroundMs",
+        "TLB_CARP_state_jpadsTimeRemainingS", "TLB_CARP_state_jpadsTargetOffset",
+        "TLB_CARP_state_jpadsPackage", "TLB_CARP_steerSurvival",
     ]
 
     def test_the_pilot_facing_telemetry_is_on_the_hud(self):
@@ -219,7 +219,7 @@ class JobDeliveryTests(unittest.TestCase):
         """State written at frame rate and read by nothing is bookkeeping nobody asked
         for. A new one must land in ON_THE_HUD or be declared a console instrument with a
         reason -- it cannot simply appear."""
-        written = set(re.findall(r"(USAFDC_(?:state_jpads|steerSurvival)\w*)\s*=", code(TICK) + code(LAW)))
+        written = set(re.findall(r"(TLB_CARP_(?:state_jpads|steerSurvival)\w*)\s*=", code(TICK) + code(LAW)))
         accounted = set(self.ON_THE_HUD) | set(self.CONSOLE_INSTRUMENTS)
         self.assertEqual(written - accounted, set(),
                          "written every frame and neither on the HUD nor declared an instrument")
@@ -227,14 +227,14 @@ class JobDeliveryTests(unittest.TestCase):
     def test_the_survival_ratio_is_still_measured(self):
         """The one figure that predicts whether 0.76 m transfers to a server. It lost its
         panel line but not its measurement -- read it from the console while steering."""
-        self.assertIn("USAFDC_steerSurvival", code(LAW))
+        self.assertIn("TLB_CARP_steerSurvival", code(LAW))
 
     def test_command_survival_is_measured_not_assumed(self):
         """v0.4.6 measured 8.0 m/s commanded against 3.28 m/s achieved at a 0.05 s
         interval. An EachFrame handler on a 20 fps server IS a 0.05 s interval, so the
         ratio has to be read on the machine now doing the flying."""
-        self.assertIn("USAFDC_steerSurvival", code(LAW))
-        self.assertIn("USAFDC_steerSurvival", code(TICK))
+        self.assertIn("TLB_CARP_steerSurvival", code(LAW))
+        self.assertIn("TLB_CARP_steerSurvival", code(TICK))
 
     def test_the_steering_rate_is_instrumented(self):
         """The 0.76 m and 1.15 m figures were measured with the steering on a CLIENT.
@@ -247,7 +247,7 @@ class JobDeliveryTests(unittest.TestCase):
 
     def test_a_republished_job_replaces_rather_than_stacks(self):
         src = code(POSTINIT)
-        handler = src[src.index('["USAFDC_steerBegin", {'):]
+        handler = src[src.index('["TLB_CARP_steerBegin", {'):]
         handler = handler[:handler.index("CBA_fnc_addEventHandler")]
         self.assertIn("select {!((_x # 0) isEqualTo _cargo)}", handler)
 
@@ -284,8 +284,8 @@ class OwnershipTests(unittest.TestCase):
         """It must produce the same answer on a machine that has never seen the panel."""
         src = code(LAW)
         for forbidden in [
-            "USAFDC_state_packageTimingState", "USAFDC_state_dzPosASL",
-            "USAFDC_state_packagePrimaryCargo", "USAFDC_state_jpadsEnabled",
+            "TLB_CARP_state_packageTimingState", "TLB_CARP_state_dzPosASL",
+            "TLB_CARP_state_packagePrimaryCargo", "TLB_CARP_state_jpadsEnabled",
             "hasInterface",
         ]:
             self.assertNotIn(forbidden, src)
@@ -324,9 +324,9 @@ class DisplayTests(unittest.TestCase):
         self.assertIn("hasInterface", src)
         self.assertIn("_cargo isEqualTo _live", src)
         for name in [
-            "USAFDC_state_jpadsActive", "USAFDC_state_jpadsPhase", "USAFDC_state_jpadsErrorM",
-            "USAFDC_state_jpadsClosingMs", "USAFDC_state_jpadsGroundMs",
-            "USAFDC_state_jpadsTimeRemainingS",
+            "TLB_CARP_state_jpadsActive", "TLB_CARP_state_jpadsPhase", "TLB_CARP_state_jpadsErrorM",
+            "TLB_CARP_state_jpadsClosingMs", "TLB_CARP_state_jpadsGroundMs",
+            "TLB_CARP_state_jpadsTimeRemainingS",
         ]:
             self.assertIn(name, src)
 
@@ -334,7 +334,7 @@ class DisplayTests(unittest.TestCase):
         """Steering machine and display machine are no longer the same machine. A
         local-only offset left every other client's closing error wrong by up to the
         scatter radius."""
-        self.assertIn('setVariable ["USAFDC_jpadsTargetOffset", _offset, true]', code(LAW))
+        self.assertIn('setVariable ["TLB_CARP_jpadsTargetOffset", _offset, true]', code(LAW))
 
     def test_the_stale_remote_canopy_message_is_gone(self):
         """v0.7.0 made the HUD admit guided cargo could not work on a server. It can

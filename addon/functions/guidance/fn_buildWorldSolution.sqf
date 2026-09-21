@@ -1,13 +1,13 @@
 params [["_vehicle", objectParent player]];
 
-if ((count USAFDC_state_dzPosASL) < 3) exitWith {
+if ((count TLB_CARP_state_dzPosASL) < 3) exitWith {
     createHashMapFromArray [["valid", false], ["reason", "NO DZ"], ["confidence", "INVALID"], ["warnings", ["NO DZ"]]]
 };
 if (isNull _vehicle) exitWith {
     createHashMapFromArray [["valid", false], ["reason", "NO AIRCRAFT"], ["confidence", "INVALID"], ["warnings", ["NO AIRCRAFT"]]]
 };
 
-private _airState = [_vehicle] call USAFDC_fnc_getAircraftState;
+private _airState = [_vehicle] call TLB_CARP_fnc_getAircraftState;
 if !(_airState get "valid") exitWith {
     createHashMapFromArray [
         ["valid", false],
@@ -20,24 +20,24 @@ if !(_airState get "valid") exitWith {
 // therefore the autopilot, from arming for a jump. The mode says which kind of pass this
 // is; it is not inferred from an empty hold, so a jump run still works with cargo aboard
 // for a later pass.
-private _jumpRun = USAFDC_state_mode isEqualTo "JUMP";
+private _jumpRun = TLB_CARP_state_mode isEqualTo "JUMP";
 if (!_jumpRun && {(_airState get "cargoCount") <= 0}) exitWith {
     createHashMapFromArray [["valid", false], ["reason", "NO CARGO ABOARD"], ["confidence", "INVALID"], ["warnings", ["NO CARGO ABOARD"]]]
 };
 
-private _runInDeg = if (USAFDC_state_runInLocked) then {USAFDC_state_runInDeg} else {_airState get "trackDeg"};
-private _basis = [_runInDeg] call USAFDC_fnc_basisFromHeading;
+private _runInDeg = if (TLB_CARP_state_runInLocked) then {TLB_CARP_state_runInDeg} else {_airState get "trackDeg"};
+private _basis = [_runInDeg] call TLB_CARP_fnc_basisFromHeading;
 private _forward = _basis get "forward";
 private _right = _basis get "right";
-private _dz = +USAFDC_state_dzPosASL;
+private _dz = +TLB_CARP_state_dzPosASL;
 private _dzTerrain = _dz # 2;
 
 private _windSpeed = 0;
 private _windFromDeg = 0;
 private _windVector = [0, 0, 0];
-if (USAFDC_state_manualWind) then {
-    _windSpeed = 0 max USAFDC_state_manualWindMs;
-    _windFromDeg = USAFDC_state_manualWindFromDeg mod 360;
+if (TLB_CARP_state_manualWind) then {
+    _windSpeed = 0 max TLB_CARP_state_manualWindMs;
+    _windFromDeg = TLB_CARP_state_manualWindFromDeg mod 360;
     if (_windFromDeg < 0) then {_windFromDeg = _windFromDeg + 360};
     private _to = (_windFromDeg + 180) mod 360;
     _windVector = [_windSpeed * sin _to, _windSpeed * cos _to, 0];
@@ -52,7 +52,7 @@ if (USAFDC_state_manualWind) then {
     };
 };
 
-private _model = [] call USAFDC_fnc_getModel;
+private _model = [] call TLB_CARP_fnc_getModel;
 private _profileId = _airState get "profileId";
 private _aircraftProfiles = _model get "aircraft";
 private _profile = _aircraftProfiles getOrDefault [_profileId, createHashMap];
@@ -62,10 +62,10 @@ if ((count _profile) isEqualTo 0) exitWith {
 _profile set ["dropPos", +(_airState get "dropPos")];
 
 private _airPos = _airState get "posASL";
-private _kinematics = [_vehicle, _airState, _runInDeg] call USAFDC_fnc_projectAircraftKinematics;
+private _kinematics = [_vehicle, _airState, _runInDeg] call TLB_CARP_fnc_projectAircraftKinematics;
 private _input = createHashMapFromArray [
     ["aircraft", _profileId],
-    ["mode", USAFDC_state_mode],
+    ["mode", TLB_CARP_state_mode],
     ["actionAltitudeAslM", _airPos # 2],
     ["openingTerrainAslM", _dzTerrain],
     ["dzTerrainAslM", _dzTerrain],
@@ -97,8 +97,8 @@ private _input = createHashMapFromArray [
 // Auto drop and the release gate stay out of it entirely: fn_updateGuidance skips the
 // drop cue on a jump run and fn_validateAutoDrop refuses one.
 if (_jumpRun) exitWith {
-    private _jump = if (isNil "USAFDC_fnc_buildJumpSolution") then {createHashMap} else {
-        [_vehicle] call USAFDC_fnc_buildJumpSolution
+    private _jump = if (isNil "TLB_CARP_fnc_buildJumpSolution") then {createHashMap} else {
+        [_vehicle] call TLB_CARP_fnc_buildJumpSolution
     };
     private _jumpValid = _jump getOrDefault ["valid", false];
     // Without a usable exit point the run-in itself is still worth flying, so fall back
@@ -144,8 +144,8 @@ if (_jumpRun) exitWith {
         ["plannedRpPosASL", _aim],
         ["chutePosASL", _dz],
         ["touchdownPosASL", _dz],
-        ["targetAglM", USAFDC_state_targetAglM],
-        ["targetGroundSpeedKmh", USAFDC_state_targetGroundSpeedKmh],
+        ["targetAglM", TLB_CARP_state_targetAglM],
+        ["targetGroundSpeedKmh", TLB_CARP_state_targetGroundSpeedKmh],
         ["actualAglM", (_airPos # 2) - (getTerrainHeightASL _airPos)],
         ["actualGroundSpeedKmh", (_airState get "groundSpeedMs") * 3.6],
         ["signedRpM", _alongM],
@@ -166,7 +166,7 @@ if (_jumpRun) exitWith {
     ]
 };
 
-private _liveReference = [_input, _model, _dz] call USAFDC_fnc_solveWorldReference;
+private _liveReference = [_input, _model, _dz] call TLB_CARP_fnc_solveWorldReference;
 if !(_liveReference getOrDefault ["valid", false]) exitWith {
     private _badRelative = _liveReference getOrDefault ["relative", createHashMapFromArray [["warnings", ["INVALID SOLUTION"]]]];
     createHashMapFromArray [
@@ -181,7 +181,7 @@ private _openingTerrain = _liveReference get "openingTerrainAslM";
 private _airTerrainAsl = getTerrainHeightASL _airPos;
 private _actualAglM = (_airPos # 2) - _airTerrainAsl;
 private _actualGroundSpeedKmh = (_airState get "groundSpeedMs") * 3.6;
-// USAFDC_fnc_confidenceReason turned a warning into one short line for the HUD. With the
+// TLB_CARP_fnc_confidenceReason turned a warning into one short line for the HUD. With the
 // DEGRADED tier gone there is no warning to phrase, so it is no longer called. The file
 // stays in the PBO for now rather than being cut from a pre-binarized CfgFunctions in the
 // same release that changes solver behaviour.
@@ -196,9 +196,9 @@ private _plannedReference = [
     _plannedBaseInput,
     _model,
     _dz,
-    USAFDC_state_targetAglM,
-    USAFDC_state_targetGroundSpeedKmh
-] call USAFDC_fnc_buildPlannedReference;
+    TLB_CARP_state_targetAglM,
+    TLB_CARP_state_targetGroundSpeedKmh
+] call TLB_CARP_fnc_buildPlannedReference;
 
 private _cargoSequenceCount = 1;
 private _stickLengthM = 0;
@@ -210,9 +210,9 @@ private _guidedSlots = false;
 // in the HUD rather than in this function.
 private _stickWarningLengthM = ((_model getOrDefault ["multiCargo", createHashMap]) getOrDefault ["stickWarningLengthM", 50]);
 private _warnings = +(_relative get "warnings");
-if (USAFDC_state_autoArmed) then {
+if (TLB_CARP_state_autoArmed) then {
     private _availableCargo = _airState get "cargoCount";
-    _cargoSequenceCount = if (USAFDC_state_cargoCount < 0) then {_availableCargo} else {(USAFDC_state_cargoCount min _availableCargo) max 1};
+    _cargoSequenceCount = if (TLB_CARP_state_cargoCount < 0) then {_availableCargo} else {(TLB_CARP_state_cargoCount min _availableCargo) max 1};
     if (_cargoSequenceCount > 1) then {
         private _multiCargo = _model getOrDefault ["multiCargo", createHashMap];
         private _sequenceIntervalS = _multiCargo getOrDefault ["sequenceIntervalS", 0.53];
@@ -246,8 +246,8 @@ if (USAFDC_state_autoArmed) then {
         // in step; a test pins them. It is a prediction of intent rather than a guarantee,
         // because the stick total is only known at release, but a number describing the
         // pass that will happen beats a number describing one that cannot.
-        private _slotSpacingM = missionNamespace getVariable ["USAFDC_setting_jpadsStickSpacingM", 35];
-        _guidedSlots = USAFDC_state_jpadsEnabled && {_slotSpacingM > 0} && {USAFDC_state_runInLocked};
+        private _slotSpacingM = missionNamespace getVariable ["TLB_CARP_setting_jpadsStickSpacingM", 35];
+        _guidedSlots = TLB_CARP_state_jpadsEnabled && {_slotSpacingM > 0} && {TLB_CARP_state_runInLocked};
         _predictedFootprintM = if (_guidedSlots) then {_slotSpacingM * (_cargoSequenceCount - 1)} else {_stickLengthM};
         if (_predictedFootprintM > _stickWarningLengthM) then {
             // The threshold was hardcoded into the text while the test read the variable,
@@ -264,7 +264,7 @@ if (USAFDC_state_autoArmed) then {
         // guidance actively collapses the spread a stick would otherwise have had. That is
         // a pile, and it is silent -- the footprint above reads as the ballistic stick and
         // says nothing about the loads converging.
-        if (USAFDC_state_jpadsEnabled && {!USAFDC_state_runInLocked}) then {
+        if (TLB_CARP_state_jpadsEnabled && {!TLB_CARP_state_runInLocked}) then {
             _warnings pushBack format ["%1 CARGO GUIDED - NO RUN-IN LOCK - ALL LOADS WILL AIM AT ONE POINT", _cargoSequenceCount];
         };
     };
@@ -281,7 +281,7 @@ if (_firstReleaseLeadM > 0) then {
 };
 
 private _plannedRp = if (_plannedReference getOrDefault ["valid", false]) then {+(_plannedReference get "rpPosASL")} else {+_rp};
-private _guidance = [_airPos, _plannedRp, _rp, _runInDeg, _airState get "trackDeg"] call USAFDC_fnc_computeRunInGuidance;
+private _guidance = [_airPos, _plannedRp, _rp, _runInDeg, _airState get "trackDeg"] call TLB_CARP_fnc_computeRunInGuidance;
 private _signedRpM = _guidance get "signedRpM";
 private _crossTrackM = _guidance get "crossTrackM";
 private _trackErrorDeg = _guidance get "trackErrorDeg";
@@ -322,7 +322,7 @@ private _preChuteLateralDriftM = _velocityRightMs * (_releaseDelayS + _chuteAtta
 //
 // A setting, because this is the gate that stops a drop and the crew must be able to move
 // it without waiting for a build.
-private _driftLimitM = missionNamespace getVariable ["USAFDC_setting_releaseDriftLimitM", 25];
+private _driftLimitM = missionNamespace getVariable ["TLB_CARP_setting_releaseDriftLimitM", 25];
 // Bounded at BOTH ends. Without the lower bound the gate kept judging the
 // aircraft for the whole egress and go-around: cross-track necessarily grows
 // once the pass is over, so the HUD stuck on NO DROP - GO AROUND indefinitely
@@ -356,7 +356,7 @@ createHashMapFromArray [
     ["profileId", _profileId],
     ["aircraftClass", _airState get "class"],
     ["aircraftState", _airState],
-    ["mode", USAFDC_state_mode],
+    ["mode", TLB_CARP_state_mode],
     ["runInDeg", _runInDeg],
     ["forward", _forward],
     ["right", _right],
@@ -369,8 +369,8 @@ createHashMapFromArray [
     ["liveRpPosASL", _rp],
     ["plannedRpPosASL", _plannedRp],
     ["plannedReference", _plannedReference],
-    ["targetAglM", USAFDC_state_targetAglM],
-    ["targetGroundSpeedKmh", USAFDC_state_targetGroundSpeedKmh],
+    ["targetAglM", TLB_CARP_state_targetAglM],
+    ["targetGroundSpeedKmh", TLB_CARP_state_targetGroundSpeedKmh],
     ["actualAglM", _actualAglM],
     ["actualGroundSpeedKmh", _actualGroundSpeedKmh],
     ["chutePosASL", _chutePos],

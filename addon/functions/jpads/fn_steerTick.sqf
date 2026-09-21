@@ -1,5 +1,5 @@
 /*
-    USAFDC_fnc_steerTick
+    TLB_CARP_fnc_steerTick
 
     Runs every frame on EVERY machine, server included, and flies whichever canopies this
     machine happens to own.
@@ -21,7 +21,7 @@
       the one machine not trying to steer it. That registration has moved above the guard.
 
       And the gate was client state. Steering required
-      USAFDC_state_packageTimingState isEqualTo "CHUTE" -- a global written only by the
+      TLB_CARP_state_packageTimingState isEqualTo "CHUTE" -- a global written only by the
       guidance loop, on a client, with a panel open. A dedicated server has no such
       thing and never will. The conditions are now facts any machine can read off the
       object: is it hanging under a ParachuteBase, is it above the release height, has
@@ -40,17 +40,17 @@
     network or can go stale. On a server this whole block is skipped.
 */
 
-private _jobs = missionNamespace getVariable ["USAFDC_state_steerJobs", []];
+private _jobs = missionNamespace getVariable ["TLB_CARP_state_steerJobs", []];
 
 if ((count _jobs) isEqualTo 0) exitWith {
-    if (hasInterface && {missionNamespace getVariable ["USAFDC_state_jpadsActive", false]}) then {
-        USAFDC_state_jpadsActive = false;
-        USAFDC_state_jpadsPhase = "IDLE";
+    if (hasInterface && {missionNamespace getVariable ["TLB_CARP_state_jpadsActive", false]}) then {
+        TLB_CARP_state_jpadsActive = false;
+        TLB_CARP_state_jpadsPhase = "IDLE";
     };
     false
 };
 
-private _live = missionNamespace getVariable ["USAFDC_state_packagePrimaryCargo", objNull];
+private _live = missionNamespace getVariable ["TLB_CARP_state_packagePrimaryCargo", objNull];
 private _survivors = [];
 private _commandedThisFrame = 0;
 
@@ -73,13 +73,13 @@ private _commandedThisFrame = 0;
             // re-loaded and dropped again on a different DZ, and a surviving aim offset
             // would carry the previous sortie's scatter into the next one.
             if (!isNull _cargo) then {
-                _cargo setVariable ["USAFDC_jpadsTargetOffset", nil, true];
-                _cargo setVariable ["USAFDC_steerBeat", nil, true];
+                _cargo setVariable ["TLB_CARP_jpadsTargetOffset", nil, true];
+                _cargo setVariable ["TLB_CARP_steerBeat", nil, true];
             };
         };
         if (hasInterface && {!isNull _cargo} && {_cargo isEqualTo _live}) then {
-            USAFDC_state_jpadsActive = false;
-            USAFDC_state_jpadsPhase = "RELEASED";
+            TLB_CARP_state_jpadsActive = false;
+            TLB_CARP_state_jpadsPhase = "RELEASED";
         };
     } else {
         _survivors pushBack _x;
@@ -87,7 +87,7 @@ private _commandedThisFrame = 0;
         // fn_steerCargo re-tests locality on the object it actually commands -- the
         // canopy, not the load, because those can differ -- and returns without
         // commanding anything when this machine does not own it.
-        private _result = [_cargo, _dz, _glideMs, _scatterM, _releaseAglM, _engageVzMs, _aimOffset] call USAFDC_fnc_steerCargo;
+        private _result = [_cargo, _dz, _glideMs, _scatterM, _releaseAglM, _engageVzMs, _aimOffset] call TLB_CARP_fnc_steerCargo;
         if (_result get "commanding") then {_commandedThisFrame = _commandedThisFrame + 1};
 
         if (hasInterface && {_cargo isEqualTo _live}) then {
@@ -98,22 +98,22 @@ private _commandedThisFrame = 0;
             // and guided cargo appearing to work.
             private _phase = _result get "phase";
             if ((_result get "steering") && {!(_result get "commanding")}) then {
-                private _beat = _cargo getVariable ["USAFDC_steerBeat", -1e9];
+                private _beat = _cargo getVariable ["TLB_CARP_steerBeat", -1e9];
                 if ((time - _beat) > 3) then {_phase = "UNSTEERED - NO OWNER"};
             };
-            USAFDC_state_jpadsActive = _result get "steering";
-            USAFDC_state_jpadsPhase = _phase;
-            USAFDC_state_jpadsErrorM = _result get "errorM";
-            USAFDC_state_jpadsClosingMs = _result get "closingMs";
-            USAFDC_state_jpadsGroundMs = _result get "groundMs";
-            USAFDC_state_jpadsTimeRemainingS = _result get "timeRemainingS";
-            USAFDC_state_jpadsPackage = _cargo;
-            USAFDC_state_jpadsTargetOffset = _cargo getVariable ["USAFDC_jpadsTargetOffset", [0, 0]];
+            TLB_CARP_state_jpadsActive = _result get "steering";
+            TLB_CARP_state_jpadsPhase = _phase;
+            TLB_CARP_state_jpadsErrorM = _result get "errorM";
+            TLB_CARP_state_jpadsClosingMs = _result get "closingMs";
+            TLB_CARP_state_jpadsGroundMs = _result get "groundMs";
+            TLB_CARP_state_jpadsTimeRemainingS = _result get "timeRemainingS";
+            TLB_CARP_state_jpadsPackage = _cargo;
+            TLB_CARP_state_jpadsTargetOffset = _cargo getVariable ["TLB_CARP_jpadsTargetOffset", [0, 0]];
         };
     };
 } forEach _jobs;
 
-USAFDC_state_steerJobs = _survivors;
+TLB_CARP_state_steerJobs = _survivors;
 
 // ---- instrumentation, on the machine actually flying them ---------------------------
 // The 0.76 m and 1.15 m accuracy figures were measured with the steering running on a
@@ -122,11 +122,11 @@ USAFDC_state_steerJobs = _survivors;
 // the control law divides the position error by time-remaining once per frame -- so a
 // longer frame is a coarser integration step. Two lines a second while something is in
 // the air is what turns that from an argument into a measurement.
-if (_commandedThisFrame > 0 && {(time - (missionNamespace getVariable ["USAFDC_state_steerLogTick", -1e9])) >= 2}) then {
-    USAFDC_state_steerLogTick = time;
+if (_commandedThisFrame > 0 && {(time - (missionNamespace getVariable ["TLB_CARP_state_steerLogTick", -1e9])) >= 2}) then {
+    TLB_CARP_state_steerLogTick = time;
     private _survival = -1;
     if ((count _survivors) > 0) then {
-        _survival = ((_survivors # 0) # 0) getVariable ["USAFDC_steerSurvival", -1];
+        _survival = ((_survivors # 0) # 0) getVariable ["TLB_CARP_steerSurvival", -1];
     };
     diag_log format [
         "[TLB CARP][JPADS] steering=%1 jobs=%2 fps=%3 frameMs=%4 survival=%5 isServer=%6",

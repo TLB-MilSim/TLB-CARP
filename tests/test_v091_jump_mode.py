@@ -10,7 +10,7 @@ DISARM AUTO answered "AUTO DROP ARMED". Two symptoms, one cause, in two halves:
   control lied about its own action.
 
   And they disagreed permanently. fn_syncPublish detects a human's intent by watching
-  the armed flag change since USAFDC_state_syncSeenAuto, but fn_syncReconcile re-points
+  the armed flag change since TLB_CARP_state_syncSeenAuto, but fn_syncReconcile re-points
   that marker at the live flag every tick, 5 Hz. So when fn_triggerAutoDrop cleared
   autoArmed, the marker followed it 200 ms later -- long before anyone could open the
   panel -- and the publisher saw nothing to publish. syncWantAuto stayed true for the
@@ -67,30 +67,30 @@ POSTINIT = "addon/functions/fn_postInit.sqf"
 class AutoDropIntentLifecycleTests(unittest.TestCase):
     def test_disarming_ends_the_crews_intent_too(self):
         src = code(DISARM)
-        self.assertIn("USAFDC_state_syncWantAuto = false;", src)
-        self.assertIn("USAFDC_state_syncSeenAuto = false;", src)
-        self.assertIn("USAFDC_state_syncAutoAttempted = false;", src)
+        self.assertIn("TLB_CARP_state_syncWantAuto = false;", src)
+        self.assertIn("TLB_CARP_state_syncSeenAuto = false;", src)
+        self.assertIn("TLB_CARP_state_syncAutoAttempted = false;", src)
 
     def test_releasing_the_attempt_latch_is_what_lets_a_go_around_re_arm(self):
         """fn_syncReconcile arms auto once per intent and suppresses it thereafter as
         'already attempted'. Leaving that latched after a drop is what stopped the second
         pass from ever arming again."""
-        self.assertIn("USAFDC_state_syncAutoAttempted", code(DISARM))
+        self.assertIn("TLB_CARP_state_syncAutoAttempted", code(DISARM))
 
     def test_the_trigger_does_not_clear_the_armed_flag_behind_disarms_back(self):
         """Four sites in fn_triggerAutoDrop set the flag directly. The pass is over in
         every one of them, so they mean what fn_disarmAutoDrop means."""
         src = code(TRIGGER)
-        self.assertNotIn("USAFDC_state_autoArmed = false", src)
-        self.assertIn("USAFDC_fnc_disarmAutoDrop", src)
+        self.assertNotIn("TLB_CARP_state_autoArmed = false", src)
+        self.assertIn("TLB_CARP_fnc_disarmAutoDrop", src)
 
     def test_a_refused_arm_does_not_disarm_the_crew(self):
         """THE ASYMMETRY. fn_armAutoDrop's failure paths set the flag directly and never
         route through fn_disarmAutoDrop -- otherwise one co-pilot's bad geometry would
         cancel the pilot's pass."""
         src = code(ARM)
-        self.assertIn("USAFDC_state_autoArmed = false;", src)
-        self.assertNotIn("USAFDC_fnc_disarmAutoDrop", src)
+        self.assertIn("TLB_CARP_state_autoArmed = false;", src)
+        self.assertNotIn("TLB_CARP_fnc_disarmAutoDrop", src)
 
     def test_the_button_label_reads_what_the_button_does(self):
         """config.bin's handler is `if (autoArmed) then {disarm} else {arm}`, so the label
@@ -106,7 +106,7 @@ class AutoDropIntentLifecycleTests(unittest.TestCase):
         src = code(TELEMETRY)
         label = src[src.index("displayCtrl 9311"):]
         label = label[:label.index("} forEach [")]
-        self.assertIn("USAFDC_state_autoArmed", label)
+        self.assertIn("TLB_CARP_state_autoArmed", label)
         self.assertNotIn("syncWantAuto", label)
         # And it is not still being written in the old place as well.
         self.assertNotIn("displayCtrl 9311", code(PANEL))
@@ -122,42 +122,42 @@ class JumpActionPlacementTests(unittest.TestCase):
         it put four controls on top of the CARGO row and shipped it.
 
     The jump run is now a panel BUTTON (idc 9337) and both ACE entries are gone. That is
-    better than either menu: the label reads USAFDC_jumpArmedBy, which is public and set on
+    better than either menu: the label reads TLB_CARP_jumpArmedBy, which is public and set on
     the AIRCRAFT, so every seat sees the run is armed and by whom -- an ACE action could
     only ever show its own client's flag."""
 
     def test_the_jump_run_is_a_panel_button(self):
         cfg = read("addon/config.cpp")
         self.assertIn("idc=9337;", cfg)
-        self.assertIn("USAFDC_fnc_armJumpRun", cfg)
-        self.assertIn("USAFDC_fnc_disarmJumpRun", cfg)
+        self.assertIn("TLB_CARP_fnc_armJumpRun", cfg)
+        self.assertIn("TLB_CARP_fnc_disarmJumpRun", cfg)
 
     def test_no_carp_action_is_left_on_any_ace_self_menu(self):
         """The panel itself is reached from Air's ACE_SelfActions and stays there. What
         must not remain is a SECOND CARP system living in a different menu."""
         src = code(POSTINIT)
-        for gone in ["_jumpArmAction", "_jumpDisarmAction", "USAFDC_JumpArm", "USAFDC_JumpDisarm"]:
+        for gone in ["_jumpArmAction", "_jumpDisarmAction", "TLB_CARP_JumpArm", "TLB_CARP_JumpDisarm"]:
             self.assertNotIn(gone, src)
 
     def test_the_cargo_actions_were_not_taken_with_them(self):
         """They sat BETWEEN the two jump registrations and the first cut removed them
         along with it. Load and unload are unrelated and must survive."""
         src = code(POSTINIT)
-        self.assertIn("USAFDC_LoadCargo", src)
-        self.assertIn("USAFDC_UnloadCargo", src)
+        self.assertIn("TLB_CARP_LoadCargo", src)
+        self.assertIn("TLB_CARP_UnloadCargo", src)
         self.assertIn("ACE_MainActions", src)
 
     def test_the_label_comes_from_the_airframe_claim_not_this_client(self):
-        """USAFDC_jumpArmedBy is set on the aircraft with the public flag, so a co-pilot
+        """TLB_CARP_jumpArmedBy is set on the aircraft with the public flag, so a co-pilot
         sees the armed state even though only one machine runs the cue handler."""
         src = code("addon/functions/ui/fn_updatePanelTelemetry.sqf")
         self.assertIn("displayCtrl 9337", src)
-        self.assertIn('getVariable ["USAFDC_jumpArmedBy", objNull]', src)
+        self.assertIn('getVariable ["TLB_CARP_jumpArmedBy", objNull]', src)
 
     def test_a_second_crew_member_still_cannot_start_a_competing_run(self):
         """The check that made the ACE condition safe lives in fn_armJumpRun, not in the
         menu, so moving the control did not move the guard."""
-        self.assertIn("USAFDC_jumpArmedBy", code("addon/functions/jump/fn_armJumpRun.sqf"))
+        self.assertIn("TLB_CARP_jumpArmedBy", code("addon/functions/jump/fn_armJumpRun.sqf"))
 
 
 class JumpModeSolverTests(unittest.TestCase):
@@ -165,7 +165,7 @@ class JumpModeSolverTests(unittest.TestCase):
         """Inferring it would break a jump run flown with cargo aboard for a later pass,
         and would silently turn a cargo drop with an empty hold into a jump."""
         src = code(SOLVER)
-        self.assertIn('private _jumpRun = USAFDC_state_mode isEqualTo "JUMP";', src)
+        self.assertIn('private _jumpRun = TLB_CARP_state_mode isEqualTo "JUMP";', src)
 
     def test_cargo_is_required_for_a_cargo_drop_and_only_for_that(self):
         src = code(SOLVER)
@@ -176,7 +176,7 @@ class JumpModeSolverTests(unittest.TestCase):
         Aiming at the DZ would put the aircraft a kilometre or more downwind of where the
         jumpers have to leave."""
         src = code(SOLVER)
-        self.assertIn("USAFDC_fnc_buildJumpSolution", src)
+        self.assertIn("TLB_CARP_fnc_buildJumpSolution", src)
         self.assertIn('_jump getOrDefault ["exitPointPosASL", _dz]', src)
         # The exit point stands in for the release point, so nothing downstream needs to
         # know this is a jump.
@@ -202,7 +202,7 @@ class JumpModeSolverTests(unittest.TestCase):
         """No release delay, no forward throw, no canopy table -- none of it applies."""
         src = code(SOLVER)
         branch = src.index("if (_jumpRun) exitWith")
-        solve = src.index("USAFDC_fnc_solveWorldReference")
+        solve = src.index("TLB_CARP_fnc_solveWorldReference")
         self.assertLess(branch, solve, "the jump branch must return before the ballistic solve")
 
 
@@ -218,7 +218,7 @@ class JumpRunReleaseMachineryTests(unittest.TestCase):
         self.assertIn("if (!_jumpRun && {(_current > 0)}", src)
 
     def test_auto_drop_refuses_a_jump_run(self):
-        self.assertIn('USAFDC_state_mode isEqualTo "JUMP"', code(VALIDATE))
+        self.assertIn('TLB_CARP_state_mode isEqualTo "JUMP"', code(VALIDATE))
         self.assertIn("JUMP RUN - NO CARGO RELEASE", code(VALIDATE))
 
 
@@ -248,18 +248,18 @@ class JumpModeMenuTests(unittest.TestCase):
         cfg = read("addon/config.cpp")
         tail = cfg[cfg.index("'TOUCHDOWN','CHUTE','JUMP'"):]
         handler = tail[:tail.index('";')]
-        self.assertIn("USAFDC_fnc_disarmAutoDrop", handler)
-        self.assertIn("USAFDC_state_dropLatched", handler)
+        self.assertIn("TLB_CARP_fnc_disarmAutoDrop", handler)
+        self.assertIn("TLB_CARP_state_dropLatched", handler)
 
     def test_the_refresh_guard_is_still_respected(self):
         """lbClear and lbSetCurSel inside fn_refreshPanel's rebuild both fire
         LBSelChanged. Without the guard the rebuild re-enters and sets the mode itself."""
         cfg = read("addon/config.cpp")
         head = cfg[:cfg.index("'TOUCHDOWN','CHUTE','JUMP'")]
-        self.assertIn("USAFDC_state_panelRefreshing", head[-500:])
+        self.assertIn("TLB_CARP_state_panelRefreshing", head[-500:])
 
     def test_the_mode_is_crew_shared_so_a_jump_run_is_not_one_seats_idea(self):
-        self.assertIn("USAFDC_state_mode", code("addon/functions/sync/fn_syncSnapshot.sqf"))
+        self.assertIn("TLB_CARP_state_mode", code("addon/functions/sync/fn_syncSnapshot.sqf"))
 
 
 if __name__ == "__main__":

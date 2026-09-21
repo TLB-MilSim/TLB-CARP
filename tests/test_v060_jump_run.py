@@ -251,10 +251,10 @@ class StickLeadTests(unittest.TestCase):
         runs. There is no consistent lead to compute, but the spread should land on
         the recoverable side."""
         post = read(POSTINIT)
-        self.assertIn("USAFDC_setting_jumpEarlyBiasM", post)
+        self.assertIn("TLB_CARP_setting_jumpEarlyBiasM", post)
         self.assertIn('["TLB CARP", "Jump Run"], [0, 800, 250, 0], 1]', post)
         self.assertIn(
-            'missionNamespace getVariable ["USAFDC_setting_jumpEarlyBiasM", 250]',
+            'missionNamespace getVariable ["TLB_CARP_setting_jumpEarlyBiasM", 250]',
             code(SOLUTION),
         )
 
@@ -291,33 +291,33 @@ class JumpSolutionSourceTests(unittest.TestCase):
         """fn_buildWorldSolution.sqf:19 hard-exits with NO USAF CARGO on an empty
         aircraft, which is every jump aircraft. Jump mode must not depend on it."""
         text = code(SOLUTION)
-        self.assertNotIn("USAFDC_fnc_buildWorldSolution", text)
-        self.assertNotIn("USAFDC_fnc_getLoadedCargo", text)
+        self.assertNotIn("TLB_CARP_fnc_buildWorldSolution", text)
+        self.assertNotIn("TLB_CARP_fnc_getLoadedCargo", text)
         self.assertNotIn("NO USAF CARGO", text)
         self.assertNotIn("cargoCount", text)
 
     def test_jump_solution_never_writes_cargo_solver_state(self):
-        """USAFDC_state_solution is the live authoritative CARGO state. Writing jump
+        """TLB_CARP_state_solution is the live authoritative CARGO state. Writing jump
         geometry into it would make an invalid cargo solver look valid to
         operational logic, which is the one way display problems must not be fixed."""
         for rel in (SOLUTION, CUE, ARM, DISARM, LIGHT):
             text = code(rel)
-            self.assertNotIn("USAFDC_state_solution =", text, rel)
-            self.assertNotIn("USAFDC_state_displaySolution =", text, rel)
-            self.assertNotIn("USAFDC_state_guidanceArmed =", text, rel)
+            self.assertNotIn("TLB_CARP_state_solution =", text, rel)
+            self.assertNotIn("TLB_CARP_state_displaySolution =", text, rel)
+            self.assertNotIn("TLB_CARP_state_guidanceArmed =", text, rel)
 
     def test_jump_mode_does_not_touch_the_cargo_canopy_model(self):
         """calibration/model.json and the empirical canopy are protected assets."""
         for rel in (SOLUTION, CUE, ARM, DISARM, LIGHT):
             text = code(rel)
-            for forbidden in ("empiricalCanopy", "USAFDC_fnc_getModel", "zeroWorldM", "releaseDelayS"):
+            for forbidden in ("empiricalCanopy", "TLB_CARP_fnc_getModel", "zeroWorldM", "releaseDelayS"):
                 self.assertNotIn(forbidden, text, f"{rel} references {forbidden}")
 
     def test_no_forward_throw_applied_to_exit_velocity(self):
         """The 0.9x exit velocity is documented but must not be turned into a
         correction. Only the operator-set bias may move the exit along track."""
         text = code(SOLUTION)
-        self.assertIn("USAFDC_setting_jumpTrackOffsetM", text)
+        self.assertIn("TLB_CARP_setting_jumpTrackOffsetM", text)
         self.assertIn("_trackOffsetM", text)
         self.assertNotIn("0.9 *", text)
         self.assertNotIn("* 0.9", text)
@@ -356,33 +356,33 @@ class JumpCueTests(unittest.TestCase):
         foot 2 km away. Resolving the aircraft that way would drop the cue exactly
         when the people who need it are on the ramp."""
         self.assertIn("objectParent player", code(ARM))
-        self.assertIn("USAFDC_state_jumpAircraft = _aircraft", code(ARM))
+        self.assertIn("TLB_CARP_state_jumpAircraft = _aircraft", code(ARM))
         cue = code(CUE)
         self.assertNotIn("objectParent player", cue)
-        self.assertIn("private _aircraft = USAFDC_state_jumpAircraft", cue)
+        self.assertIn("private _aircraft = TLB_CARP_state_jumpAircraft", cue)
 
     def test_countdown_latches_once_started(self):
         """Range-to-exit is not monotonic -- the exit point moves with altitude,
         speed and wind -- so without a latch a wobble across the threshold restarts
         the count and the jumpers hear two overlapping countdowns."""
         cue = read(CUE)
-        self.assertIn("USAFDC_state_jumpCountdownLatched || {_secondsToExit <= _countdownS}", cue)
-        self.assertIn("USAFDC_state_jumpCountdownLatched = true", cue)
+        self.assertIn("TLB_CARP_state_jumpCountdownLatched || {_secondsToExit <= _countdownS}", cue)
+        self.assertIn("TLB_CARP_state_jumpCountdownLatched = true", cue)
 
     def test_countdown_uses_ceil_so_the_first_tick_is_not_doubled(self):
         cue = read(CUE)
         self.assertIn("(ceil _secondsToExit) + 1", cue)
         self.assertIn("private _remaining = ceil _secondsToExit", cue)
-        self.assertIn("if (_remaining < USAFDC_state_jumpLastTickAnnounced)", cue)
+        self.assertIn("if (_remaining < TLB_CARP_state_jumpLastTickAnnounced)", cue)
 
     def test_audio_is_broadcast_to_the_crew_not_played_locally(self):
         """CARP's existing sounds are local because only the pilot needs them. This
         is the opposite: the jumpers need to hear it and the pilot runs it."""
         cue = code(CUE)
-        self.assertIn('["USAFDC_jumpCue", [_sound], _targets] call CBA_fnc_targetEvent', cue)
+        self.assertIn('["TLB_CARP_jumpCue", [_sound], _targets] call CBA_fnc_targetEvent', cue)
         self.assertNotIn("playSound", cue)
         post = read(POSTINIT)
-        self.assertIn('["USAFDC_jumpCue", {', post)
+        self.assertIn('["TLB_CARP_jumpCue", {', post)
         self.assertIn("playSound _sound", post)
 
     def test_countdown_reaches_jumpers_who_have_stood_up(self):
@@ -392,13 +392,13 @@ class JumpCueTests(unittest.TestCase):
         inaudible to exactly the people it exists for, while sounding perfectly
         correct to the pilot. The roster is snapshotted at arm time."""
         cue = code(CUE)
-        self.assertIn("USAFDC_state_jumpRoster select {alive _x}", cue)
-        self.assertIn("crew USAFDC_state_jumpAircraft", cue)
+        self.assertIn("TLB_CARP_state_jumpRoster select {alive _x}", cue)
+        self.assertIn("crew TLB_CARP_state_jumpAircraft", cue)
         self.assertIn("_roster arrayIntersect _roster", cue, "targets must be deduplicated")
         self.assertIn("[_sound], _targets] call CBA_fnc_targetEvent", cue)
-        self.assertIn("USAFDC_state_jumpRoster = crew _aircraft", code(ARM))
-        self.assertIn("USAFDC_state_jumpRoster = []", code(DISARM))
-        self.assertIn("USAFDC_state_jumpRoster = []", read(POSTINIT))
+        self.assertIn("TLB_CARP_state_jumpRoster = crew _aircraft", code(ARM))
+        self.assertIn("TLB_CARP_state_jumpRoster = []", code(DISARM))
+        self.assertIn("TLB_CARP_state_jumpRoster = []", read(POSTINIT))
 
     def test_green_is_refused_when_the_geometry_cannot_be_made_good(self):
         """The cue fires on the ALONG-track projection reaching zero, so without this
@@ -408,16 +408,16 @@ class JumpCueTests(unittest.TestCase):
         geometry that will miss; this is the same position."""
         cue = code(CUE)
         self.assertIn('if (!(_solution get "achievable")', cue)
-        self.assertIn('USAFDC_state_jumpPhase = "REFUSED"', cue)
+        self.assertIn('TLB_CARP_state_jumpPhase = "REFUSED"', cue)
         self.assertIn("NO JUMP", cue)
         self.assertIn("OFF TRACK", cue)
         # A refusal must not be reachable once the light is already green, or a
         # momentary wobble would yank the light back mid-exit.
-        self.assertIn('!(USAFDC_state_jumpPhase in ["GREEN", "PASSED"])', cue)
+        self.assertIn('!(TLB_CARP_state_jumpPhase in ["GREEN", "PASSED"])', cue)
         # The countdown latch is deliberately NOT cleared, so correcting onto the
         # line resumes the count rather than restarting it at ten.
-        refusal = cue.split('USAFDC_state_jumpPhase = "REFUSED"')[1].split("};")[0]
-        self.assertNotIn("USAFDC_state_jumpCountdownLatched = false", refusal)
+        refusal = cue.split('TLB_CARP_state_jumpPhase = "REFUSED"')[1].split("};")[0]
+        self.assertNotIn("TLB_CARP_state_jumpCountdownLatched = false", refusal)
 
     def test_hold_state_says_why_rather_than_freezing_the_readout(self):
         """The invalid-solution exit happens before the readout block, so without its
@@ -433,12 +433,12 @@ class JumpCueTests(unittest.TestCase):
     def test_an_invalid_solution_holds_rather_than_disarming(self):
         """A go-around that drops below the opening altitude is still a jump run."""
         cue = read(CUE)
-        self.assertIn('USAFDC_state_jumpPhase = "HOLD"', cue)
+        self.assertIn('TLB_CARP_state_jumpPhase = "HOLD"', cue)
         self.assertIn("AIRCRAFT LOST", cue)
 
     def test_readout_is_throttled(self):
         """The cue loop runs at the guidance interval, 20 Hz by default."""
-        self.assertIn("(time - USAFDC_state_jumpHintTick) >= 0.25", read(CUE))
+        self.assertIn("(time - TLB_CARP_state_jumpHintTick) >= 0.25", read(CUE))
 
 
 class JumpLightTests(unittest.TestCase):
@@ -459,13 +459,13 @@ class JumpLightTests(unittest.TestCase):
         latch false forever and silently kill the light."""
         post = read(POSTINIT)
         self.assertIn(
-            'USAFDC_state_jumpFfrLoaded = isClass (configFile >> "CfgPatches" >> "ffr_main")',
+            'TLB_CARP_state_jumpFfrLoaded = isClass (configFile >> "CfgPatches" >> "ffr_main")',
             post,
         )
 
     def test_disarm_turns_the_light_off_not_red(self):
         """Red means stand by, do not jump. An unarmed system must not say that."""
-        self.assertIn('[_aircraft, "off"] call USAFDC_fnc_setJumpLight', read(DISARM))
+        self.assertIn('[_aircraft, "off"] call TLB_CARP_fnc_setJumpLight', read(DISARM))
 
 
 class JumpRegistrationTests(unittest.TestCase):
@@ -480,32 +480,32 @@ class JumpRegistrationTests(unittest.TestCase):
             "disarmJumpRun",
             "updateJumpCue",
         ):
-            self.assertIn(f'["USAFDC_fnc_{name}", ', post, f"{name} not registered")
+            self.assertIn(f'["TLB_CARP_fnc_{name}", ', post, f"{name} not registered")
             self.assertIn(f"functions\\jump\\fn_{name}.sqf", post)
 
     def test_state_globals_are_initialised(self):
         post = read(POSTINIT)
         for name in (
-            "USAFDC_state_jumpArmed",
-            "USAFDC_state_jumpAircraft",
-            "USAFDC_state_jumpSolution",
-            "USAFDC_state_jumpPfh",
-            "USAFDC_state_jumpPhase",
-            "USAFDC_state_jumpCountdownLatched",
-            "USAFDC_state_jumpLastTickAnnounced",
-            "USAFDC_state_jumpGreenUntil",
-            "USAFDC_state_jumpHintTick",
-            "USAFDC_state_jumpFfrLoaded",
+            "TLB_CARP_state_jumpArmed",
+            "TLB_CARP_state_jumpAircraft",
+            "TLB_CARP_state_jumpSolution",
+            "TLB_CARP_state_jumpPfh",
+            "TLB_CARP_state_jumpPhase",
+            "TLB_CARP_state_jumpCountdownLatched",
+            "TLB_CARP_state_jumpLastTickAnnounced",
+            "TLB_CARP_state_jumpGreenUntil",
+            "TLB_CARP_state_jumpHintTick",
+            "TLB_CARP_state_jumpFfrLoaded",
         ):
             self.assertIn(f"{name} = ", post, f"{name} not initialised")
 
     def test_settings_are_registered(self):
         post = read(POSTINIT)
         for name in (
-            "USAFDC_setting_jumpOpenAglM",
-            "USAFDC_setting_jumpCountdownS",
-            "USAFDC_setting_jumpGreenWindowS",
-            "USAFDC_setting_jumpTrackOffsetM",
+            "TLB_CARP_setting_jumpOpenAglM",
+            "TLB_CARP_setting_jumpCountdownS",
+            "TLB_CARP_setting_jumpGreenWindowS",
+            "TLB_CARP_setting_jumpTrackOffsetM",
         ):
             self.assertIn(name, post)
         # The bias defaults to 0.
@@ -529,7 +529,7 @@ class JumpRegistrationTests(unittest.TestCase):
         runs it came from, or what was tried and rejected."""
         post = read(POSTINIT)
         import re
-        descriptions = re.findall(r'"USAFDC_setting_\w+",\s*"\w+",\s*\["[^"]*",\s*"([^"]*)"\]', post)
+        descriptions = re.findall(r'"TLB_CARP_setting_\w+",\s*"\w+",\s*\["[^"]*",\s*"([^"]*)"\]', post)
         self.assertGreaterEqual(len(descriptions), 15, "setting descriptions not parsed")
         # Phrases, not bare words: "run-in" is domain vocabulary, not history.
         banned = (

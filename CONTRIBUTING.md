@@ -61,7 +61,7 @@ Write both as a commit message:
 
 ## Releases
 
-1. Bump `USAFDC_VERSION` in `addon/functions/fn_postInit.sqf`.
+1. Bump `TLB_CARP_VERSION` in `addon/functions/fn_postInit.sqf`.
 2. Build and verify: `python tools/build_release.py --version <x.y.z.0> --label <slug>`.
    It runs the suite, builds and signs both PBOs, writes the release and source ZIPs, and
    re-runs the suite from a fresh extraction of the source ZIP. It fails rather than

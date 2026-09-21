@@ -1,13 +1,13 @@
 params ["_carrier", "_solution", ["_metadata", createHashMap]];
-if (!USAFDC_setting_calibrationRecorder) exitWith {false};
+if (!TLB_CARP_setting_calibrationRecorder) exitWith {false};
 if (isNull _carrier) exitWith {false};
-if (USAFDC_state_calibrationActive) exitWith {
+if (TLB_CARP_state_calibrationActive) exitWith {
     diag_log "[TLB CARP][CAL] recorder already active; ignoring new cue";
     false
 };
 if !(_solution getOrDefault ["valid", false]) exitWith {false};
 
-private _air = [_carrier] call USAFDC_fnc_getAircraftState;
+private _air = [_carrier] call TLB_CARP_fnc_getAircraftState;
 if !(_air getOrDefault ["valid", false]) exitWith {false};
 // THE MANIFEST, NOT usaf_cargo. Flown 2026-09-20: a vehicle-in-vehicle load dropped from
 // a Blackfish logged "no cargo loaded at cue" while sitting in the hold, because this read
@@ -17,13 +17,13 @@ if !(_air getOrDefault ["valid", false]) exitWith {false};
 // functions/debug/ is exempted from the test that enforces manifest discipline, which is
 // why this survived v0.8.0's sweep. The exemption is for the harnesses that deliberately
 // drive USAF's own path; it was never meant to cover the flown recorder.
-private _initialCargo = +([_carrier] call USAFDC_fnc_getLoadedCargo);
+private _initialCargo = +([_carrier] call TLB_CARP_fnc_getLoadedCargo);
 if ((count _initialCargo) <= 0) exitWith {
     diag_log format ["[TLB CARP][CAL] no cargo aboard at cue, carrier=%1 -- nothing to record", typeOf _carrier];
     false
 };
 
-USAFDC_state_calibrationSerial = USAFDC_state_calibrationSerial + 1;
+TLB_CARP_state_calibrationSerial = TLB_CARP_state_calibrationSerial + 1;
 private _relative = _solution getOrDefault ["relative", createHashMap];
 private _solutionAtCue = createHashMapFromArray [
     ["signedRpM", _solution getOrDefault ["signedRpM", 0]],
@@ -49,8 +49,8 @@ private _solutionAtCue = createHashMapFromArray [
     ["interceptAngleDeg", _solution getOrDefault ["interceptAngleDeg", 0]],
     ["guidanceState", _solution getOrDefault ["guidanceState", ""]],
     ["finalRunLineOffsetM", _solution getOrDefault ["finalRunLineOffsetM", 0]],
-    ["targetAglM", _solution getOrDefault ["targetAglM", USAFDC_state_targetAglM]],
-    ["targetGroundSpeedKmh", _solution getOrDefault ["targetGroundSpeedKmh", USAFDC_state_targetGroundSpeedKmh]],
+    ["targetAglM", _solution getOrDefault ["targetAglM", TLB_CARP_state_targetAglM]],
+    ["targetGroundSpeedKmh", _solution getOrDefault ["targetGroundSpeedKmh", TLB_CARP_state_targetGroundSpeedKmh]],
     ["actualAglM", _solution getOrDefault ["actualAglM", 0]],
     ["actualGroundSpeedKmh", _solution getOrDefault ["actualGroundSpeedKmh", 0]],
     ["plannedRpPosASL", +(_solution getOrDefault ["plannedRpPosASL", []])],
@@ -58,17 +58,17 @@ private _solutionAtCue = createHashMapFromArray [
 ];
 
 private _cueAircraftPosASL = +(_air getOrDefault ["posASL", getPosASL _carrier]);
-private _cueWindTelemetry = [_cueAircraftPosASL] call USAFDC_fnc_sampleWindTelemetry;
+private _cueWindTelemetry = [_cueAircraftPosASL] call TLB_CARP_fnc_sampleWindTelemetry;
 
 private _run = createHashMapFromArray [
-    ["version", "USAFDC_CAL_V3"],
-    ["runId", USAFDC_state_calibrationSerial],
+    ["version", "TLB_CARP_CAL_V3"],
+    ["runId", TLB_CARP_state_calibrationSerial],
     ["status", "WAITING_RELEASE"],
     ["cueSimTime", time],
     ["cueRealTime", diag_tickTime],
     ["aircraftClass", typeOf _carrier],
     ["profileId", _air getOrDefault ["profileId", ""]],
-    ["mode", _solution getOrDefault ["mode", USAFDC_state_mode]],
+    ["mode", _solution getOrDefault ["mode", TLB_CARP_state_mode]],
     ["initialCargo", _initialCargo],
     ["initialCargoCount", count _initialCargo],
     ["solutionAtCue", _solutionAtCue],
@@ -81,7 +81,7 @@ private _run = createHashMapFromArray [
     ["cueWind", +(_solution getOrDefault ["windVector", wind])],
     ["windFromDeg", _solution getOrDefault ["windFromDeg", 0]],
     ["runInDeg", _solution getOrDefault ["runInDeg", 0]],
-    ["dzPosASL", +(_solution getOrDefault ["dzPosASL", USAFDC_state_dzPosASL])],
+    ["dzPosASL", +(_solution getOrDefault ["dzPosASL", TLB_CARP_state_dzPosASL])],
     ["rpPosASL", +(_solution getOrDefault ["rpPosASL", []])],
     ["chutePosASL", +(_solution getOrDefault ["chutePosASL", []])],
     ["testHarness", _metadata getOrDefault ["testHarness", false]],
@@ -91,8 +91,8 @@ private _run = createHashMapFromArray [
     _run set [_x, _metadata get _x];
 } forEach keys _metadata;
 
-USAFDC_state_calibrationActive = true;
-USAFDC_state_calibrationRun = _run;
-diag_log format ["[TLB CARP][CAL] run=%1 armed cargo=%2 class=%3", USAFDC_state_calibrationSerial, count _initialCargo, typeOf _carrier];
-[_carrier, _run] spawn USAFDC_fnc_pollCalibrationRun;
+TLB_CARP_state_calibrationActive = true;
+TLB_CARP_state_calibrationRun = _run;
+diag_log format ["[TLB CARP][CAL] run=%1 armed cargo=%2 class=%3", TLB_CARP_state_calibrationSerial, count _initialCargo, typeOf _carrier];
+[_carrier, _run] spawn TLB_CARP_fnc_pollCalibrationRun;
 true

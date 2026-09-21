@@ -77,8 +77,8 @@ class DefaultPathTests(unittest.TestCase):
     def test_carp_releases_unless_the_mission_asks_for_usaf(self):
         """The predicate is now positive: take USAF's path only when told to."""
         src = code(SELECT)
-        self.assertIn('(missionNamespace getVariable ["USAFDC_setting_useUsafRelease", false])', src)
-        self.assertNotIn("!(missionNamespace getVariable [\"USAFDC_setting_useUsafRelease\"", src)
+        self.assertIn('(missionNamespace getVariable ["TLB_CARP_setting_useUsafRelease", false])', src)
+        self.assertNotIn("!(missionNamespace getVariable [\"TLB_CARP_setting_useUsafRelease\"", src)
 
     def test_the_usaf_fallback_still_exists_because_it_is_the_calibration_reference(self):
         """Deleting it would leave no way to measure whether the two paths differ."""
@@ -91,7 +91,7 @@ class DefaultPathTests(unittest.TestCase):
         sequence their shared aircraft uses."""
         lines = [
             ln for ln in read(POSTINIT).splitlines()
-            if "USAFDC_setting_useUsafRelease" in ln and "addSetting" in ln
+            if "TLB_CARP_setting_useUsafRelease" in ln and "addSetting" in ln
         ]
         self.assertEqual(len(lines), 1)
         self.assertTrue(lines[0].rstrip().endswith("false, 1] call CBA_fnc_addSetting;"), lines[0])
@@ -120,9 +120,9 @@ class DoorSequenceTests(unittest.TestCase):
         the release must reach the machine where the cargo is local."""
         src = code(SELECT)
         doors = src.index("_carrier animate [_x, 1]")
-        hop = src.index('remoteExec ["USAFDC_fnc_releaseCargo"')
+        hop = src.index('remoteExec ["TLB_CARP_fnc_releaseCargo"')
         self.assertLess(doors, hop, "the doors must be open before the load is dispatched")
-        self.assertIn('remoteExec ["USAFDC_fnc_releaseCargo", _cargo]', src)
+        self.assertIn('remoteExec ["TLB_CARP_fnc_releaseCargo", _cargo]', src)
 
     def test_usafs_busy_flag_is_set_around_the_door_wait(self):
         """usaf_cargo_loading is what USAF's own load actions read. Leaving it alone
@@ -208,31 +208,31 @@ class SmokeTests(unittest.TestCase):
     def test_the_flag_is_an_argument_not_state_read_at_the_far_end(self):
         """THE WHOLE POINT. fn_releaseCargo runs where the CARGO is local, which on a
         dedicated server is the server -- a machine that has never had the panel open.
-        Reading USAFDC_state_smokeEnabled there gets its power-on default, not the
+        Reading TLB_CARP_state_smokeEnabled there gets its power-on default, not the
         crew's choice. Same mistake guided cargo made with CBA settings in v0.8.0."""
         src = code(RELEASE)
         self.assertIn('params ["_carrier", "_cargo", ["_source", ""], ["_smoke", true]]', src)
         # Carried one hop further in v0.12.0: the release hands it to fn_canopyWatch,
         # which is where the shell is actually lit. Neither end may look it up.
-        self.assertIn("[_cargo, _carrier, _smoke] call USAFDC_fnc_canopyWatch;", src)
+        self.assertIn("[_cargo, _carrier, _smoke] call TLB_CARP_fnc_canopyWatch;", src)
         watch = code(WATCH)
         self.assertIn("if (_smoke) then {", watch)
         for src_text in (src, watch):
-            self.assertNotIn("USAFDC_state_smokeEnabled", src_text)
-            self.assertNotIn("USAFDC_setting_dropSmoke", src_text)
+            self.assertNotIn("TLB_CARP_state_smokeEnabled", src_text)
+            self.assertNotIn("TLB_CARP_setting_dropSmoke", src_text)
 
     def test_the_commanding_machine_reads_it_and_sends_it(self):
         src = code(SELECT)
-        self.assertIn('missionNamespace getVariable ["USAFDC_state_smokeEnabled", true]', src)
+        self.assertIn('missionNamespace getVariable ["TLB_CARP_state_smokeEnabled", true]', src)
         self.assertIn(
-            '[_carrier, _cargo, _source, _smoke] remoteExec ["USAFDC_fnc_releaseCargo", _cargo]',
+            '[_carrier, _cargo, _source, _smoke] remoteExec ["TLB_CARP_fnc_releaseCargo", _cargo]',
             src,
         )
 
     def test_the_addon_option_is_gone(self):
         """Replaced, not duplicated. Two controls for one behaviour is how a pilot ends
         up unable to explain why the smoke did not match the button."""
-        self.assertNotIn("USAFDC_setting_dropSmoke", read(POSTINIT))
+        self.assertNotIn("TLB_CARP_setting_dropSmoke", read(POSTINIT))
 
     def test_the_button_is_declared_in_the_config(self):
         """WAS: created at runtime, because config.bin could not be regenerated.
@@ -244,7 +244,7 @@ class SmokeTests(unittest.TestCase):
         it put four controls on top of the CARGO row and shipped it."""
         cfg = read("addon/config.cpp")
         self.assertIn("idc=9331;", cfg)
-        self.assertIn("USAFDC_state_smokeEnabled", cfg)
+        self.assertIn("TLB_CARP_state_smokeEnabled", cfg)
 
     def test_toggling_publishes_to_the_other_seat(self):
         """fn_refreshPanel is what publishes crew intent, and it publishes BEFORE it
@@ -254,22 +254,22 @@ class SmokeTests(unittest.TestCase):
         block = cfg[cfg.index("idc=9331;"):]
         # NOT the first "};" -- a colour array ends "1};".
         block = block[:block.index(chr(10) + chr(9) + chr(9) + "};")]
-        self.assertIn("USAFDC_state_smokeEnabled=!", block)
-        self.assertIn("USAFDC_fnc_refreshPanel", block)
+        self.assertIn("TLB_CARP_state_smokeEnabled=!", block)
+        self.assertIn("TLB_CARP_fnc_refreshPanel", block)
 
     def test_the_label_follows_the_state(self):
         src = code("addon/functions/ui/fn_updatePanelTelemetry.sqf")
-        self.assertIn('[9331, "SMOKE", "USAFDC_state_smokeEnabled", true]', src)
+        self.assertIn('[9331, "SMOKE", "TLB_CARP_state_smokeEnabled", true]', src)
         self.assertIn('ctrlSetText format ["%1: %2", _label,', src)
 
     def test_it_is_crew_intent_and_the_payload_length_moved_with_it(self):
         """A field added to the snapshot that fn_syncApply does not expect is refused
         wholesale, so both ends must move together."""
-        self.assertIn('USAFDC_state_smokeEnabled', code("addon/functions/sync/fn_syncSnapshot.sqf"))
+        self.assertIn('TLB_CARP_state_smokeEnabled', code("addon/functions/sync/fn_syncSnapshot.sqf"))
         apply_src = code("addon/functions/sync/fn_syncApply.sqf")
         self.assertIn("(count _payload) isEqualTo 18", apply_src)
         self.assertIn('"_wantGuidance", "_wantAuto", "_smokeEnabled"', apply_src)
-        self.assertIn("USAFDC_state_smokeEnabled = _smokeEnabled;", apply_src)
+        self.assertIn("TLB_CARP_state_smokeEnabled = _smokeEnabled;", apply_src)
 
     def test_the_payload_length_matches_the_snapshot(self):
         """The one way these two drift apart is somebody adding a field to one of them,
@@ -310,7 +310,7 @@ class SmokeTests(unittest.TestCase):
         trigger, so nothing may sit between the crossing and the chute -- a relight loop
         there would cost the exact frames the whole change was made to recover."""
         src = code(WATCH)
-        cross = src.index('_cargo setVariable ["USAFDC_canopyPending", false, false]')
+        cross = src.index('_cargo setVariable ["TLB_CARP_canopyPending", false, false]')
         chute = src.index("private _chute = _chuteClass createVehicle")
         gate = src.index("if (_smoke) then {")
         self.assertNotIn("_smoke", src[cross:chute])
@@ -328,8 +328,8 @@ class CalibrationUntouchedTests(unittest.TestCase):
         """The one instrument that can settle whether the two paths differ. Mission time
         is synchronised; diag_tickTime is a machine's uptime and cannot be subtracted
         across a dedicated server."""
-        self.assertIn('_cargo setVariable ["USAFDC_releaseSimTime", time, true]', code(RELEASE))
-        self.assertIn('_cargo setVariable ["USAFDC_releasePath", "carp", true]', code(RELEASE))
+        self.assertIn('_cargo setVariable ["TLB_CARP_releaseSimTime", time, true]', code(RELEASE))
+        self.assertIn('_cargo setVariable ["TLB_CARP_releasePath", "carp", true]', code(RELEASE))
 
 
 if __name__ == "__main__":
