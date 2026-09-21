@@ -10,11 +10,13 @@
 </p>
 
 <p align="center">
-  <a href="docs/guides/PILOT_GUIDE.md">Pilot guide</a> ·
-  <a href="docs/guides/JUMP_RUN.md">Jump run</a> ·
-  <a href="docs/guides/MISSION_MAKING.md">Mission making</a> ·
-  <a href="docs/guides/SETTINGS.md">Settings</a> ·
-  <a href="docs/guides/TROUBLESHOOTING.md">Troubleshooting</a>
+  <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki">Wiki</a> ·
+  <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki/Quick-Start">Quick start</a> ·
+  <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki/Pilot-Guide">Pilot guide</a> ·
+  <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki/Jump-Run">Jump run</a> ·
+  <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki/Mission-Making">Mission making</a> ·
+  <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki/Settings">Settings</a> ·
+  <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki/Troubleshooting">Troubleshooting</a>
 </p>
 
 <p align="center">
@@ -90,8 +92,8 @@ forward. You can be off plan and still be on target.
 6. **AUTO DROP** to let it release, or fly the cue and drop by hand. **AP** will fly the
    run-in for you.
 
-The [pilot guide](docs/guides/PILOT_GUIDE.md) walks through all of it, including every row
-on the HUD.
+The [pilot guide](https://github.com/TLB-MilSim/TLB-CARP/wiki/Pilot-Guide) walks through all of it, and
+[The HUD](https://github.com/TLB-MilSim/TLB-CARP/wiki/The-HUD) explains every row on the instrument.
 
 ## Crew
 
@@ -116,19 +118,30 @@ Measured on flown drops, not estimated. Radial error at touchdown.
 | Jump run exit cue | **7 m** and **12 m** on two flown runs |
 
 The C-17 is fully calibrated; the C-130J has a measured zero-wind baseline and borrows the
-C-17's wind deltas. Any other aircraft borrows a profile, reports **DEGRADED** and says so.
+C-17's wind deltas. Any other aircraft uses the C-17's numbers and solves normally — there
+is no warning tier and auto drop is not gated. What does not carry over is the accuracy
+claim above, which was measured on the calibrated airframes.
 The guided figures were measured with the steering running on a client, not a dedicated
 server — treat them as very good rather than exact.
 
 ## Documentation
 
+**The [wiki](https://github.com/TLB-MilSim/TLB-CARP/wiki) is the documentation.** It is the one copy, and it is kept
+current with the mod.
+
 | Page | For |
 | --- | --- |
-| [Pilot guide](docs/guides/PILOT_GUIDE.md) | Aircrew: the panel, the HUD, the run-in, cargo, autopilot, auto drop, JPADS. |
-| [Jump run](docs/guides/JUMP_RUN.md) | Jumpmasters: the exit point, the countdown, the jumplight, and when it refuses. |
-| [Mission making](docs/guides/MISSION_MAKING.md) | Mission makers: DZ markers, the item, servers, aircraft support, script hooks. |
-| [Settings](docs/guides/SETTINGS.md) | Admins: every addon option with its default, range and who owns it. |
-| [Troubleshooting](docs/guides/TROUBLESHOOTING.md) | Everyone: symptom first, then what to check. |
+| [Quick Start](https://github.com/TLB-MilSim/TLB-CARP/wiki/Quick-Start) | A drop in six steps. |
+| [Pilot Guide](https://github.com/TLB-MilSim/TLB-CARP/wiki/Pilot-Guide) | Aircrew: the panel, the HUD, the run-in, cargo, autopilot, auto drop. |
+| [The HUD](https://github.com/TLB-MilSim/TLB-CARP/wiki/The-HUD) | Every row, phase, state and message on the instrument. |
+| [Cargo](https://github.com/TLB-MilSim/TLB-CARP/wiki/Cargo) · [Guided Cargo](https://github.com/TLB-MilSim/TLB-CARP/wiki/Guided-Cargo) | Loading, sticks, and canopies that steer themselves. |
+| [Jump Run](https://github.com/TLB-MilSim/TLB-CARP/wiki/Jump-Run) | Jumpmasters: the exit point, the countdown, the jumplight. |
+| [Crew and Multiplayer](https://github.com/TLB-MilSim/TLB-CARP/wiki/Crew-and-Multiplayer) | What is shared, who owns what, and what the server must run. |
+| [Settings](https://github.com/TLB-MilSim/TLB-CARP/wiki/Settings) | Admins: all 31 addon options with default, range and owner. |
+| [Mission Making](https://github.com/TLB-MilSim/TLB-CARP/wiki/Mission-Making) | DZ markers, the item, servers, aircraft support, script hooks. |
+| [How It Works](https://github.com/TLB-MilSim/TLB-CARP/wiki/How-It-Works) · [Accuracy](https://github.com/TLB-MilSim/TLB-CARP/wiki/Accuracy) | The solver, the path manager, and what each measured figure is worth. |
+| [Troubleshooting](https://github.com/TLB-MilSim/TLB-CARP/wiki/Troubleshooting) | Everyone: symptom first, then what to check. |
+| [Changelog](https://github.com/TLB-MilSim/TLB-CARP/wiki/Changelog) | What changed, and how an entry gets written. |
 | [Contributing](CONTRIBUTING.md) | Anyone changing the mod: how work lands in this repository. |
 
 ## Known limits
