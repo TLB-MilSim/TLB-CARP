@@ -3,9 +3,9 @@ if (isNull _cargo || {isNull _parachute}) exitWith {[]};
 
 private _cargoPosASL = getPosASL _cargo;
 private _parachutePosASL = getPosASL _parachute;
-private _windTelemetry = [_cargoPosASL] call USAFDC_fnc_sampleWindTelemetry;
+private _windTelemetry = [_cargoPosASL] call TLB_CARP_fnc_sampleWindTelemetry;
 [
-    // Keep the first eight elements compatible with USAFDC_CAL_V3 v0.1.7/v0.1.8 samples.
+    // Keep the first eight elements compatible with TLB_CARP_CAL_V3 v0.1.7/v0.1.8 samples.
     _targetS,
     _elapsedS,
     _parachutePosASL,

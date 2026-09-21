@@ -2,12 +2,12 @@ params ["_carrier", "_run"];
 // Stop the per-frame canopy watcher. Called on every exit path -- a leaked EachFrame
 // handler would keep stamping the next run's cargo.
 private _stopChuteWatch = {
-    if ((missionNamespace getVariable ["USAFDC_state_calChuteWatchEh", -1]) >= 0) then {
-        removeMissionEventHandler ["EachFrame", USAFDC_state_calChuteWatchEh];
-        USAFDC_state_calChuteWatchEh = -1;
+    if ((missionNamespace getVariable ["TLB_CARP_state_calChuteWatchEh", -1]) >= 0) then {
+        removeMissionEventHandler ["EachFrame", TLB_CARP_state_calChuteWatchEh];
+        TLB_CARP_state_calChuteWatchEh = -1;
     };
-    USAFDC_state_calChuteWatchCargo = objNull;
-    USAFDC_state_calChuteWatchCarrier = objNull;
+    TLB_CARP_state_calChuteWatchCargo = objNull;
+    TLB_CARP_state_calChuteWatchCarrier = objNull;
 };
 
 private _abort = {
@@ -15,20 +15,20 @@ private _abort = {
     params ["_run", "_reason"];
     _run set ["status", "FAILED"];
     _run set ["failureReason", _reason];
-    USAFDC_state_calibrationRun = _run;
-    USAFDC_state_calibrationActive = false;
+    TLB_CARP_state_calibrationRun = _run;
+    TLB_CARP_state_calibrationActive = false;
 
-    private _text = [_run] call USAFDC_fnc_formatCalibrationRun;
-    USAFDC_state_lastCalibrationRun = _run;
-    USAFDC_state_lastCalibrationText = _text;
+    private _text = [_run] call TLB_CARP_fnc_formatCalibrationRun;
+    TLB_CARP_state_lastCalibrationRun = _run;
+    TLB_CARP_state_lastCalibrationText = _text;
     diag_log format ["[TLB CARP][CAL] run=%1 failed reason=%2", _run getOrDefault ["runId", -1], _reason];
     // Chunked: Arma silently truncates a diag_log string at about a kilobyte, and every
     // record this addon has ever written was being cut off mid-field.
-    ["CAL", _text] call USAFDC_fnc_logLong;
+    ["CAL", _text] call TLB_CARP_fnc_logLong;
     // THE HINT OMITTED `call`, AND THE PILOT TYPED WHAT IT SAID. The flown RPT carries
-    // the result four times: Error in expression <[] USAFDC_fnc_copyLastCalibrationRun;>.
+    // the result four times: Error in expression <[] TLB_CARP_fnc_copyLastCalibrationRun;>.
     // A bare function name is a variable reference, not a call.
-    hint format ["CAL RUN FAILED\n%1\nRun: [] call USAFDC_fnc_copyLastCalibrationRun", _reason];
+    hint format ["CAL RUN FAILED\n%1\nRun: [] call TLB_CARP_fnc_copyLastCalibrationRun", _reason];
 };
 
 private _initialCargo = +(_run getOrDefault ["initialCargo", []]);
@@ -39,13 +39,13 @@ waitUntil {
     if (isNull _carrier) exitWith {true};
     // THE MANIFEST, NOT usaf_cargo -- the same fix fn_beginCalibrationRun got and this
     // sibling did not, which made the recorder lie for two of the four cargo sources.
-    // _initialCargo is built from USAFDC_fnc_getLoadedCargo, so a viv, ace or attached
+    // _initialCargo is built from TLB_CARP_fnc_getLoadedCargo, so a viv, ace or attached
     // load is in it but is NEVER in usaf_cargo. findIf therefore matched on the FIRST
     // poll, at the cue, and the run recorded the cue position as the release.
     //
     // Flown 2026-09-20: one sortie logged signedRp -36.30 for a usaf-source load and
     // -4.62 / -4.05 for a viv and an attached one. The flattering pair were the bug.
-    private _currentCargo = [_carrier] call USAFDC_fnc_getLoadedCargo;
+    private _currentCargo = [_carrier] call TLB_CARP_fnc_getLoadedCargo;
     private _releasedIndex = _initialCargo findIf {!(_x in _currentCargo)};
     if (_releasedIndex >= 0) then {_releasedCargo = _initialCargo # _releasedIndex};
     (!isNull _releasedCargo) || {diag_tickTime >= _releaseDeadline}
@@ -60,7 +60,7 @@ if (isNull _releasedCargo) exitWith {[_run, "RELEASE NOT DETECTED WITHIN 15S"] c
 // and detected release, i.e. 0.24-0.41 s, which cannot be reconciled with the
 // hardcoded `sleep 0.5` in USAF's fn_dropCargo.sqf. Rather than infer again, record
 // what actually happened at both ends.
-private _cmd = missionNamespace getVariable ["USAFDC_state_autoDropCommand", []];
+private _cmd = missionNamespace getVariable ["TLB_CARP_state_autoDropCommand", []];
 if ((count _cmd) >= 3) then {
     _run set ["autoDropCommandSimTimeS", (_cmd # 0) - (_run getOrDefault ["releaseSimTime", _cmd # 0])];
     _run set ["autoDropCommandPosASL", _cmd # 2];
@@ -72,19 +72,19 @@ if ((count _cmd) >= 3) then {
     _run set ["commandToReleaseS", (time - (_cmd # 0)) max -1];
 };
 
-USAFDC_state_calChuteWatchCargo = _releasedCargo;
-USAFDC_state_calChuteWatchCarrier = _carrier;
-if ((missionNamespace getVariable ["USAFDC_state_calChuteWatchEh", -1]) >= 0) then {
-    removeMissionEventHandler ["EachFrame", USAFDC_state_calChuteWatchEh];
+TLB_CARP_state_calChuteWatchCargo = _releasedCargo;
+TLB_CARP_state_calChuteWatchCarrier = _carrier;
+if ((missionNamespace getVariable ["TLB_CARP_state_calChuteWatchEh", -1]) >= 0) then {
+    removeMissionEventHandler ["EachFrame", TLB_CARP_state_calChuteWatchEh];
 };
-USAFDC_state_calChuteWatchEh = addMissionEventHandler ["EachFrame", {
-    private _c = missionNamespace getVariable ["USAFDC_state_calChuteWatchCargo", objNull];
+TLB_CARP_state_calChuteWatchEh = addMissionEventHandler ["EachFrame", {
+    private _c = missionNamespace getVariable ["TLB_CARP_state_calChuteWatchCargo", objNull];
     if (isNull _c) exitWith {};
-    if !(isNil {_c getVariable "USAFDC_calChuteStamp"}) exitWith {};
+    if !(isNil {_c getVariable "TLB_CARP_calChuteStamp"}) exitWith {};
     private _att = attachedTo _c;
-    private _carr = missionNamespace getVariable ["USAFDC_state_calChuteWatchCarrier", objNull];
+    private _carr = missionNamespace getVariable ["TLB_CARP_state_calChuteWatchCarrier", objNull];
     if (isNull _att || {_att isEqualTo _carr} || {!(_att isKindOf "ParachuteBase")}) exitWith {};
-    _c setVariable ["USAFDC_calChuteStamp", [
+    _c setVariable ["TLB_CARP_calChuteStamp", [
         _att,                       // 0 parachute
         time,                       // 1 sim time
         diag_tickTime,              // 2 real time
@@ -105,7 +105,7 @@ _run set ["releaseRealTime", diag_tickTime];
 _run set ["releaseAircraftPosASL", getPosASL _carrier];
 private _releaseVel = velocity _carrier;
 _run set ["releaseVelocity", _releaseVel];
-private _releaseWindTelemetry = [getPosASL _releasedCargo] call USAFDC_fnc_sampleWindTelemetry;
+private _releaseWindTelemetry = [getPosASL _releasedCargo] call TLB_CARP_fnc_sampleWindTelemetry;
 _run set ["releaseWindTelemetry", _releaseWindTelemetry];
 _run set ["releaseWind", +(_releaseWindTelemetry getOrDefault ["engineWind", wind])];
 _run set ["cargoReleasePosASL", getPosASL _releasedCargo];
@@ -113,7 +113,7 @@ _run set ["cargoReleaseAglM", (getPosATL _releasedCargo) # 2];
 
 private _rp = _run getOrDefault ["rpPosASL", []];
 private _runInDeg = _run getOrDefault ["runInDeg", 0];
-private _basis = [_runInDeg] call USAFDC_fnc_basisFromHeading;
+private _basis = [_runInDeg] call TLB_CARP_fnc_basisFromHeading;
 private _forward = _basis get "forward";
 private _right = _basis get "right";
 private _rvx = _releaseVel # 0;
@@ -190,14 +190,14 @@ waitUntil {
     if (_chuteAttachSimTime < 0) then {
         // Read the per-frame stamp. Do NOT re-detect here: that is what produced
         // 0.3-0.5 s of latency and attach altitudes 46-70 m below the real trigger.
-        private _stamp = _releasedCargo getVariable ["USAFDC_calChuteStamp", []];
+        private _stamp = _releasedCargo getVariable ["TLB_CARP_calChuteStamp", []];
         if ((count _stamp) >= 10) then {
             _parachute = _stamp # 0;
             _chuteAttachSimTime = _stamp # 1;
             _chuteAttachRealTime = _stamp # 2;
             private _cargoAttachPosASL = _stamp # 3;
             private _parachuteAttachPosASL = _stamp # 5;
-            private _chuteWindTelemetry = [_cargoAttachPosASL] call USAFDC_fnc_sampleWindTelemetry;
+            private _chuteWindTelemetry = [_cargoAttachPosASL] call TLB_CARP_fnc_sampleWindTelemetry;
             private _attachElapsedSimS = _chuteAttachSimTime - (_run getOrDefault ["releaseSimTime", _chuteAttachSimTime]);
             private _attachElapsedRealS = _chuteAttachRealTime - (_run getOrDefault ["releaseRealTime", _chuteAttachRealTime]);
 
@@ -235,7 +235,7 @@ waitUntil {
                 _run set ["chuteOpeningErrorRightM", (_chuteDx * (_right # 0)) + (_chuteDy * (_right # 1))];
             };
 
-            private _sample00 = [_releasedCargo, _parachute, 0, 0] call USAFDC_fnc_sampleParachuteTelemetry;
+            private _sample00 = [_releasedCargo, _parachute, 0, 0] call TLB_CARP_fnc_sampleParachuteTelemetry;
             _run set ["canopySample00", _sample00];
             _canopySamples pushBack _sample00;
             _nextSampleIndex = 1;
@@ -251,7 +251,7 @@ waitUntil {
         _run set ["canopyElapsedRealTimeLastS", _canopyElapsedRealS];
 
         if (_nextWindSampleRealTime >= 0 && {diag_tickTime >= _nextWindSampleRealTime}) then {
-            private _windTelemetry = [getPosASL _releasedCargo] call USAFDC_fnc_sampleWindTelemetry;
+            private _windTelemetry = [getPosASL _releasedCargo] call TLB_CARP_fnc_sampleWindTelemetry;
             _engineWindSum = _engineWindSum vectorAdd (_windTelemetry getOrDefault ["engineWind", [0, 0, 0]]);
             _engineWindSampleCount = _engineWindSampleCount + 1;
             private _aceSpeed = _windTelemetry getOrDefault ["aceEffectiveSpeedMs", -1];
@@ -266,7 +266,7 @@ waitUntil {
         if (_nextSampleIndex < (count _sampleTargets)) then {
             private _sampleTargetS = _sampleTargets # _nextSampleIndex;
             if (_canopyElapsedS >= _sampleTargetS) then {
-                private _sample = [_releasedCargo, _parachute, _canopyElapsedS, _sampleTargetS] call USAFDC_fnc_sampleParachuteTelemetry;
+                private _sample = [_releasedCargo, _parachute, _canopyElapsedS, _sampleTargetS] call TLB_CARP_fnc_sampleParachuteTelemetry;
                 _canopySamples pushBack _sample;
                 if (_sampleTargetS isEqualTo 5) then {_run set ["canopySample05", _sample]};
                 if (_sampleTargetS isEqualTo 10) then {_run set ["canopySample10", _sample]};
@@ -303,7 +303,7 @@ _run set ["releaseToContactS", _releaseToContactSimTimeS];
 _run set ["releaseToContactSimTimeS", _releaseToContactSimTimeS];
 _run set ["releaseToContactRealTimeS", _releaseToContactRealTimeS];
 private _dz = _run getOrDefault ["dzPosASL", []];
-private _firstError = [_firstContactPosASL, _dz, _runInDeg] call USAFDC_fnc_computeCalibrationError;
+private _firstError = [_firstContactPosASL, _dz, _runInDeg] call TLB_CARP_fnc_computeCalibrationError;
 _run set ["firstContactError", _firstError];
 
 if (_chuteAttachSimTime >= 0 && {_chuteAttachRealTime >= 0}) then {
@@ -328,7 +328,7 @@ if (_chuteAttachSimTime >= 0 && {_chuteAttachRealTime >= 0}) then {
     };
 
     if (!isNull _parachute) then {
-        _run set ["canopySampleTouchdown", [_releasedCargo, _parachute, _canopyDurationActualS, -2] call USAFDC_fnc_sampleParachuteTelemetry];
+        _run set ["canopySampleTouchdown", [_releasedCargo, _parachute, _canopyDurationActualS, -2] call TLB_CARP_fnc_sampleParachuteTelemetry];
     };
 };
 
@@ -377,21 +377,21 @@ _run set ["settleTimedOut", !_settledConfirmed];
 if (!_settledConfirmed) exitWith {[_run, "CARGO DID NOT SETTLE WITHIN 15S"] call _abort};
 if (_settledAglM > 5) exitWith {[_run, "FALSE TOUCHDOWN / CARGO STILL AIRBORNE"] call _abort};
 
-private _settledError = [_settledPosASL, _dz, _runInDeg] call USAFDC_fnc_computeCalibrationError;
+private _settledError = [_settledPosASL, _dz, _runInDeg] call TLB_CARP_fnc_computeCalibrationError;
 _run set ["settledError", _settledError];
 _run set ["status", "COMPLETE"];
 
-private _text = [_run] call USAFDC_fnc_formatCalibrationRun;
-USAFDC_state_lastCalibrationRun = _run;
-USAFDC_state_lastCalibrationText = _text;
-USAFDC_state_calibrationRun = _run;
-USAFDC_state_calibrationActive = false;
+private _text = [_run] call TLB_CARP_fnc_formatCalibrationRun;
+TLB_CARP_state_lastCalibrationRun = _run;
+TLB_CARP_state_lastCalibrationText = _text;
+TLB_CARP_state_calibrationRun = _run;
+TLB_CARP_state_calibrationActive = false;
 [] call _stopChuteWatch;
-["CAL", _text] call USAFDC_fnc_logLong;
+["CAL", _text] call TLB_CARP_fnc_logLong;
 
 private _along = _settledError getOrDefault ["alongM", 0];
 private _rightM = _settledError getOrDefault ["rightM", 0];
 private _alongLabel = if (_along >= 0) then {"LONG"} else {"SHORT"};
 private _sideLabel = if (_rightM >= 0) then {"RIGHT"} else {"LEFT"};
-hint format ["CAL RUN RECORDED\n%1 %2 m | %3 %4 m\nRun: [] call USAFDC_fnc_copyLastCalibrationRun", _alongLabel, round (abs _along), _sideLabel, round (abs _rightM)];
+hint format ["CAL RUN RECORDED\n%1 %2 m | %3 %4 m\nRun: [] call TLB_CARP_fnc_copyLastCalibrationRun", _alongLabel, round (abs _along), _sideLabel, round (abs _rightM)];
 true

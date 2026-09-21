@@ -113,8 +113,8 @@ class VivLocalityTests(unittest.TestCase):
 
     def test_the_dispatch_matches_the_operand(self):
         src = code(UNLOAD)
-        self.assertIn('remoteExec ["USAFDC_fnc_unloadViv", _cargo]', src)
-        self.assertNotIn('remoteExec ["USAFDC_fnc_unloadViv", _carrier]', src)
+        self.assertIn('remoteExec ["TLB_CARP_fnc_unloadViv", _cargo]', src)
+        self.assertNotIn('remoteExec ["TLB_CARP_fnc_unloadViv", _carrier]', src)
 
     def test_the_release_needs_no_dispatch_at_all(self):
         """fn_releaseCargo already runs where the cargo is local, so the viv branch is

@@ -9,10 +9,10 @@ Two independent pre-existing defects combined:
 1. `_insideFinal = _signedRpM <= 800` had no lower bound, so the release gate
    kept judging the aircraft for the entire egress and go-around. Cross-track
    naturally grows once the pass is over, so the HUD sat on NO DROP forever.
-2. `USAFDC_state_passMissed` was only cleared by arming/disarming guidance --
+2. `TLB_CARP_state_passMissed` was only cleared by arming/disarming guidance --
    not by re-locking the run-in, changing the DZ, or repositioning upstream --
    so every subsequent RP crossing was force-failed regardless of how it was
-   flown. Note `USAFDC_state_dropLatched`, the analogous per-attempt latch, is
+   flown. Note `TLB_CARP_state_dropLatched`, the analogous per-attempt latch, is
    cleared in eleven places including lockRunIn/unlockRunIn/setDZ/clearDZ.
 """
 from pathlib import Path
@@ -52,7 +52,7 @@ class PassMissedLifecycleTests(unittest.TestCase):
             "addon/functions/dz/fn_clearDZ.sqf",
         ]:
             self.assertIn(
-                "USAFDC_state_passMissed = false", read(rel),
+                "TLB_CARP_state_passMissed = false", read(rel),
                 f"{rel} resets dropLatched but leaves passMissed latched",
             )
 
@@ -60,11 +60,11 @@ class PassMissedLifecycleTests(unittest.TestCase):
         """A pilot who goes around without touching the panel must get a fresh
         judgement, otherwise GO AROUND is advice that cannot be acted on."""
         text = read("addon/functions/guidance/fn_updateGuidance.sqf")
-        self.assertIn("USAFDC_state_passMissed && {_current > 800}", text)
-        self.assertIn("USAFDC_state_passMissed = false", text)
+        self.assertIn("TLB_CARP_state_passMissed && {_current > 800}", text)
+        self.assertIn("TLB_CARP_state_passMissed = false", text)
         # The clear must precede the check that forces UNSTABLE RUN-IN.
-        clear = text.index("USAFDC_state_passMissed && {_current > 800}")
-        force = text.index("USAFDC_state_passMissed && {_current <= 0}")
+        clear = text.index("TLB_CARP_state_passMissed && {_current > 800}")
+        force = text.index("TLB_CARP_state_passMissed && {_current <= 0}")
         self.assertLess(clear, force)
 
     def test_missed_pass_is_logged_with_the_terms_that_failed(self):

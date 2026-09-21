@@ -1,11 +1,11 @@
 if (!hasInterface) exitWith {false};
-private _owned = ["USAFDC_LOCAL_RP", "USAFDC_LOCAL_PLANNED_RP", "USAFDC_LOCAL_CHUTE", "USAFDC_LOCAL_TOUCH", "USAFDC_LOCAL_RUNIN", "USAFDC_LOCAL_INTERCEPT", "USAFDC_LOCAL_CAPTURE"];
-if (!USAFDC_state_guidanceArmed || {!((USAFDC_state_solution) getOrDefault ["valid", false])}) exitWith {
+private _owned = ["TLB_CARP_LOCAL_RP", "TLB_CARP_LOCAL_PLANNED_RP", "TLB_CARP_LOCAL_CHUTE", "TLB_CARP_LOCAL_TOUCH", "TLB_CARP_LOCAL_RUNIN", "TLB_CARP_LOCAL_INTERCEPT", "TLB_CARP_LOCAL_CAPTURE"];
+if (!TLB_CARP_state_guidanceArmed || {!((TLB_CARP_state_solution) getOrDefault ["valid", false])}) exitWith {
     {deleteMarkerLocal _x} forEach _owned;
     false
 };
 
-private _s = USAFDC_state_solution;
+private _s = TLB_CARP_state_solution;
 private _rp = _s getOrDefault ["liveRpPosASL", _s get "rpPosASL"];
 private _plannedRp = _s getOrDefault ["plannedRpPosASL", _rp];
 private _chute = _s get "chutePosASL";
@@ -17,47 +17,47 @@ private _forward = _s get "forward";
 private _aircraftState = _s get "aircraftState";
 private _airPos = _aircraftState get "posASL";
 
-if ((markerShape "USAFDC_LOCAL_RP") isEqualTo "") then {createMarkerLocal ["USAFDC_LOCAL_RP", _rp]};
-"USAFDC_LOCAL_RP" setMarkerPosLocal _rp;
-"USAFDC_LOCAL_RP" setMarkerShapeLocal "ICON";
-"USAFDC_LOCAL_RP" setMarkerTypeLocal "mil_dot";
-"USAFDC_LOCAL_RP" setMarkerColorLocal "ColorOrange";
-"USAFDC_LOCAL_RP" setMarkerAlphaLocal 1;
-"USAFDC_LOCAL_RP" setMarkerTextLocal format ["LIVE RP %1 m", round (abs (_s get "signedRpM"))];
+if ((markerShape "TLB_CARP_LOCAL_RP") isEqualTo "") then {createMarkerLocal ["TLB_CARP_LOCAL_RP", _rp]};
+"TLB_CARP_LOCAL_RP" setMarkerPosLocal _rp;
+"TLB_CARP_LOCAL_RP" setMarkerShapeLocal "ICON";
+"TLB_CARP_LOCAL_RP" setMarkerTypeLocal "mil_dot";
+"TLB_CARP_LOCAL_RP" setMarkerColorLocal "ColorOrange";
+"TLB_CARP_LOCAL_RP" setMarkerAlphaLocal 1;
+"TLB_CARP_LOCAL_RP" setMarkerTextLocal format ["LIVE RP %1 m", round (abs (_s get "signedRpM"))];
 
-if (!USAFDC_setting_mapTrajectory) exitWith {
-    {deleteMarkerLocal _x} forEach ["USAFDC_LOCAL_PLANNED_RP", "USAFDC_LOCAL_CHUTE", "USAFDC_LOCAL_TOUCH", "USAFDC_LOCAL_RUNIN", "USAFDC_LOCAL_INTERCEPT", "USAFDC_LOCAL_CAPTURE"];
+if (!TLB_CARP_setting_mapTrajectory) exitWith {
+    {deleteMarkerLocal _x} forEach ["TLB_CARP_LOCAL_PLANNED_RP", "TLB_CARP_LOCAL_CHUTE", "TLB_CARP_LOCAL_TOUCH", "TLB_CARP_LOCAL_RUNIN", "TLB_CARP_LOCAL_INTERCEPT", "TLB_CARP_LOCAL_CAPTURE"];
     true
 };
 
-if ((markerShape "USAFDC_LOCAL_PLANNED_RP") isEqualTo "") then {createMarkerLocal ["USAFDC_LOCAL_PLANNED_RP", _plannedRp]};
-"USAFDC_LOCAL_PLANNED_RP" setMarkerPosLocal _plannedRp;
-"USAFDC_LOCAL_PLANNED_RP" setMarkerShapeLocal "ICON";
-"USAFDC_LOCAL_PLANNED_RP" setMarkerTypeLocal "mil_circle";
-"USAFDC_LOCAL_PLANNED_RP" setMarkerColorLocal "ColorWhite";
-"USAFDC_LOCAL_PLANNED_RP" setMarkerAlphaLocal 0.45;
-"USAFDC_LOCAL_PLANNED_RP" setMarkerTextLocal "PLANNED RP";
+if ((markerShape "TLB_CARP_LOCAL_PLANNED_RP") isEqualTo "") then {createMarkerLocal ["TLB_CARP_LOCAL_PLANNED_RP", _plannedRp]};
+"TLB_CARP_LOCAL_PLANNED_RP" setMarkerPosLocal _plannedRp;
+"TLB_CARP_LOCAL_PLANNED_RP" setMarkerShapeLocal "ICON";
+"TLB_CARP_LOCAL_PLANNED_RP" setMarkerTypeLocal "mil_circle";
+"TLB_CARP_LOCAL_PLANNED_RP" setMarkerColorLocal "ColorWhite";
+"TLB_CARP_LOCAL_PLANNED_RP" setMarkerAlphaLocal 0.45;
+"TLB_CARP_LOCAL_PLANNED_RP" setMarkerTextLocal "PLANNED RP";
 
-if ((markerShape "USAFDC_LOCAL_CHUTE") isEqualTo "") then {createMarkerLocal ["USAFDC_LOCAL_CHUTE", _chute]};
-"USAFDC_LOCAL_CHUTE" setMarkerPosLocal _chute;
-"USAFDC_LOCAL_CHUTE" setMarkerShapeLocal "ICON";
-"USAFDC_LOCAL_CHUTE" setMarkerTypeLocal "mil_circle";
-"USAFDC_LOCAL_CHUTE" setMarkerColorLocal "ColorBlue";
-"USAFDC_LOCAL_CHUTE" setMarkerTextLocal "CHUTE";
+if ((markerShape "TLB_CARP_LOCAL_CHUTE") isEqualTo "") then {createMarkerLocal ["TLB_CARP_LOCAL_CHUTE", _chute]};
+"TLB_CARP_LOCAL_CHUTE" setMarkerPosLocal _chute;
+"TLB_CARP_LOCAL_CHUTE" setMarkerShapeLocal "ICON";
+"TLB_CARP_LOCAL_CHUTE" setMarkerTypeLocal "mil_circle";
+"TLB_CARP_LOCAL_CHUTE" setMarkerColorLocal "ColorBlue";
+"TLB_CARP_LOCAL_CHUTE" setMarkerTextLocal "CHUTE";
 
-if ((markerShape "USAFDC_LOCAL_TOUCH") isEqualTo "") then {createMarkerLocal ["USAFDC_LOCAL_TOUCH", _touch]};
-"USAFDC_LOCAL_TOUCH" setMarkerPosLocal _touch;
-"USAFDC_LOCAL_TOUCH" setMarkerShapeLocal "ICON";
-"USAFDC_LOCAL_TOUCH" setMarkerTypeLocal "mil_dot";
-"USAFDC_LOCAL_TOUCH" setMarkerColorLocal "ColorGreen";
-"USAFDC_LOCAL_TOUCH" setMarkerTextLocal "TOUCH";
+if ((markerShape "TLB_CARP_LOCAL_TOUCH") isEqualTo "") then {createMarkerLocal ["TLB_CARP_LOCAL_TOUCH", _touch]};
+"TLB_CARP_LOCAL_TOUCH" setMarkerPosLocal _touch;
+"TLB_CARP_LOCAL_TOUCH" setMarkerShapeLocal "ICON";
+"TLB_CARP_LOCAL_TOUCH" setMarkerTypeLocal "mil_dot";
+"TLB_CARP_LOCAL_TOUCH" setMarkerColorLocal "ColorGreen";
+"TLB_CARP_LOCAL_TOUCH" setMarkerTextLocal "TOUCH";
 
-if ((markerShape "USAFDC_LOCAL_CAPTURE") isEqualTo "") then {createMarkerLocal ["USAFDC_LOCAL_CAPTURE", _capture]};
-"USAFDC_LOCAL_CAPTURE" setMarkerPosLocal _capture;
-"USAFDC_LOCAL_CAPTURE" setMarkerShapeLocal "ICON";
-"USAFDC_LOCAL_CAPTURE" setMarkerTypeLocal "mil_dot";
-"USAFDC_LOCAL_CAPTURE" setMarkerColorLocal "ColorYellow";
-"USAFDC_LOCAL_CAPTURE" setMarkerTextLocal "CAPTURE";
+if ((markerShape "TLB_CARP_LOCAL_CAPTURE") isEqualTo "") then {createMarkerLocal ["TLB_CARP_LOCAL_CAPTURE", _capture]};
+"TLB_CARP_LOCAL_CAPTURE" setMarkerPosLocal _capture;
+"TLB_CARP_LOCAL_CAPTURE" setMarkerShapeLocal "ICON";
+"TLB_CARP_LOCAL_CAPTURE" setMarkerTypeLocal "mil_dot";
+"TLB_CARP_LOCAL_CAPTURE" setMarkerColorLocal "ColorYellow";
+"TLB_CARP_LOCAL_CAPTURE" setMarkerTextLocal "CAPTURE";
 
 private _setLine = {
     params ["_name", "_start", "_end", "_color", "_alpha"];
@@ -86,6 +86,6 @@ private _stableRunEnd = [
 ];
 _stableRunEnd set [2, getTerrainHeightASL _stableRunEnd];
 
-["USAFDC_LOCAL_INTERCEPT", _airPos, _capture, "ColorYellow", 0.45] call _setLine;
-["USAFDC_LOCAL_RUNIN", _capture, _stableRunEnd, "ColorOrange", 0.30] call _setLine;
+["TLB_CARP_LOCAL_INTERCEPT", _airPos, _capture, "ColorYellow", 0.45] call _setLine;
+["TLB_CARP_LOCAL_RUNIN", _capture, _stableRunEnd, "ColorOrange", 0.30] call _setLine;
 true

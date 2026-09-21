@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_loadViv
+    TLB_CARP_fnc_loadViv
 
     The vanilla vehicle-in-vehicle load, run where the CARRIER is local.
 
-        [_carrier, _cargo] call USAFDC_fnc_loadViv
+        [_carrier, _cargo] call TLB_CARP_fnc_loadViv
 
     Dispatched by fn_loadCargo rather than called directly. It is its own function only
     because remoteExec needs a name to resolve, and it is registered on every machine in
@@ -12,7 +12,7 @@
 
     setVehicleCargo does the whole job: the engine animates the ramp, enforces the
     aircraft's declared capacity and keeps the load in its own bookkeeping, which
-    getVehicleCargo then reports and USAFDC_fnc_cargoManifest reads as the "viv" source.
+    getVehicleCargo then reports and TLB_CARP_fnc_cargoManifest reads as the "viv" source.
     Nothing here needs to reproduce any of that.
 */
 

@@ -133,7 +133,7 @@ class NoCalibrationChangeTests(unittest.TestCase):
         canopy watcher, which fires ~15 s after the release and cannot reach it."""
         src = code("addon/functions/cargo/fn_releaseCargo.sqf")
         self.assertIn("sleep 0.5;", src)
-        self.assertIn("call USAFDC_fnc_canopyWatch;", src)
+        self.assertIn("call TLB_CARP_fnc_canopyWatch;", src)
 
 
 if __name__ == "__main__":

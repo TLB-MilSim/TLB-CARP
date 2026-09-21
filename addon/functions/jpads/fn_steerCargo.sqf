@@ -1,7 +1,7 @@
 /*
-    USAFDC_fnc_steerCargo -- the guided-cargo control law, and nothing else.
+    TLB_CARP_fnc_steerCargo -- the guided-cargo control law, and nothing else.
 
-    [_cargo, _dzPosASL, _glideMs, _scatterM, _releaseAglM, _engageVzMs, _stickOffset] call USAFDC_fnc_steerCargo
+    [_cargo, _dzPosASL, _glideMs, _scatterM, _releaseAglM, _engageVzMs, _stickOffset] call TLB_CARP_fnc_steerCargo
 
     Returns a hashMap describing what it did this frame:
         ["steering", bool] ["phase", string] ["errorM"] ["closingMs"] ["groundMs"] ["timeRemainingS"]
@@ -23,10 +23,10 @@
     closing error, which is how guided cargo came to be "not working on the server".
 
     So the steering has to run on whichever machine owns the canopy, and that machine has
-    none of the pilot's context: USAFDC_state_packageTimingState and
-    USAFDC_state_dzPosASL are client-local, and every USAFDC_setting_jpads* is a
+    none of the pilot's context: TLB_CARP_state_packageTimingState and
+    TLB_CARP_state_dzPosASL are client-local, and every TLB_CARP_setting_jpads* is a
     CBA scope-0 setting that reads its default on a server. The pilot's client packages
-    all of it into a steer job (USAFDC_fnc_steerBegin) and this function is handed the
+    all of it into a steer job (TLB_CARP_fnc_steerBegin) and this function is handed the
     contents.
 
     THREE FINDINGS FROM FLIGHT ARE BUILT INTO THIS AND MUST NOT BE REMOVED
@@ -88,17 +88,17 @@ if (isNull _cargo || {(count _dz) < 3}) exitWith {["IDLE"] call _idle};
 
 // Defaults only. A caller that has the settings (the pilot's client, or the bench)
 // passes them; a caller that does not (the server) is handed them in the job.
-if (_glideMs < 0) then {_glideMs = missionNamespace getVariable ["USAFDC_setting_jpadsGlideMs", 12]};
-if (_scatterM < 0) then {_scatterM = missionNamespace getVariable ["USAFDC_setting_jpadsScatterM", 2]};
-if (_releaseAglM < 0) then {_releaseAglM = missionNamespace getVariable ["USAFDC_setting_jpadsReleaseAglM", 3]};
-if (_engageVzMs < 0) then {_engageVzMs = missionNamespace getVariable ["USAFDC_setting_jpadsEngageVzMs", 12]};
+if (_glideMs < 0) then {_glideMs = missionNamespace getVariable ["TLB_CARP_setting_jpadsGlideMs", 12]};
+if (_scatterM < 0) then {_scatterM = missionNamespace getVariable ["TLB_CARP_setting_jpadsScatterM", 2]};
+if (_releaseAglM < 0) then {_releaseAglM = missionNamespace getVariable ["TLB_CARP_setting_jpadsReleaseAglM", 3]};
+if (_engageVzMs < 0) then {_engageVzMs = missionNamespace getVariable ["TLB_CARP_setting_jpadsEngageVzMs", 12]};
 
 // One aim offset per package, picked at the first steer tick and stored ON THE LOAD so
 // concurrent packages cannot overwrite each other's. Broadcast, because the machine
 // that steers and the machines that display the closing error have to agree on where
 // the load is actually aiming -- a local-only offset made every other client's readout
 // wrong by up to the scatter radius.
-private _offset = _cargo getVariable ["USAFDC_jpadsTargetOffset", []];
+private _offset = _cargo getVariable ["TLB_CARP_jpadsTargetOffset", []];
 
 // Steer the parachute when the load is slung under one; the load follows it. An
 // attached object reads zero velocity and setVelocity on it does nothing.
@@ -107,7 +107,7 @@ private _steerTarget = if (!isNull _attached && {_attached isKindOf "ParachuteBa
 
 // A CANOPY IS A PRECONDITION, NOT A CHOICE OF TARGET.
 //
-// This is what USAFDC_state_packageTimingState isEqualTo "CHUTE" used to buy, and
+// This is what TLB_CARP_state_packageTimingState isEqualTo "CHUTE" used to buy, and
 // replacing that gate with the line above alone very nearly reintroduced the v0.4.6
 // defect it was written for. In level flight the released load inherits the carrier's
 // vertical speed, which is about zero, so gravity walks it through the -0.5 to
@@ -151,7 +151,7 @@ if ((count _offset) < 2) then {
         if ((count _stickOffset) >= 2) then {
             _offset = [(_offset # 0) + (_stickOffset # 0), (_offset # 1) + (_stickOffset # 1)];
         };
-        _cargo setVariable ["USAFDC_jpadsTargetOffset", _offset, true];
+        _cargo setVariable ["TLB_CARP_jpadsTargetOffset", _offset, true];
     } else {
         _offset = [0, 0];
     };
@@ -203,7 +203,7 @@ if (_airM > _glideMs) then {
 // load has about five seconds left, and the error it can no longer correct is whatever
 // remains at that point -- metres, not tens of metres, on any pass the guidance was
 // working on at all.
-private _flareAglM = missionNamespace getVariable ["USAFDC_setting_jpadsFlareAglM", 25];
+private _flareAglM = missionNamespace getVariable ["TLB_CARP_setting_jpadsFlareAglM", 25];
 if (_flareAglM > 0 && {_aglM < _flareAglM}) then {
     private _taper = (_aglM / _flareAglM) max 0;
     _airE = _airE * _taper;
@@ -221,15 +221,15 @@ if (_commanding) then {
     // client, do not transfer until this ratio has been read on the machine now doing
     // the flying. Comparing last frame's command against this frame's achieved speed
     // costs one object variable and answers it directly.
-    private _previous = _steerTarget getVariable ["USAFDC_steerCmd", []];
+    private _previous = _steerTarget getVariable ["TLB_CARP_steerCmd", []];
     if ((count _previous) >= 2) then {
         private _achieved = sqrt ((((_vel # 0) - (_wind # 0)) ^ 2) + (((_vel # 1) - (_wind # 1)) ^ 2));
         private _wanted = sqrt ((((_previous # 0) - (_wind # 0)) ^ 2) + (((_previous # 1) - (_wind # 1)) ^ 2));
         if (_wanted > 0.5) then {
-            _cargo setVariable ["USAFDC_steerSurvival", _achieved / _wanted, false];
+            _cargo setVariable ["TLB_CARP_steerSurvival", _achieved / _wanted, false];
         };
     };
-    _steerTarget setVariable ["USAFDC_steerCmd", [_cmdE, _cmdN], false];
+    _steerTarget setVariable ["TLB_CARP_steerCmd", [_cmdE, _cmdN], false];
 
     _steerTarget setVelocity [_cmdE, _cmdN, _vz];
     // A heartbeat, at 1 Hz. Without it a display machine cannot tell "another machine is
@@ -237,8 +237,8 @@ if (_commanding) then {
     // "no machine owns it, or its owner has no CARP loaded", and those look identical
     // from the cockpit. One public write per second per guided load is a fair price for
     // the difference between a working system and one that only appears to work.
-    if ((time - (_cargo getVariable ["USAFDC_steerBeat", -1e9])) >= 1) then {
-        _cargo setVariable ["USAFDC_steerBeat", time, true];
+    if ((time - (_cargo getVariable ["TLB_CARP_steerBeat", -1e9])) >= 1) then {
+        _cargo setVariable ["TLB_CARP_steerBeat", time, true];
     };
 };
 

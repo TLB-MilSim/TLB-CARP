@@ -1,8 +1,8 @@
 params ["_vehicle", "_solution"];
-if !(missionNamespace getVariable ["USAFDC_state_apArmed", false]) exitWith {false};
+if !(missionNamespace getVariable ["TLB_CARP_state_apArmed", false]) exitWith {false};
 
 if (isNull _vehicle || {!((driver _vehicle) isEqualTo player)}) exitWith {
-    ["PILOT SEAT LOST", true] call USAFDC_fnc_disarmAutopilot;
+    ["PILOT SEAT LOST", true] call TLB_CARP_fnc_disarmAutopilot;
     false
 };
 // Ownership can move mid-flight -- a seat handover, a headless-client offload, a
@@ -10,38 +10,38 @@ if (isNull _vehicle || {!((driver _vehicle) isEqualTo player)}) exitWith {
 // local-effect command, so a silent loss of locality leaves the controller writing
 // orientation into a vehicle it cannot move. Disconnect loudly instead.
 if !(local _vehicle) exitWith {
-    ["AIRCRAFT NOT LOCAL", true] call USAFDC_fnc_disarmAutopilot;
+    ["AIRCRAFT NOT LOCAL", true] call TLB_CARP_fnc_disarmAutopilot;
     false
 };
-if (!USAFDC_state_guidanceArmed) exitWith {
-    ["GUIDANCE DISARMED", true] call USAFDC_fnc_disarmAutopilot;
+if (!TLB_CARP_state_guidanceArmed) exitWith {
+    ["GUIDANCE DISARMED", true] call TLB_CARP_fnc_disarmAutopilot;
     false
 };
-if (!USAFDC_state_runInLocked) exitWith {
-    ["RUN-IN UNLOCKED", true] call USAFDC_fnc_disarmAutopilot;
+if (!TLB_CARP_state_runInLocked) exitWith {
+    ["RUN-IN UNLOCKED", true] call TLB_CARP_fnc_disarmAutopilot;
     false
 };
 if !(_solution getOrDefault ["valid", false]) exitWith {
-    ["INVALID SOLUTION", true] call USAFDC_fnc_disarmAutopilot;
+    ["INVALID SOLUTION", true] call TLB_CARP_fnc_disarmAutopilot;
     false
 };
 if !(_solution getOrDefault ["pathValid", false]) exitWith {
-    ["INVALID PATH", true] call USAFDC_fnc_disarmAutopilot;
+    ["INVALID PATH", true] call TLB_CARP_fnc_disarmAutopilot;
     false
 };
 
 private _manualInput = 0;
 private _overrideTriggered = false;
-private _uiHasFocus = if !(isNil "USAFDC_fnc_inputFocusActive") then {[] call USAFDC_fnc_inputFocusActive} else {!(isNull (findDisplay 9300)) || {!(isNull (findDisplay 312))}};
+private _uiHasFocus = if !(isNil "TLB_CARP_fnc_inputFocusActive") then {[] call TLB_CARP_fnc_inputFocusActive} else {!(isNull (findDisplay 9300)) || {!(isNull (findDisplay 312))}};
 if (_uiHasFocus) then {
-    USAFDC_state_apOverrideSince = -1;
-    USAFDC_state_apOverrideInhibitUntil = diag_tickTime + 0.5;
+    TLB_CARP_state_apOverrideSince = -1;
+    TLB_CARP_state_apOverrideInhibitUntil = diag_tickTime + 0.5;
 } else {
-    private _overrideInhibited = diag_tickTime < (missionNamespace getVariable ["USAFDC_state_apOverrideInhibitUntil", -1]);
+    private _overrideInhibited = diag_tickTime < (missionNamespace getVariable ["TLB_CARP_state_apOverrideInhibitUntil", -1]);
     if (_overrideInhibited) then {
-        USAFDC_state_apOverrideSince = -1;
+        TLB_CARP_state_apOverrideSince = -1;
     } else {
-        private _threshold = missionNamespace getVariable ["USAFDC_setting_apOverrideThreshold", 0.25];
+        private _threshold = missionNamespace getVariable ["TLB_CARP_setting_apOverrideThreshold", 0.25];
         {
             _manualInput = _manualInput max (inputAction _x);
         } forEach [
@@ -49,22 +49,22 @@ if (_uiHasFocus) then {
             "HeliRudderLeft", "HeliRudderRight", "HeliUp", "HeliDown"
         ];
         private _throttleNow = inputAction "HeliThrottlePos";
-        private _throttleBase = missionNamespace getVariable ["USAFDC_state_apThrottleBaseline", _throttleNow];
+        private _throttleBase = missionNamespace getVariable ["TLB_CARP_state_apThrottleBaseline", _throttleNow];
         _manualInput = _manualInput max (abs (_throttleNow - _throttleBase));
 
         if (_manualInput >= _threshold) then {
-            if (USAFDC_state_apOverrideSince < 0) then {USAFDC_state_apOverrideSince = diag_tickTime};
-            if ((diag_tickTime - USAFDC_state_apOverrideSince) >= 0.12) then {_overrideTriggered = true};
+            if (TLB_CARP_state_apOverrideSince < 0) then {TLB_CARP_state_apOverrideSince = diag_tickTime};
+            if ((diag_tickTime - TLB_CARP_state_apOverrideSince) >= 0.12) then {_overrideTriggered = true};
         } else {
-            USAFDC_state_apOverrideSince = -1;
+            TLB_CARP_state_apOverrideSince = -1;
         };
     };
 };
 if (_overrideTriggered) exitWith {
-    ["PILOT OVERRIDE", true] call USAFDC_fnc_disarmAutopilot;
+    ["PILOT OVERRIDE", true] call TLB_CARP_fnc_disarmAutopilot;
     false
 };
-if !(missionNamespace getVariable ["USAFDC_state_apArmed", false]) exitWith {false};
+if !(missionNamespace getVariable ["TLB_CARP_state_apArmed", false]) exitWith {false};
 
 // ---- actuation rate limit ----------------------------------------------------
 // The AP must not actuate once per rendered frame, and the per-frame handler it runs
@@ -96,17 +96,17 @@ if !(missionNamespace getVariable ["USAFDC_state_apArmed", false]) exitWith {fal
 // orientation write additionally requires a frame in which nothing re-seats the
 // transform, which is what the engine needs to integrate position.
 private _now = diag_tickTime;
-private _interval = missionNamespace getVariable ["USAFDC_setting_updateInterval", 0.05];
-if ((_now - (missionNamespace getVariable ["USAFDC_state_apLastActuateTick", -1])) < (_interval * 0.9)) exitWith {
+private _interval = missionNamespace getVariable ["TLB_CARP_setting_updateInterval", 0.05];
+if ((_now - (missionNamespace getVariable ["TLB_CARP_state_apLastActuateTick", -1])) < (_interval * 0.9)) exitWith {
     // Not a disconnect and not an error: the handler simply ran early. Returning
     // without stamping apLastTick keeps _dt equal to the real actuation interval, so
     // the bounded turn rate below stays in degrees per second rather than per call.
     true
 };
-USAFDC_state_apLastActuateTick = _now;
+TLB_CARP_state_apLastActuateTick = _now;
 
-private _dt = ((_now - USAFDC_state_apLastTick) max 0.001) min 0.20;
-USAFDC_state_apLastTick = _now;
+private _dt = ((_now - TLB_CARP_state_apLastTick) max 0.001) min 0.20;
+TLB_CARP_state_apLastTick = _now;
 
 private _pathState = _solution getOrDefault ["pathState", "INTERCEPT"];
 private _runInDeg = _solution getOrDefault ["runInDeg", getDir _vehicle];
@@ -114,7 +114,7 @@ private _desiredTrackDeg = _solution getOrDefault ["pathDesiredTrackDeg", _runIn
 if (_pathState isEqualTo "POST DROP") then {_desiredTrackDeg = _runInDeg};
 private _targetVz = _solution getOrDefault ["commandVerticalSpeedMs", 0];
 
-private _targetGroundSpeedMs = (USAFDC_state_targetGroundSpeedKmh max 100) / 3.6;
+private _targetGroundSpeedMs = (TLB_CARP_state_targetGroundSpeedKmh max 100) / 3.6;
 private _currentDir = getDir _vehicle;
 private _headingError = (((_desiredTrackDeg - _currentDir + 540) mod 360) - 180);
 private _turnRateDegS = switch (_pathState) do {
@@ -162,11 +162,11 @@ private _currentGroundSpeed = sqrt (((_vel # 0) ^ 2) + ((_vel # 1) ^ 2));
 //
 // The measured velocity is still read -- but only to decide the THROTTLE, below, which is
 // the control surface that belongs in a speed loop.
-private _accelMs2 = missionNamespace getVariable ["USAFDC_setting_apAccelMs2", 1.5];
-private _vzRateMs2 = missionNamespace getVariable ["USAFDC_setting_apVzRateMs2", 2.5];
+private _accelMs2 = missionNamespace getVariable ["TLB_CARP_setting_apAccelMs2", 1.5];
+private _vzRateMs2 = missionNamespace getVariable ["TLB_CARP_setting_apVzRateMs2", 2.5];
 
-private _cmdSpeed = missionNamespace getVariable ["USAFDC_state_apCmdSpeedMs", -1];
-private _cmdVz = missionNamespace getVariable ["USAFDC_state_apCmdVzMs", -1e9];
+private _cmdSpeed = missionNamespace getVariable ["TLB_CARP_state_apCmdSpeedMs", -1];
+private _cmdVz = missionNamespace getVariable ["TLB_CARP_state_apCmdVzMs", -1e9];
 // Seeded on the first actuation rather than at arm, so it cannot be stale if the aircraft
 // changed state between the arm and the first tick.
 if (_cmdSpeed < 0) then {_cmdSpeed = _currentGroundSpeed};
@@ -176,8 +176,8 @@ private _speedStep = _accelMs2 * _dt;
 private _vzStep = _vzRateMs2 * _dt;
 _cmdSpeed = _cmdSpeed + (((_targetGroundSpeedMs - _cmdSpeed) max (-_speedStep)) min _speedStep);
 _cmdVz = _cmdVz + (((_targetVz - _cmdVz) max (-_vzStep)) min _vzStep);
-USAFDC_state_apCmdSpeedMs = _cmdSpeed;
-USAFDC_state_apCmdVzMs = _cmdVz;
+TLB_CARP_state_apCmdSpeedMs = _cmdSpeed;
+TLB_CARP_state_apCmdVzMs = _cmdVz;
 
 private _newGroundSpeed = _cmdSpeed;
 private _newVz = _cmdVz;
@@ -197,7 +197,7 @@ private _newVel = [
 // recomputed from getDir every tick, so a skipped write is not a lost command -- the
 // next tick takes another bounded step from wherever the nose actually is.
 private _orientationWritten = false;
-private _forceMode = missionNamespace getVariable ["USAFDC_setting_apForceMode", true];
+private _forceMode = missionNamespace getVariable ["TLB_CARP_setting_apForceMode", true];
 
 if (_forceMode) then {
     // ---- FLY THE AIRCRAFT INSTEAD OF MOVING IT -------------------------------------
@@ -222,7 +222,7 @@ if (_forceMode) then {
     // THE HONEST COST: a real aircraft turns at g*tan(bank)/V. At 30 degrees of bank and
     // 140 m/s that is about 2.3 deg/s, where the old code yawed the nose at up to 6. The
     // aircraft will take longer to come round onto an intercept, because that is what an
-    // aircraft does. USAFDC_setting_apForceMode switches back if this is worse in flight.
+    // aircraft does. TLB_CARP_setting_apForceMode switches back if this is worse in flight.
     private _massMult = (getMass _vehicle) * 0.0001;
     private _vz = _vel # 2;
 
@@ -237,14 +237,14 @@ if (_forceMode) then {
     // term alone answers it with a permanent small error. This accumulates the mean over
     // 100 samples and folds it into an offset, so the steady state is actually steady.
     if ((abs _pitchForce) < 20) then {
-        USAFDC_state_apTrimCount = (missionNamespace getVariable ["USAFDC_state_apTrimCount", 0]) + 1;
-        USAFDC_state_apTrimSum = (missionNamespace getVariable ["USAFDC_state_apTrimSum", 0]) + _pitchForce;
-        if (USAFDC_state_apTrimCount >= 100) then {
-            USAFDC_state_apTrimOffset = (missionNamespace getVariable ["USAFDC_state_apTrimOffset", 0]) + (USAFDC_state_apTrimSum / 100);
-            USAFDC_state_apTrimCount = 0;
-            USAFDC_state_apTrimSum = 0;
+        TLB_CARP_state_apTrimCount = (missionNamespace getVariable ["TLB_CARP_state_apTrimCount", 0]) + 1;
+        TLB_CARP_state_apTrimSum = (missionNamespace getVariable ["TLB_CARP_state_apTrimSum", 0]) + _pitchForce;
+        if (TLB_CARP_state_apTrimCount >= 100) then {
+            TLB_CARP_state_apTrimOffset = (missionNamespace getVariable ["TLB_CARP_state_apTrimOffset", 0]) + (TLB_CARP_state_apTrimSum / 100);
+            TLB_CARP_state_apTrimCount = 0;
+            TLB_CARP_state_apTrimSum = 0;
         };
-        _pitchForce = _pitchForce + (missionNamespace getVariable ["USAFDC_state_apTrimOffset", 0]);
+        _pitchForce = _pitchForce + (missionNamespace getVariable ["TLB_CARP_state_apTrimOffset", 0]);
     };
 
     // addForce acts for ONE simulation step, so actuating at 20 Hz on a 60 fps machine
@@ -285,29 +285,29 @@ if (_forceMode) then {
     // Both rates are measured here rather than inferred, because an inferred turn rate from
     // g*tan(bank)/V would be right only in a steady coordinated turn -- which is precisely
     // the condition the aircraft is NOT in while it is chasing.
-    private _prevDir = missionNamespace getVariable ["USAFDC_state_apPrevDir", -1e9];
-    private _prevBank = missionNamespace getVariable ["USAFDC_state_apPrevBank", -1e9];
+    private _prevDir = missionNamespace getVariable ["TLB_CARP_state_apPrevDir", -1e9];
+    private _prevBank = missionNamespace getVariable ["TLB_CARP_state_apPrevBank", -1e9];
     private _hdgRate = 0;
     private _rollRate = 0;
     if (_prevDir > -1e8) then {
         _hdgRate = ((((_currentDir - _prevDir) + 540) mod 360) - 180) / _dt;
         _rollRate = (_bank - _prevBank) / _dt;
     };
-    USAFDC_state_apPrevDir = _currentDir;
-    USAFDC_state_apPrevBank = _bank;
+    TLB_CARP_state_apPrevDir = _currentDir;
+    TLB_CARP_state_apPrevBank = _bank;
 
     // LEAD: steer to where the error WILL be, not where it is. A turn rate of w degrees a
     // second closes w*lead degrees of error over the lead time, so subtracting that is a
     // prediction rather than a damper -- the aircraft starts rolling out while the needle
     // is still off centre, which is what a pilot does and what was asked for.
-    private _leadS = missionNamespace getVariable ["USAFDC_setting_apTurnLeadS", 4];
+    private _leadS = missionNamespace getVariable ["TLB_CARP_setting_apTurnLeadS", 4];
     private _errPredicted = _headingError - (_hdgRate * _leadS);
     private _targetBank = ((_errPredicted * 1.5) max (-_maxBank)) min _maxBank;
 
     // ROLL DAMPING. The bank loop was also proportional-only: torque proportional to bank
     // error, nothing opposing the roll RATE, so the aircraft overshot its own commanded
     // bank as well. Two undamped loops in series is why the chase never settled.
-    private _rollDamp = missionNamespace getVariable ["USAFDC_setting_apRollDamping", 150];
+    private _rollDamp = missionNamespace getVariable ["TLB_CARP_setting_apRollDamping", 150];
     private _bankTorque = (((_targetBank - _bank) * 300) - (_rollRate * _rollDamp)) * _massMult;
     _vehicle addTorque (_vehicle vectorModelToWorld [0, -_bankTorque * _rateComp, 0]);
 
@@ -331,7 +331,7 @@ if (_forceMode) then {
     // rudder used to turn makes the aircraft SKID, and lateral velocity at release is the
     // thing the release gate punishes hardest -- +1.294 m/s measured as ~+30 m of miss.
     private _slip = (_vehicle vectorWorldToModel _vel) # 0;
-    private _yawFF = missionNamespace getVariable ["USAFDC_setting_apYawCoordination", 40];
+    private _yawFF = missionNamespace getVariable ["TLB_CARP_setting_apYawCoordination", 40];
     private _yawTorque = ((_slip * 200) + (_bank * _yawFF)) * _massMult;
     _vehicle addTorque (_vehicle vectorModelToWorld [0, 0, _yawTorque * _rateComp]);
 } else {
@@ -343,8 +343,8 @@ if (_forceMode) then {
     // Skipping it is safe for guidance because the commanded velocity is built from
     // _newHeading, not from the nose: the aircraft keeps translating exactly where the
     // path manager wants it, and only the nose lags by one actuation.
-    if ((diag_frameNo - (missionNamespace getVariable ["USAFDC_state_apLastDirFrame", -1])) >= 2) then {
-        USAFDC_state_apLastDirFrame = diag_frameNo;
+    if ((diag_frameNo - (missionNamespace getVariable ["TLB_CARP_state_apLastDirFrame", -1])) >= 2) then {
+        TLB_CARP_state_apLastDirFrame = diag_frameNo;
         _orientationWritten = true;
         _vehicle setDir _newHeading;
     };
@@ -367,7 +367,7 @@ private _speedErr = _targetGroundSpeedMs - _currentGroundSpeed;
 private _throttleCmd = (0.58 + (_speedErr / 15)) max 0.20 min 1.0;
 _vehicle setAirplaneThrottle _throttleCmd;
 
-USAFDC_state_apState = _pathState;
+TLB_CARP_state_apState = _pathState;
 _solution set ["apState", _pathState];
 _solution set ["apDesiredTrackDeg", _desiredTrackDeg];
 
@@ -396,8 +396,8 @@ _solution set ["apDesiredTrackDeg", _desiredTrackDeg];
 //   dir     the nose now
 //   step    this actuation's slew, against lim -- equal means saturated
 //   dt/fps  whether the actuation rate is what it is supposed to be
-if ((missionNamespace getVariable ["USAFDC_setting_debug", false]) && {(diag_tickTime - (missionNamespace getVariable ["USAFDC_state_apTrackLogTick", -1e9])) >= 0.5}) then {
-    USAFDC_state_apTrackLogTick = diag_tickTime;
+if ((missionNamespace getVariable ["TLB_CARP_setting_debug", false]) && {(diag_tickTime - (missionNamespace getVariable ["TLB_CARP_state_apTrackLogTick", -1e9])) >= 0.5}) then {
+    TLB_CARP_state_apTrackLogTick = diag_tickTime;
     diag_log format ["[TLB CARP][AP TRACK] state=%1 raw=%2 des=%3 dir=%4 err=%5 step=%6 lim=%7 dt=%8 fps=%9 vz=%10 cmdVz=%11 cmdGs=%12",
         _pathState,
         (_solution getOrDefault ["rawDesiredTrackDeg", -1]) toFixed 2,

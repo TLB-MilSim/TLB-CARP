@@ -1,5 +1,5 @@
 /*
-    USAFDC_fnc_syncPublish
+    TLB_CARP_fnc_syncPublish
 
     Send this client's CARP edits to the aircraft's crew record.
 
@@ -8,12 +8,12 @@
     config.bin is pre-binarized, so the panel's control handlers cannot be edited.
     Several of them assign the intent globals directly --
 
-        USAFDC_state_mode=_v
-        USAFDC_state_cargoCount=parseNumber ((_this#0) lbData (_this#1))
-        USAFDC_state_targetAglM=(parseNumber ctrlText ...) max 300
+        TLB_CARP_state_mode=_v
+        TLB_CARP_state_cargoCount=parseNumber ((_this#0) lbData (_this#1))
+        TLB_CARP_state_targetAglM=(parseNumber ctrlText ...) max 300
 
     -- so there is no function to hook for those. What every one of them DOES do is end
-    with a call to USAFDC_fnc_refreshPanel, which calls this before it paints anything.
+    with a call to TLB_CARP_fnc_refreshPanel, which calls this before it paints anything.
     The other entry point is fn_setDZ, because the map-click path (fn_beginMapDZ) sets a
     DZ without ever touching the panel.
 
@@ -30,7 +30,7 @@
     edited in the same instant, whichever write reached the server last erased the other.
 
     Now a client sends only the fields a human changed here since it last synced
-    (USAFDC_state_syncBase), as [index, value] pairs, and the server folds them into the
+    (TLB_CARP_state_syncBase), as [index, value] pairs, and the server folds them into the
     record one patch at a time in fn_syncMerge. The server is the only writer, so
     revisions only ever go up and two edits to different fields both survive. This
     client keeps its edit on screen until the merged record comes back.
@@ -50,25 +50,25 @@
 if (!hasInterface) exitWith {false};
 // An apply is in progress: everything about to change is somebody else's intent
 // arriving, and echoing it back would fight the author.
-if (missionNamespace getVariable ["USAFDC_state_syncApplying", false]) exitWith {false};
+if (missionNamespace getVariable ["TLB_CARP_state_syncApplying", false]) exitWith {false};
 
 private _aircraft = objectParent player;
 // Nothing to publish to, and no airframe to scope it to. This also stops a player who
 // has just left the aircraft from publishing the disarm that leaving caused.
 if (isNull _aircraft) exitWith {false};
-if !([player, _aircraft] call USAFDC_fnc_canUseCarp) exitWith {false};
+if !([player, _aircraft] call TLB_CARP_fnc_canUseCarp) exitWith {false};
 
-if !(USAFDC_state_guidanceArmed isEqualTo (missionNamespace getVariable ["USAFDC_state_syncSeenGuidance", false])) then {
-    USAFDC_state_syncWantGuidance = USAFDC_state_guidanceArmed;
-    USAFDC_state_syncSeenGuidance = USAFDC_state_guidanceArmed;
+if !(TLB_CARP_state_guidanceArmed isEqualTo (missionNamespace getVariable ["TLB_CARP_state_syncSeenGuidance", false])) then {
+    TLB_CARP_state_syncWantGuidance = TLB_CARP_state_guidanceArmed;
+    TLB_CARP_state_syncSeenGuidance = TLB_CARP_state_guidanceArmed;
 };
-if !(USAFDC_state_autoArmed isEqualTo (missionNamespace getVariable ["USAFDC_state_syncSeenAuto", false])) then {
-    USAFDC_state_syncWantAuto = USAFDC_state_autoArmed;
-    USAFDC_state_syncSeenAuto = USAFDC_state_autoArmed;
+if !(TLB_CARP_state_autoArmed isEqualTo (missionNamespace getVariable ["TLB_CARP_state_syncSeenAuto", false])) then {
+    TLB_CARP_state_syncWantAuto = TLB_CARP_state_autoArmed;
+    TLB_CARP_state_syncSeenAuto = TLB_CARP_state_autoArmed;
 };
 
-private _local = [] call USAFDC_fnc_syncSnapshot;
-private _base = missionNamespace getVariable ["USAFDC_state_syncBase", []];
+private _local = [] call TLB_CARP_fnc_syncSnapshot;
+private _base = missionNamespace getVariable ["TLB_CARP_state_syncBase", []];
 private _haveBase = (count _base) isEqualTo (count _local);
 
 // Changed on this client since it last synced -- or everything, when nothing has been
@@ -83,26 +83,26 @@ if ((count _changes) isEqualTo 0) exitWith {false};
 
 // Sent, so no longer this client's to send again. The merged record replaces it when it
 // comes back through fn_syncApply.
-USAFDC_state_syncBase = +_local;
+TLB_CARP_state_syncBase = +_local;
 
 private _uid = getPlayerUID player;
 if (_uid isEqualTo "") then {_uid = str clientOwner};
 // The whole payload rides along only so the server can start a record on an airframe
 // that has none; an existing record is never rebuilt from it.
-private _patch = [_aircraft, _changes, _local, _uid, name player, USAFDC_VERSION];
+private _patch = [_aircraft, _changes, _local, _uid, name player, TLB_CARP_VERSION];
 
-private _serverVersion = missionNamespace getVariable ["USAFDC_serverVersion", ""];
+private _serverVersion = missionNamespace getVariable ["TLB_CARP_serverVersion", ""];
 if (_serverVersion isEqualTo "") then {
-    if !(missionNamespace getVariable ["USAFDC_state_syncNoServerWarned", false]) then {
-        USAFDC_state_syncNoServerWarned = true;
+    if !(missionNamespace getVariable ["TLB_CARP_state_syncNoServerWarned", false]) then {
+        TLB_CARP_state_syncNoServerWarned = true;
         systemChat "TLB CARP: the server is not running TLB CARP, so crew edits made at the same moment can overwrite each other. Load the mod on the server as well.";
     };
-    _patch call USAFDC_fnc_syncMerge;
+    _patch call TLB_CARP_fnc_syncMerge;
 } else {
-    if (!(_serverVersion isEqualTo USAFDC_VERSION) && {!(missionNamespace getVariable ["USAFDC_state_syncServerVersionWarned", false])}) then {
-        USAFDC_state_syncServerVersionWarned = true;
-        systemChat format ["TLB CARP: the server runs v%1 and you run v%2. Crew sync needs the same version everywhere.", _serverVersion, USAFDC_VERSION];
+    if (!(_serverVersion isEqualTo TLB_CARP_VERSION) && {!(missionNamespace getVariable ["TLB_CARP_state_syncServerVersionWarned", false])}) then {
+        TLB_CARP_state_syncServerVersionWarned = true;
+        systemChat format ["TLB CARP: the server runs v%1 and you run v%2. Crew sync needs the same version everywhere.", _serverVersion, TLB_CARP_VERSION];
     };
-    ["USAFDC_carpPatch", _patch] call CBA_fnc_serverEvent;
+    ["TLB_CARP_carpPatch", _patch] call CBA_fnc_serverEvent;
 };
 true

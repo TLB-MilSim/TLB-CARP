@@ -1,10 +1,10 @@
 /*
-    USAFDC_fnc_canopyWatch
+    TLB_CARP_fnc_canopyWatch
 
     Opens a released load's canopy on the frame it crosses the trigger altitude, and
     owns everything from there to the load sitting still on the ground.
 
-        [_cargo, _carrier, _smoke] call USAFDC_fnc_canopyWatch
+        [_cargo, _carrier, _smoke] call TLB_CARP_fnc_canopyWatch
 
     WHY THIS IS NOT A waitUntil IN THE RELEASE SCRIPT ANY MORE
 
@@ -48,15 +48,15 @@
 params ["_cargo", "_carrier", ["_smoke", true], ["_triggerAglM", 300]];
 if (isNull _cargo) exitWith {false};
 
-_cargo setVariable ["USAFDC_canopyPending", true, false];
+_cargo setVariable ["TLB_CARP_canopyPending", true, false];
 
-if (isNil "USAFDC_state_canopyPending") then {USAFDC_state_canopyPending = []};
-USAFDC_state_canopyPending pushBack [_cargo, _carrier, _smoke, _triggerAglM];
+if (isNil "TLB_CARP_state_canopyPending") then {TLB_CARP_state_canopyPending = []};
+TLB_CARP_state_canopyPending pushBack [_cargo, _carrier, _smoke, _triggerAglM];
 
 // Already running: it will pick the new entry up on its next frame.
-if !(isNil "USAFDC_state_canopyPfh") exitWith {true};
+if !(isNil "TLB_CARP_state_canopyPfh") exitWith {true};
 
-USAFDC_state_canopyPfh = [{
+TLB_CARP_state_canopyPfh = [{
     private _survivors = [];
     {
         _x params ["_cargo", "_carrier", ["_smoke", true], ["_triggerAglM", 300]];
@@ -91,7 +91,7 @@ USAFDC_state_canopyPfh = [{
         };
 
         // ---- crossed. Everything here runs INLINE, on this frame. ----------------
-        _cargo setVariable ["USAFDC_canopyPending", false, false];
+        _cargo setVariable ["TLB_CARP_canopyPending", false, false];
         // What it actually opened at, so a late canopy can never again be argued about
         // from memory. Compare it against the trigger in the RPT.
         // BOTH readings, deliberately. getPos is parent-relative for an attached object and
@@ -221,15 +221,15 @@ USAFDC_state_canopyPfh = [{
             waitUntil {(count (crew _cargo)) > 0 || {!(_settled isEqualTo (getPosVisual _cargo))} || {isNull _cargo}};
             deleteVehicle _strobe;
         };
-    } forEach USAFDC_state_canopyPending;
+    } forEach TLB_CARP_state_canopyPending;
 
-    USAFDC_state_canopyPending = _survivors;
+    TLB_CARP_state_canopyPending = _survivors;
 
     // Nothing left to watch. Stopping costs a frame of bookkeeping on the next drop and
     // saves a handler running for the rest of the mission.
-    if ((count USAFDC_state_canopyPending) isEqualTo 0) then {
-        [USAFDC_state_canopyPfh] call CBA_fnc_removePerFrameHandler;
-        USAFDC_state_canopyPfh = nil;
+    if ((count TLB_CARP_state_canopyPending) isEqualTo 0) then {
+        [TLB_CARP_state_canopyPfh] call CBA_fnc_removePerFrameHandler;
+        TLB_CARP_state_canopyPfh = nil;
     };
 }, 0] call CBA_fnc_addPerFrameHandler;
 

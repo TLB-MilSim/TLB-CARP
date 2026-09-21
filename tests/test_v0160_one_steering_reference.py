@@ -18,7 +18,7 @@ Three of the six readers independently observed the same structural fact, and it
 directly:
 
     fn_updateGuidance:68-80   rate-limits the raw path track into
-                              USAFDC_state_smoothedDesiredTrackDeg and writes it to the
+                              TLB_CARP_state_smoothedDesiredTrackDeg and writes it to the
                               solution as "desiredTrackDeg"    <- the flight director
     fn_updateAutopilot:113    reads "pathDesiredTrackDeg"      <- the RAW key, never
                               overwritten, straight out of the path manager
@@ -103,15 +103,15 @@ class OneReferenceTests(unittest.TestCase):
         """THE DEFECT. fn_updateAutopilot read pathDesiredTrackDeg -- the raw bearing --
         while the flight director read the smoothed desiredTrackDeg."""
         guid = code(GUIDANCE)
-        self.assertIn('_solution set ["desiredTrackDeg", USAFDC_state_smoothedDesiredTrackDeg];', guid)
-        self.assertIn('_solution set ["pathDesiredTrackDeg", USAFDC_state_smoothedDesiredTrackDeg];', guid)
+        self.assertIn('_solution set ["desiredTrackDeg", TLB_CARP_state_smoothedDesiredTrackDeg];', guid)
+        self.assertIn('_solution set ["pathDesiredTrackDeg", TLB_CARP_state_smoothedDesiredTrackDeg];', guid)
 
     def test_the_raw_value_is_overwritten_not_read_differently_downstream(self):
         """Leaving the raw key in place and teaching one more consumer to prefer another
         is how a THIRD reference appears later. There is one key anything can reach."""
         guid = code(GUIDANCE)
-        smoothed = guid.index('_solution set ["pathDesiredTrackDeg", USAFDC_state_smoothedDesiredTrackDeg];')
-        ap_call = guid.index("USAFDC_fnc_updateAutopilot")
+        smoothed = guid.index('_solution set ["pathDesiredTrackDeg", TLB_CARP_state_smoothedDesiredTrackDeg];')
+        ap_call = guid.index("TLB_CARP_fnc_updateAutopilot")
         self.assertLess(smoothed, ap_call, "the overwrite must happen before the AP is called")
 
     def test_the_raw_value_is_kept_for_the_instrument_only(self):
@@ -183,12 +183,12 @@ class InstrumentTests(unittest.TestCase):
         """The AP actuates at 20 Hz. Logging every actuation would be 1200 lines a minute
         and would itself cost frame time in the function under investigation."""
         src = code(AP)
-        self.assertIn('USAFDC_state_apTrackLogTick', src)
+        self.assertIn('TLB_CARP_state_apTrackLogTick', src)
         self.assertIn(">= 0.5", src)
 
     def test_the_tick_is_initialised(self):
         """An unset tick reads nil and `nil >= 0.5` throws -- inside the AP, every frame."""
-        self.assertIn("USAFDC_state_apTrackLogTick = -1e9;", read(POSTINIT))
+        self.assertIn("TLB_CARP_state_apTrackLogTick = -1e9;", read(POSTINIT))
 
     def test_the_instrument_does_not_write_aircraft_state(self):
         """CLAUDE.md: do not add a per-frame transform write anywhere. A diagnostic that

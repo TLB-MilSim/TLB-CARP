@@ -17,8 +17,8 @@ both true -- and fn_triggerAutoDrop was never called.
 
 WHAT THE LOG COULD NOT ESTABLISH, AND THAT IS THE DEFECT
 
-Between the cue and the trigger sit exactly two more gates: USAFDC_state_autoArmed and
-USAFDC_state_dropLatched. Neither said anything. Neither did fn_armAutoDrop when it
+Between the cue and the trigger sit exactly two more gates: TLB_CARP_state_autoArmed and
+TLB_CARP_state_dropLatched. Neither said anything. Neither did fn_armAutoDrop when it
 succeeded, nor fn_validateAutoDrop when it refused -- a refusal reached the pilot as a hint
 and the log not at all.
 
@@ -80,18 +80,18 @@ class RefusalIsLoggedTests(unittest.TestCase):
         """Naming only the reason would leave the same question one level down. These are
         the exact variables fn_updateGuidance tests before calling the trigger."""
         src = code(VALIDATE)
-        for state in ["USAFDC_state_autoArmed", "USAFDC_state_dropLatched",
-                      "USAFDC_state_guidanceArmed", "USAFDC_state_runInLocked",
-                      "USAFDC_state_mode"]:
+        for state in ["TLB_CARP_state_autoArmed", "TLB_CARP_state_dropLatched",
+                      "TLB_CARP_state_guidanceArmed", "TLB_CARP_state_runInLocked",
+                      "TLB_CARP_state_mode"]:
             self.assertIn(state, src, state)
 
     def test_the_gates_logged_are_the_gates_actually_tested(self):
         """If fn_updateGuidance grows a gate and this does not, the log goes back to being
         unable to answer the question."""
         gate_line = [ln for ln in code(GUIDANCE).splitlines()
-                     if "USAFDC_fnc_triggerAutoDrop" in ln and "isNil" in ln]
+                     if "TLB_CARP_fnc_triggerAutoDrop" in ln and "isNil" in ln]
         self.assertEqual(len(gate_line), 1, "the trigger gate moved -- re-check this test")
-        for state in ["USAFDC_state_autoArmed", "USAFDC_state_dropLatched"]:
+        for state in ["TLB_CARP_state_autoArmed", "TLB_CARP_state_dropLatched"]:
             self.assertIn(state, gate_line[0])
             self.assertIn(state, code(VALIDATE))
 
@@ -102,13 +102,13 @@ class RefusalIsLoggedTests(unittest.TestCase):
     def test_the_arm_log_records_what_would_be_dropped(self):
         """"Armed with nothing aboard" and "armed with four" fail differently."""
         src = code(ARM)
-        self.assertIn("USAFDC_fnc_getLoadedCargo", src)
+        self.assertIn("TLB_CARP_fnc_getLoadedCargo", src)
 
     def test_disarming_is_logged_only_when_it_changes_something(self):
         """fn_disarmAutoDrop is called on every refusal path in fn_triggerAutoDrop and on
         mode changes. Logging unconditionally would bury the real ones."""
         src = code(DISARM)
-        self.assertIn('if (missionNamespace getVariable ["USAFDC_state_autoArmed", false]) then {', src)
+        self.assertIn('if (missionNamespace getVariable ["TLB_CARP_state_autoArmed", false]) then {', src)
         self.assertIn("[TLB CARP][AUTO] disarmed", src)
 
 
@@ -117,7 +117,7 @@ class RecorderSeesEverySourceTests(unittest.TestCase):
         """THE BUG. It was blind to vehicle-in-vehicle, ACE, attached and CARP-loaded
         cargo -- three of four sources plus everything the v0.13.0 loader puts aboard."""
         src = code(RECORDER)
-        self.assertIn("[_carrier] call USAFDC_fnc_getLoadedCargo", src)
+        self.assertIn("[_carrier] call TLB_CARP_fnc_getLoadedCargo", src)
         self.assertNotIn('getVariable ["usaf_cargo"', src)
 
     def test_the_empty_message_names_the_carrier(self):

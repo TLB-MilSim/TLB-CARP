@@ -1,6 +1,6 @@
 params ["_vehicle", "_airState", "_runInDeg"];
 
-private _basis = [_runInDeg] call USAFDC_fnc_basisFromHeading;
+private _basis = [_runInDeg] call TLB_CARP_fnc_basisFromHeading;
 private _forward = _basis get "forward";
 private _right = _basis get "right";
 private _velocity = _airState getOrDefault ["velocity", velocity _vehicle];

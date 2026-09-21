@@ -1,5 +1,5 @@
 /*
-    USAFDC_fnc_updatePanelTelemetry
+    TLB_CARP_fnc_updatePanelTelemetry
 
     Repaints the panel controls whose text follows live state: the autopilot button and
     the two toggles.
@@ -34,14 +34,14 @@ private _display = findDisplay 9300;
 if (isNull _display) exitWith {false};
 
 private _vehicle = objectParent player;
-private _apArmed = missionNamespace getVariable ["USAFDC_state_apArmed", false];
-private _apState = missionNamespace getVariable ["USAFDC_state_apState", "OFF"];
+private _apArmed = missionNamespace getVariable ["TLB_CARP_state_apArmed", false];
+private _apState = missionNamespace getVariable ["TLB_CARP_state_apState", "OFF"];
 
 private _apCtrl = _display displayCtrl 9330;
 if (!isNull _apCtrl) then {
     _apCtrl ctrlSetText format ["AP: %1", if (_apArmed) then {_apState} else {"OFF"}];
     private _canArm = _apArmed || {
-        USAFDC_state_guidanceArmed && {USAFDC_state_runInLocked} && {!isNull _vehicle} && {((driver _vehicle) isEqualTo player)}
+        TLB_CARP_state_guidanceArmed && {TLB_CARP_state_runInLocked} && {!isNull _vehicle} && {((driver _vehicle) isEqualTo player)}
     };
     _apCtrl ctrlEnable _canArm;
 };
@@ -68,14 +68,14 @@ if (!isNull _apCtrl) then {
 // the same fact, a glance answers "is it armed" without anyone parsing an imperative.
 //
 // WHAT DID NOT CHANGE IS THE HALF THAT WAS A BUG. The label must read the SAME variable
-// config.bin's handler toggles on -- USAFDC_state_autoArmed -- never the crew's sync
+// config.bin's handler toggles on -- TLB_CARP_state_autoArmed -- never the crew's sync
 // intent. Painting it from `autoArmed || syncWantAuto` is what once made the control read
 // DISARM AUTO and then arm. A state label cannot misdescribe an action it no longer
 // claims, but it can still report the wrong machine's state, so the rule stands.
 // Crew intent that differs from this machine's belongs in the status line.
 private _autoCtrl = _display displayCtrl 9311;
 if (!isNull _autoCtrl) then {
-    private _autoArmed = missionNamespace getVariable ["USAFDC_state_autoArmed", false];
+    private _autoArmed = missionNamespace getVariable ["TLB_CARP_state_autoArmed", false];
     _autoCtrl ctrlSetText (if (_autoArmed) then {"AUTO DROP: ON"} else {"AUTO DROP: OFF"});
     _autoCtrl ctrlSetTextColor (
         if (_autoArmed) then {[0.365, 0.855, 0.404, 1]} else {[0.898, 0.302, 0.251, 1]}
@@ -90,17 +90,17 @@ if (!isNull _autoCtrl) then {
             if (missionNamespace getVariable [_var, _default]) then {"ON"} else {"OFF"}];
     };
 } forEach [
-    [9331, "SMOKE", "USAFDC_state_smokeEnabled", true],
-    [9336, "JPADS", "USAFDC_state_jpadsEnabled", false]
+    [9331, "SMOKE", "TLB_CARP_state_smokeEnabled", true],
+    [9336, "JPADS", "TLB_CARP_state_jpadsEnabled", false]
 ];
 
 // The jump run reads differently from the two toggles above: ARM / DISARM rather than
 // ON / OFF, because it is an action and they are states. It is labelled from the AIRCRAFT's
-// claim, not this client's flag -- USAFDC_jumpArmedBy is public, so a co-pilot sees that
+// claim, not this client's flag -- TLB_CARP_jumpArmedBy is public, so a co-pilot sees that
 // the run is armed and by whom even though only one machine runs the cue handler.
 private _jumpCtrl = _display displayCtrl 9337;
 if (!isNull _jumpCtrl) then {
-    private _armedBy = if (isNull _vehicle) then {objNull} else {_vehicle getVariable ["USAFDC_jumpArmedBy", objNull]};
+    private _armedBy = if (isNull _vehicle) then {objNull} else {_vehicle getVariable ["TLB_CARP_jumpArmedBy", objNull]};
     _jumpCtrl ctrlSetText (
         if (!isNull _armedBy) then {"DISARM JUMP"} else {"ARM JUMP RUN"}
     );

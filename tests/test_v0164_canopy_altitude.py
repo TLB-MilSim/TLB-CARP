@@ -127,7 +127,7 @@ class ReleaseSequenceTests(unittest.TestCase):
     def test_the_watch_is_armed_after_the_sequence(self):
         src = code(RELEASE)
         self.assertLess(src.index("_cargo setVelocity (velocity _carrier)"),
-                        src.index("USAFDC_fnc_canopyWatch"))
+                        src.index("TLB_CARP_fnc_canopyWatch"))
 
 
 class RotationTests(unittest.TestCase):

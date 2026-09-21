@@ -73,7 +73,7 @@ class MechanismChoiceTests(unittest.TestCase):
         over the top would be worse on every airframe that did the work."""
         src = code(CAN)
         viv = src.index("canVehicleCargo")
-        derived = src.index("USAFDC_fnc_loadModelOffset")
+        derived = src.index("TLB_CARP_fnc_loadModelOffset")
         self.assertLess(viv, derived)
 
     def test_the_position_is_asked_for_once(self):
@@ -94,8 +94,8 @@ class MechanismChoiceTests(unittest.TestCase):
         for the position. canLoadCargo and loadCargo both ask fn_loadModelOffset, so "can I
         load this" and "where does it go" cannot give different answers."""
         can, load = code(CAN), code(LOAD)
-        self.assertIn("USAFDC_fnc_loadModelOffset", can)
-        self.assertIn("USAFDC_fnc_loadModelOffset", load)
+        self.assertIn("TLB_CARP_fnc_loadModelOffset", can)
+        self.assertIn("TLB_CARP_fnc_loadModelOffset", load)
         self.assertNotIn("USAF_Cargo_LoadPos", can)
         self.assertNotIn("USAF_Cargo_LoadPos", load)
         # Neither may read hold geometry out of the config itself any more.
@@ -138,23 +138,23 @@ class MechanismChoiceTests(unittest.TestCase):
         src = code(CAN)
         self.assertIn("isNull (attachedTo _cargo)", src)
         self.assertIn("isNull (isVehicleCargo _cargo)", src)
-        self.assertIn("USAFDC_fnc_getLoadedCargo", src)
+        self.assertIn("TLB_CARP_fnc_getLoadedCargo", src)
 
     def test_the_menu_predicate_and_the_action_ask_the_same_function(self):
         """Offering Load and then refusing it is worse than not offering it."""
-        self.assertIn("USAFDC_fnc_canLoadCargo", code(NEAREST))
-        self.assertIn("USAFDC_fnc_nearestLoader", code(POSTINIT))
+        self.assertIn("TLB_CARP_fnc_canLoadCargo", code(NEAREST))
+        self.assertIn("TLB_CARP_fnc_nearestLoader", code(POSTINIT))
 
 
 class LocalityTests(unittest.TestCase):
     def test_vehicle_in_vehicle_runs_where_the_carrier_is_local(self):
-        self.assertIn('remoteExec ["USAFDC_fnc_loadViv", _carrier]', code(LOAD))
+        self.assertIn('remoteExec ["TLB_CARP_fnc_loadViv", _carrier]', code(LOAD))
         self.assertIn("if !(local _carrier) exitWith", code(VIV))
 
     def test_the_attach_runs_where_the_cargo_is_local(self):
         """attachTo is local-effect on the object being attached. On a dedicated server a
         Zeus-spawned truck belongs to the server, not to the player who asked."""
-        self.assertIn('remoteExec ["USAFDC_fnc_loadAttach", _cargo]', code(LOAD))
+        self.assertIn('remoteExec ["TLB_CARP_fnc_loadAttach", _cargo]', code(LOAD))
         self.assertIn("if !(local _cargo) exitWith", code(ATTACH))
 
     def test_the_unload_splits_the_same_way(self):
@@ -162,8 +162,8 @@ class LocalityTests(unittest.TestCase):
         _cargo`, so the CARGO is the operand whose locality matters, not the carrier.
         Loading is the asymmetric case -- its left operand IS the carrier."""
         src = code(UNLOAD)
-        self.assertIn('remoteExec ["USAFDC_fnc_unloadViv", _cargo]', src)
-        self.assertIn('remoteExec ["USAFDC_fnc_unloadAttach", _cargo]', src)
+        self.assertIn('remoteExec ["TLB_CARP_fnc_unloadViv", _cargo]', src)
+        self.assertIn('remoteExec ["TLB_CARP_fnc_unloadAttach", _cargo]', src)
         self.assertIn("if !(local _cargo) exitWith", code(UNATTACH))
 
     def test_every_new_function_is_registered(self):
@@ -172,7 +172,7 @@ class LocalityTests(unittest.TestCase):
         post = read(POSTINIT)
         for name in ["loadModelOffset", "canLoadCargo", "loadCargo", "loadViv", "loadAttach",
                      "nearestLoader", "unloadCargo", "unloadViv", "unloadAttach"]:
-            self.assertIn(f"USAFDC_fnc_{name}", post, name)
+            self.assertIn(f"TLB_CARP_fnc_{name}", post, name)
             self.assertIn(f"fn_{name}.sqf", post, name)
 
 
@@ -185,8 +185,8 @@ class HoldDerivationTests(unittest.TestCase):
         self.assertIn("exitWith {[]}", src)
 
     def test_a_mission_can_override_the_derivation(self):
-        """The same escape hatch USAFDC_dropPos gives the release."""
-        self.assertIn('_carrier getVariable ["USAFDC_loadPos", []]', code(OFFSET))
+        """The same escape hatch TLB_CARP_dropPos gives the release."""
+        self.assertIn('_carrier getVariable ["TLB_CARP_loadPos", []]', code(OFFSET))
 
     def test_the_load_is_lifted_by_its_own_origin_offset(self):
         """The model origin is not the bottom of the model. Without this a tall vehicle is
@@ -198,8 +198,8 @@ class HoldDerivationTests(unittest.TestCase):
         load nearest the ramp leaves first -- which is what a loadmaster expects and what
         makes the guided stick spacing match how the aircraft was packed."""
         src = code(OFFSET)
-        self.assertIn("USAFDC_loadSlotY", src)
-        self.assertIn("USAFDC_fnc_getLoadedCargo", src)
+        self.assertIn("TLB_CARP_loadSlotY", src)
+        self.assertIn("TLB_CARP_fnc_getLoadedCargo", src)
 
 
 class LoadStateTests(unittest.TestCase):
@@ -229,7 +229,7 @@ class LoadStateTests(unittest.TestCase):
     def test_the_manifest_sees_a_carp_loaded_vehicle_without_changes(self):
         """It is attached to the carrier and of a type the manifest already accepts, so it
         is found as the "attached" source with no special case anywhere."""
-        self.assertIn('_cargo setVariable ["USAFDC_cargoSource", "attached", true]', code(ATTACH))
+        self.assertIn('_cargo setVariable ["TLB_CARP_cargoSource", "attached", true]', code(ATTACH))
         self.assertIn('[_x, "attached"] call _add', code(MANIFEST))
 
 
@@ -283,7 +283,7 @@ class MenuPlacementTests(unittest.TestCase):
         conditions run every time the menu is opened."""
         src = code(POSTINIT)
         cond = src.index("(alive _target) && {isNull (attachedTo _target)}")
-        nearest = src.index("USAFDC_fnc_nearestLoader", cond)
+        nearest = src.index("TLB_CARP_fnc_nearestLoader", cond)
         self.assertLess(cond, nearest)
 
 

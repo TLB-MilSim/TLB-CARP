@@ -1,10 +1,10 @@
 /*
-    USAFDC_fnc_setJumpLight
+    TLB_CARP_fnc_setJumpLight
 
     Drive the physical jumplight if Free Fall Off The Ramp is providing one, and
     report honestly when it is not.
 
-    [_aircraft, "red" | "green" | "off"] call USAFDC_fnc_setJumpLight
+    [_aircraft, "red" | "green" | "off"] call TLB_CARP_fnc_setJumpLight
     Returns true only if a real light was commanded.
 
     FFR's own integration point, read from its source rather than guessed:
@@ -34,10 +34,10 @@ if !(_state in ["red", "green", "off"]) exitWith {false};
 
 // Cached once. isClass on CfgPatches is the load check; the per-aircraft object
 // check below is the readiness check, and they are not the same question.
-if (isNil "USAFDC_state_jumpFfrLoaded") then {
-    USAFDC_state_jumpFfrLoaded = isClass (configFile >> "CfgPatches" >> "ffr_main");
+if (isNil "TLB_CARP_state_jumpFfrLoaded") then {
+    TLB_CARP_state_jumpFfrLoaded = isClass (configFile >> "CfgPatches" >> "ffr_main");
 };
-if (!USAFDC_state_jumpFfrLoaded) exitWith {false};
+if (!TLB_CARP_state_jumpFfrLoaded) exitWith {false};
 
 private _light = _aircraft getVariable ["ffr_jumplight", objNull];
 if (isNull _light) exitWith {false};
@@ -49,8 +49,8 @@ if (isNull _light) exitWith {false};
 // second for minutes at a stretch. Each receiver then re-coloured the light objects
 // and, on an RHS C-130J, re-drove an animation source. Cached after the broadcast so
 // a failed send is not remembered as delivered.
-if (_state isEqualTo (missionNamespace getVariable ["USAFDC_state_jumpLightState", ""])) exitWith {true};
+if (_state isEqualTo (missionNamespace getVariable ["TLB_CARP_state_jumpLightState", ""])) exitWith {true};
 
 ["ffr_main_setJumplight", [_aircraft, _state]] call CBA_fnc_globalEvent;
-USAFDC_state_jumpLightState = _state;
+TLB_CARP_state_jumpLightState = _state;
 true

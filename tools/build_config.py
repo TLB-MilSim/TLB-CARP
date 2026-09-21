@@ -115,7 +115,7 @@ def main() -> int:
     previous = sha256(CONFIG_BIN) if CONFIG_BIN.exists() else ""
     backup = None
     if CONFIG_BIN.exists():
-        backup = Path(tempfile.gettempdir()) / "usafdc_config_prev.bin"
+        backup = Path(tempfile.gettempdir()) / "tlb_carp_config_prev.bin"
         shutil.copy2(CONFIG_BIN, backup)
 
     run(tool, "-bin", CONFIG_CPP, CONFIG_BIN)

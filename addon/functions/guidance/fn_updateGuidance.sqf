@@ -1,6 +1,6 @@
-if (!USAFDC_state_guidanceArmed) exitWith {false};
+if (!TLB_CARP_state_guidanceArmed) exitWith {false};
 private _vehicle = objectParent player;
-if (isNull _vehicle) exitWith {[] call USAFDC_fnc_disarmGuidance; false};
+if (isNull _vehicle) exitWith {[] call TLB_CARP_fnc_disarmGuidance; false};
 
 // Once the cargo is away and the solver has already gone invalid, rebuilding the
 // world solution 20 times a second serves no purpose: nothing downstream consumes
@@ -12,67 +12,67 @@ if (isNull _vehicle) exitWith {[] call USAFDC_fnc_disarmGuidance; false};
 // This is worth doing on its own merits (do not compute what nobody reads); the
 // attach-altitude benefit is a hypothesis with one supporting flown drop behind it,
 // not a settled result. Package timing, TOT and the HUD all keep updating below.
-private _packageAirborne = (missionNamespace getVariable ["USAFDC_state_packageTimingState", "IDLE"]) in ["RELEASED", "CHUTE"];
-private _lastWasInvalid = !((missionNamespace getVariable ["USAFDC_state_solution", createHashMap]) getOrDefault ["valid", false]);
+private _packageAirborne = (missionNamespace getVariable ["TLB_CARP_state_packageTimingState", "IDLE"]) in ["RELEASED", "CHUTE"];
+private _lastWasInvalid = !((missionNamespace getVariable ["TLB_CARP_state_solution", createHashMap]) getOrDefault ["valid", false]);
 private _skipSolve = _packageAirborne && _lastWasInvalid;
 
 private _solution = if (_skipSolve) then {
     createHashMapFromArray [["valid", false], ["solveSkipped", true]]
 } else {
-    [_vehicle] call USAFDC_fnc_buildWorldSolution
+    [_vehicle] call TLB_CARP_fnc_buildWorldSolution
 };
 if !(_solution getOrDefault ["valid", false]) exitWith {
-    private _packageState = missionNamespace getVariable ["USAFDC_state_packageTimingState", "IDLE"];
+    private _packageState = missionNamespace getVariable ["TLB_CARP_state_packageTimingState", "IDLE"];
     // ESTIMATE is included deliberately: releasing the last cargo empties
     // usaf_cargo and invalidates the solver on the same tick the cargo leaves,
     // so the ESTIMATE -> RELEASED transition has to be able to fire from here.
     // Without it the package tracker never starts and the TOT freezes.
     private _packageLive = _packageState in ["ESTIMATE", "RELEASED", "CHUTE", "ARRIVED"];
-    if (_packageLive && {!(isNil "USAFDC_fnc_updatePackageTiming")}) then {
-        private _timing = [_vehicle, _solution] call USAFDC_fnc_updatePackageTiming;
+    if (_packageLive && {!(isNil "TLB_CARP_fnc_updatePackageTiming")}) then {
+        private _timing = [_vehicle, _solution] call TLB_CARP_fnc_updatePackageTiming;
         {_solution set [_x, _timing get _x]} forEach keys _timing;
 
         // Keep the last valid flight presentation alive after cargo leaves the carrier.
         // The live solver may now be invalid because usaf_cargo is empty, but package
         // timing must continue to refresh independently of that solver validity.
-        private _displaySolution = missionNamespace getVariable ["USAFDC_state_displaySolution", createHashMap];
+        private _displaySolution = missionNamespace getVariable ["TLB_CARP_state_displaySolution", createHashMap];
         if ((count _displaySolution) > 0) then {
             {_displaySolution set [_x, _timing get _x]} forEach keys _timing;
             _displaySolution set ["packageTrackingOnly", true];
-            USAFDC_state_displaySolution = _displaySolution;
+            TLB_CARP_state_displaySolution = _displaySolution;
         };
     };
 
-    USAFDC_state_solution = _solution;
-    if !(isNil "USAFDC_fnc_disarmAutoDrop") then {[] call USAFDC_fnc_disarmAutoDrop};
+    TLB_CARP_state_solution = _solution;
+    if !(isNil "TLB_CARP_fnc_disarmAutoDrop") then {[] call TLB_CARP_fnc_disarmAutoDrop};
 
     // Re-read: the timing call above may have transitioned ESTIMATE -> RELEASED,
     // and the release tick is exactly the one that must refresh the display.
-    private _trackingPackage = (missionNamespace getVariable ["USAFDC_state_packageTimingState", "IDLE"]) in ["RELEASED", "CHUTE", "ARRIVED"];
+    private _trackingPackage = (missionNamespace getVariable ["TLB_CARP_state_packageTimingState", "IDLE"]) in ["RELEASED", "CHUTE", "ARRIVED"];
     if (_trackingPackage) then {
-        if !(isNil "USAFDC_fnc_updatePanelTelemetry") then {
-            if ((diag_tickTime - USAFDC_state_panelLastTelemetryTick) >= 0.20) then {
-                USAFDC_state_panelLastTelemetryTick = diag_tickTime;
-                [] call USAFDC_fnc_updatePanelTelemetry;
+        if !(isNil "TLB_CARP_fnc_updatePanelTelemetry") then {
+            if ((diag_tickTime - TLB_CARP_state_panelLastTelemetryTick) >= 0.20) then {
+                TLB_CARP_state_panelLastTelemetryTick = diag_tickTime;
+                [] call TLB_CARP_fnc_updatePanelTelemetry;
             };
         };
-        if !(isNil "USAFDC_fnc_updateHud") then {[] call USAFDC_fnc_updateHud};
+        if !(isNil "TLB_CARP_fnc_updateHud") then {[] call TLB_CARP_fnc_updateHud};
     };
     false
 };
 
-private _path = if !(isNil "USAFDC_fnc_buildPathSolution") then {[_vehicle, _solution] call USAFDC_fnc_buildPathSolution} else {createHashMapFromArray [["pathValid", false]]};
+private _path = if !(isNil "TLB_CARP_fnc_buildPathSolution") then {[_vehicle, _solution] call TLB_CARP_fnc_buildPathSolution} else {createHashMapFromArray [["pathValid", false]]};
 {_solution set [_x, _path get _x]} forEach keys _path;
-USAFDC_state_pathSolution = _path;
+TLB_CARP_state_pathSolution = _path;
 
 private _rawDesired = _solution getOrDefault ["pathDesiredTrackDeg", _solution getOrDefault ["rawDesiredTrackDeg", _solution get "runInDeg"]];
 private _nowTick = diag_tickTime;
-private _dt = (_nowTick - USAFDC_state_guidanceLastTick) max 0;
-USAFDC_state_guidanceLastTick = _nowTick;
-if (isNil "USAFDC_state_smoothedDesiredTrackDeg") then {
-    USAFDC_state_smoothedDesiredTrackDeg = _rawDesired;
+private _dt = (_nowTick - TLB_CARP_state_guidanceLastTick) max 0;
+TLB_CARP_state_guidanceLastTick = _nowTick;
+if (isNil "TLB_CARP_state_smoothedDesiredTrackDeg") then {
+    TLB_CARP_state_smoothedDesiredTrackDeg = _rawDesired;
 };
-private _currentDesired = USAFDC_state_smoothedDesiredTrackDeg;
+private _currentDesired = TLB_CARP_state_smoothedDesiredTrackDeg;
 private _delta = (((_rawDesired - _currentDesired + 540) mod 360) - 180);
 
 // THE SMOOTHING RATE FOLLOWS THE AUTOPILOT'S OWN TURN-RATE SCHEDULE.
@@ -95,8 +95,8 @@ private _turnRateDegS = switch (_solution getOrDefault ["pathState", ""]) do {
 };
 private _maxStep = _turnRateDegS * _dt;
 private _step = (_delta max (-_maxStep)) min _maxStep;
-USAFDC_state_smoothedDesiredTrackDeg = (_currentDesired + _step + 360) mod 360;
-_solution set ["desiredTrackDeg", USAFDC_state_smoothedDesiredTrackDeg];
+TLB_CARP_state_smoothedDesiredTrackDeg = (_currentDesired + _step + 360) mod 360;
+_solution set ["desiredTrackDeg", TLB_CARP_state_smoothedDesiredTrackDeg];
 // AND THE AUTOPILOT FLIES IT TOO. Until v0.16.0 fn_updateAutopilot read
 // pathDesiredTrackDeg -- the RAW pure-pursuit bearing straight out of the path manager --
 // while the flight director read the smoothed value written on the line above. The needle
@@ -109,21 +109,21 @@ _solution set ["desiredTrackDeg", USAFDC_state_smoothedDesiredTrackDeg];
 //
 // Overwritten rather than read differently at the far end, so there is exactly one key any
 // consumer can reach and no third reference can appear by accident.
-_solution set ["pathDesiredTrackDeg", USAFDC_state_smoothedDesiredTrackDeg];
+_solution set ["pathDesiredTrackDeg", TLB_CARP_state_smoothedDesiredTrackDeg];
 _solution set ["rawDesiredTrackDeg", _rawDesired];
 private _currentTrack = (_solution get "aircraftState") get "trackDeg";
-_solution set ["steeringErrorDeg", (((USAFDC_state_smoothedDesiredTrackDeg - _currentTrack + 540) mod 360) - 180)];
+_solution set ["steeringErrorDeg", (((TLB_CARP_state_smoothedDesiredTrackDeg - _currentTrack + 540) mod 360) - 180)];
 
-if (USAFDC_state_apArmed && {!(isNil "USAFDC_fnc_updateAutopilot")}) then {
-    [_vehicle, _solution] call USAFDC_fnc_updateAutopilot;
+if (TLB_CARP_state_apArmed && {!(isNil "TLB_CARP_fnc_updateAutopilot")}) then {
+    [_vehicle, _solution] call TLB_CARP_fnc_updateAutopilot;
 };
 
-if !(isNil "USAFDC_fnc_updatePackageTiming") then {
-    private _timing = [_vehicle, _solution] call USAFDC_fnc_updatePackageTiming;
+if !(isNil "TLB_CARP_fnc_updatePackageTiming") then {
+    private _timing = [_vehicle, _solution] call TLB_CARP_fnc_updatePackageTiming;
     {_solution set [_x, _timing get _x]} forEach keys _timing;
 } else {
-    if !(isNil "USAFDC_fnc_estimatePackageTiming") then {
-        private _timing = [_vehicle, _solution] call USAFDC_fnc_estimatePackageTiming;
+    if !(isNil "TLB_CARP_fnc_estimatePackageTiming") then {
+        private _timing = [_vehicle, _solution] call TLB_CARP_fnc_estimatePackageTiming;
         {_solution set [_x, _timing get _x]} forEach keys _timing;
     };
 };
@@ -151,41 +151,41 @@ _solution set ["authoritative", _authoritative];
 private _jumpRun = _solution getOrDefault ["jumpRun", false];
 
 private _current = _solution get "signedRpM";
-private _previous = USAFDC_state_lastSignedRpM;
+private _previous = TLB_CARP_state_lastSignedRpM;
 private _crossed = (_previous > 0) && {_current <= 0};
 private _releaseStable = _solution getOrDefault ["releaseStable", true];
-USAFDC_state_lastSignedRpM = _current;
-USAFDC_state_releaseCrossed = _crossed;
+TLB_CARP_state_lastSignedRpM = _current;
+TLB_CARP_state_releaseCrossed = _crossed;
 
 // Going around is the instruction the HUD gives, so it has to be actionable
 // without touching the panel: once the aircraft is back upstream of the final
 // envelope this is a new attempt and the previous miss no longer applies.
-if (USAFDC_state_passMissed && {_current > 800}) then {
-    USAFDC_state_passMissed = false;
-    USAFDC_state_standbyCueSent = false;
+if (TLB_CARP_state_passMissed && {_current > 800}) then {
+    TLB_CARP_state_passMissed = false;
+    TLB_CARP_state_standbyCueSent = false;
     diag_log format ["[TLB CARP][GO AROUND] repositioned upstream, pass reset signedRp=%1", _current];
 };
 
-if (USAFDC_state_passMissed && {_current <= 0}) then {
+if (TLB_CARP_state_passMissed && {_current <= 0}) then {
     _releaseStable = false;
     _solution set ["releaseStable", false];
     _solution set ["guidanceState", "UNSTABLE RUN-IN"];
 };
 
-if (!_jumpRun && {(_current > 0)} && {_current <= 250} && {_releaseStable} && {!USAFDC_state_standbyCueSent}) then {
-    USAFDC_state_standbyCueSent = true;
-    if (USAFDC_setting_sounds) then {playSound "FD_Timer_F"};
+if (!_jumpRun && {(_current > 0)} && {_current <= 250} && {_releaseStable} && {!TLB_CARP_state_standbyCueSent}) then {
+    TLB_CARP_state_standbyCueSent = true;
+    if (TLB_CARP_setting_sounds) then {playSound "FD_Timer_F"};
 };
 
 if (!_jumpRun && {_crossed} && {_releaseStable}) then {
-    USAFDC_state_dropCueUntil = time + 1;
-    if (USAFDC_setting_sounds) then {playSound "FD_Start_F"};
+    TLB_CARP_state_dropCueUntil = time + 1;
+    if (TLB_CARP_setting_sounds) then {playSound "FD_Start_F"};
     // Chunked, because the solution hashmap alone runs past what diag_log will write:
     // every one of these lines in the flown RPTs is exactly 1031 bytes and stops inside
     // an array, so the half of the solution that matters never reached the file.
-    ["DROP", format ["sim=%1 real=%2 posASL=%3 velocity=%4 wind=%5 signedRp=%6 crossTrack=%7 solution=%8", time, diag_tickTime, getPosASL _vehicle, velocity _vehicle, wind, _current, _solution get "crossTrackM", _solution]] call USAFDC_fnc_logLong;
-    if (USAFDC_setting_debug && {USAFDC_setting_calibrationRecorder} && {!(isNil "USAFDC_fnc_beginCalibrationRun")}) then {
-        [_vehicle, _solution] call USAFDC_fnc_beginCalibrationRun;
+    ["DROP", format ["sim=%1 real=%2 posASL=%3 velocity=%4 wind=%5 signedRp=%6 crossTrack=%7 solution=%8", time, diag_tickTime, getPosASL _vehicle, velocity _vehicle, wind, _current, _solution get "crossTrackM", _solution]] call TLB_CARP_fnc_logLong;
+    if (TLB_CARP_setting_debug && {TLB_CARP_setting_calibrationRecorder} && {!(isNil "TLB_CARP_fnc_beginCalibrationRun")}) then {
+        [_vehicle, _solution] call TLB_CARP_fnc_beginCalibrationRun;
     };
 };
 
@@ -194,9 +194,9 @@ if (!_jumpRun && {_crossed} && {!_releaseStable}) then {
     _solution set ["releaseStable", false];
 };
 if (_crossed && {!_releaseStable} && {_authoritative}) then {
-    USAFDC_state_passMissed = true;
-    USAFDC_state_dropCueUntil = -1;
-    USAFDC_state_standbyCueSent = false;
+    TLB_CARP_state_passMissed = true;
+    TLB_CARP_state_dropCueUntil = -1;
+    TLB_CARP_state_standbyCueSent = false;
     // A refusal used to leave no evidence at all -- only successful crossings
     // were logged -- so there was no way to tell which tolerance failed.
     diag_log format [
@@ -213,26 +213,26 @@ if (_crossed && {!_releaseStable} && {_authoritative}) then {
         _solution getOrDefault ["velocityRightMs", 0],
         _solution getOrDefault ["warnings", []]
     ];
-    if (USAFDC_state_autoArmed && {!(isNil "USAFDC_fnc_disarmAutoDrop")}) then {[] call USAFDC_fnc_disarmAutoDrop};
+    if (TLB_CARP_state_autoArmed && {!(isNil "TLB_CARP_fnc_disarmAutoDrop")}) then {[] call TLB_CARP_fnc_disarmAutoDrop};
     hint "TLB CARP: UNSTABLE RUN-IN - NO DROP - GO AROUND";
 };
 
 _solution set ["packageTrackingOnly", false];
-USAFDC_state_solution = _solution;
-USAFDC_state_displaySolution = _solution;
+TLB_CARP_state_solution = _solution;
+TLB_CARP_state_displaySolution = _solution;
 
-if !(isNil "USAFDC_fnc_updatePanelTelemetry") then {
-    if ((diag_tickTime - USAFDC_state_panelLastTelemetryTick) >= 0.20) then {
-        USAFDC_state_panelLastTelemetryTick = diag_tickTime;
-        [] call USAFDC_fnc_updatePanelTelemetry;
+if !(isNil "TLB_CARP_fnc_updatePanelTelemetry") then {
+    if ((diag_tickTime - TLB_CARP_state_panelLastTelemetryTick) >= 0.20) then {
+        TLB_CARP_state_panelLastTelemetryTick = diag_tickTime;
+        [] call TLB_CARP_fnc_updatePanelTelemetry;
     };
 };
 
-if !(isNil "USAFDC_fnc_updateMarkers") then {[] call USAFDC_fnc_updateMarkers};
-if !(isNil "USAFDC_fnc_updateHud") then {[] call USAFDC_fnc_updateHud};
+if !(isNil "TLB_CARP_fnc_updateMarkers") then {[] call TLB_CARP_fnc_updateMarkers};
+if !(isNil "TLB_CARP_fnc_updateHud") then {[] call TLB_CARP_fnc_updateHud};
 
-if (!_jumpRun && {_crossed} && {_releaseStable} && {USAFDC_state_autoArmed} && {!USAFDC_state_dropLatched} && {!(isNil "USAFDC_fnc_triggerAutoDrop")}) then {
-    USAFDC_state_dropLatched = true;
-    [] call USAFDC_fnc_triggerAutoDrop;
+if (!_jumpRun && {_crossed} && {_releaseStable} && {TLB_CARP_state_autoArmed} && {!TLB_CARP_state_dropLatched} && {!(isNil "TLB_CARP_fnc_triggerAutoDrop")}) then {
+    TLB_CARP_state_dropLatched = true;
+    [] call TLB_CARP_fnc_triggerAutoDrop;
 };
 true

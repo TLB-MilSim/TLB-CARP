@@ -7,7 +7,7 @@ v0.7.0 sync turned up five ways it could stop working with nothing on screen:
 1. fn_refreshPanel published as its LAST statement, after painting every list and the
    whole telemetry block. Any script error while painting ended the call first, and
    nothing ever retried the change.
-2. The same kind of error inside fn_syncApply's repaint left USAFDC_state_syncApplying
+2. The same kind of error inside fn_syncApply's repaint left TLB_CARP_state_syncApplying
    raised for good, and fn_syncPublish refuses to run while it is.
 3. A record was adopted only if its sequence number beat a counter each client kept for
    itself. Two crew editing at once, or Zeus moving a player between aircraft, could
@@ -82,23 +82,23 @@ class PublishBeforePaintTests(unittest.TestCase):
 
     def test_refresh_publishes_before_it_paints_anything(self):
         src = code(REFRESH)
-        publish = src.index("USAFDC_fnc_syncPublish")
-        self.assertLess(publish, src.index("USAFDC_state_panelRefreshing = true;"))
+        publish = src.index("TLB_CARP_fnc_syncPublish")
+        self.assertLess(publish, src.index("TLB_CARP_state_panelRefreshing = true;"))
         self.assertLess(publish, src.index("lbClear"))
-        self.assertLess(publish, src.index("USAFDC_fnc_updatePanelTelemetry"))
-        self.assertEqual(src.count("call USAFDC_fnc_syncPublish"), 1)
+        self.assertLess(publish, src.index("TLB_CARP_fnc_updatePanelTelemetry"))
+        self.assertEqual(src.count("call TLB_CARP_fnc_syncPublish"), 1)
 
     def test_the_owner_cargo_reset_is_decided_before_the_publish(self):
         src = code(REFRESH)
-        self.assertLess(src.index("USAFDC_state_cargoCount = -1;"), src.index("USAFDC_fnc_syncPublish"))
+        self.assertLess(src.index("TLB_CARP_state_cargoCount = -1;"), src.index("TLB_CARP_fnc_syncPublish"))
 
     def test_refresh_never_runs_scheduled(self):
         """config.bin's onLoad spawns the refresh; suspended half way, it left the panel's
         lists deaf and let a record arrive in the middle of a publish."""
         src = code(REFRESH)
         self.assertIn("if (canSuspend) exitWith {", src)
-        self.assertIn("[{[] call USAFDC_fnc_refreshPanel}] call CBA_fnc_execNextFrame;", src)
-        self.assertLess(src.index("canSuspend"), src.index("USAFDC_fnc_syncPublish"))
+        self.assertIn("[{[] call TLB_CARP_fnc_refreshPanel}] call CBA_fnc_execNextFrame;", src)
+        self.assertLess(src.index("canSuspend"), src.index("TLB_CARP_fnc_syncPublish"))
 
 
 class StrandedGuardTests(unittest.TestCase):
@@ -107,15 +107,15 @@ class StrandedGuardTests(unittest.TestCase):
     def test_the_tick_lowers_both_guards_before_anything_else(self):
         src = code(TICK)
         first = src.index("objectParent player")
-        self.assertLess(src.index("USAFDC_state_syncApplying = false;"), first)
-        self.assertLess(src.index("USAFDC_state_panelRefreshing = false;"), first)
+        self.assertLess(src.index("TLB_CARP_state_syncApplying = false;"), first)
+        self.assertLess(src.index("TLB_CARP_state_panelRefreshing = false;"), first)
 
     def test_apply_marks_the_record_adopted_before_any_side_effect(self):
         src = code(APPLY)
-        marked = max(src.index("USAFDC_state_syncRev = _rev;"), src.index("USAFDC_state_syncUid = _uid;"))
+        marked = max(src.index("TLB_CARP_state_syncRev = _rev;"), src.index("TLB_CARP_state_syncUid = _uid;"))
         for side_effect in [
-            "USAFDC_fnc_setDZ", "USAFDC_fnc_clearDZ", "USAFDC_fnc_unlockRunIn",
-            "USAFDC_fnc_syncReconcile", "USAFDC_fnc_refreshPanel",
+            "TLB_CARP_fnc_setDZ", "TLB_CARP_fnc_clearDZ", "TLB_CARP_fnc_unlockRunIn",
+            "TLB_CARP_fnc_syncReconcile", "TLB_CARP_fnc_refreshPanel",
         ]:
             self.assertLess(marked, src.index(side_effect), side_effect)
 
@@ -125,29 +125,29 @@ class AdoptionTests(unittest.TestCase):
 
     def test_the_tick_adopts_any_record_that_is_not_the_one_it_holds(self):
         src = code(TICK)
-        self.assertIn('_aircraft getVariable ["USAFDC_carpRecord", []]', src)
-        self.assertIn("!([_record # 0, _record # 1] isEqualTo [USAFDC_state_syncRev, USAFDC_state_syncUid])", src)
+        self.assertIn('_aircraft getVariable ["TLB_CARP_carpRecord", []]', src)
+        self.assertIn("!([_record # 0, _record # 1] isEqualTo [TLB_CARP_state_syncRev, TLB_CARP_state_syncUid])", src)
 
     def test_no_client_side_counter_is_left_to_veto_a_record(self):
         for rel in (PUBLISH, MERGE, APPLY, TICK, POSTINIT, OPEN, REFRESH):
             src = code(rel)
-            self.assertNotIn("USAFDC_state_syncSeq", src, rel)
+            self.assertNotIn("TLB_CARP_state_syncSeq", src, rel)
             self.assertNotIn("_incomingSeq", src, rel)
-            self.assertNotIn("USAFDC_state_syncLastPayload", src, rel)
+            self.assertNotIn("TLB_CARP_state_syncLastPayload", src, rel)
 
     def test_the_doorbell_only_ever_moves_a_client_forward(self):
-        body = handler(code(POSTINIT), "USAFDC_carpRecordChanged")
-        self.assertIn('(_record # 0) > (missionNamespace getVariable ["USAFDC_state_syncRev", -1])', body)
-        self.assertIn("USAFDC_fnc_canUseCarp", body)
-        self.assertIn("USAFDC_fnc_syncApply", body)
+        body = handler(code(POSTINIT), "TLB_CARP_carpRecordChanged")
+        self.assertIn('(_record # 0) > (missionNamespace getVariable ["TLB_CARP_state_syncRev", -1])', body)
+        self.assertIn("TLB_CARP_fnc_canUseCarp", body)
+        self.assertIn("TLB_CARP_fnc_syncApply", body)
 
     def test_changing_aircraft_forgets_what_was_adopted(self):
         src = code(TICK)
-        self.assertIn('!(_aircraft isEqualTo (missionNamespace getVariable ["USAFDC_state_syncAircraft", objNull]))', src)
+        self.assertIn('!(_aircraft isEqualTo (missionNamespace getVariable ["TLB_CARP_state_syncAircraft", objNull]))', src)
 
     def test_opening_the_panel_adopts_before_the_display_exists(self):
         src = code(OPEN)
-        self.assertLess(src.index("USAFDC_fnc_syncTick"), src.index("createDisplay"))
+        self.assertLess(src.index("TLB_CARP_fnc_syncTick"), src.index("createDisplay"))
 
 
 class ServerMergeTests(unittest.TestCase):
@@ -155,48 +155,48 @@ class ServerMergeTests(unittest.TestCase):
 
     def test_publish_sends_only_the_fields_changed_here(self):
         src = code(PUBLISH)
-        self.assertIn('missionNamespace getVariable ["USAFDC_state_syncBase", []]', src)
+        self.assertIn('missionNamespace getVariable ["TLB_CARP_state_syncBase", []]', src)
         self.assertIn("_changes pushBack [_forEachIndex, _x];", src)
         self.assertIn("if ((count _changes) isEqualTo 0) exitWith {false};", src)
-        self.assertIn("USAFDC_state_syncBase = +_local;", src)
+        self.assertIn("TLB_CARP_state_syncBase = +_local;", src)
 
     def test_publish_hands_the_patch_to_the_server(self):
         src = code(PUBLISH)
-        self.assertIn("private _patch = [_aircraft, _changes, _local, _uid, name player, USAFDC_VERSION];", src)
-        self.assertIn('["USAFDC_carpPatch", _patch] call CBA_fnc_serverEvent;', src)
+        self.assertIn("private _patch = [_aircraft, _changes, _local, _uid, name player, TLB_CARP_VERSION];", src)
+        self.assertIn('["TLB_CARP_carpPatch", _patch] call CBA_fnc_serverEvent;', src)
 
     def test_without_carp_on_the_server_the_client_merges_and_says_so(self):
         src = code(PUBLISH)
-        self.assertIn('missionNamespace getVariable ["USAFDC_serverVersion", ""]', src)
-        self.assertIn("_patch call USAFDC_fnc_syncMerge;", src)
+        self.assertIn('missionNamespace getVariable ["TLB_CARP_serverVersion", ""]', src)
+        self.assertIn("_patch call TLB_CARP_fnc_syncMerge;", src)
         self.assertIn("the server is not running TLB CARP", src)
 
     def test_only_the_merge_writes_the_record(self):
         writers = []
         for path in (ROOT / "addon" / "functions").rglob("*.sqf"):
             rel = path.relative_to(ROOT).as_posix()
-            if 'setVariable ["USAFDC_carpRecord"' in code(rel):
+            if 'setVariable ["TLB_CARP_carpRecord"' in code(rel):
                 writers.append(rel)
         self.assertEqual(writers, [MERGE])
 
     def test_the_merge_lands_each_change_on_the_record_as_it_stands(self):
         src = code(MERGE)
-        self.assertIn('private _record = _aircraft getVariable ["USAFDC_carpRecord", []];', src)
+        self.assertIn('private _record = _aircraft getVariable ["TLB_CARP_carpRecord", []];', src)
         self.assertIn("private _payload = if (_hasRecord) then {+(_record # 4)} else {+_senderPayload};", src)
         self.assertIn("if (_index >= 0 && {_index < (count _payload)}) then {_payload set [_index, _value]};", src)
         self.assertIn("private _rev = (if (_hasRecord) then {_record # 0} else {0}) + 1;", src)
         self.assertIn("private _newRecord = [_rev, _uid, _author, _version, _payload];", src)
-        self.assertIn('_aircraft setVariable ["USAFDC_carpRecord", _newRecord, true];', src)
-        self.assertIn('["USAFDC_carpRecordChanged", [_aircraft, _newRecord], crew _aircraft] call CBA_fnc_targetEvent;', src)
+        self.assertIn('_aircraft setVariable ["TLB_CARP_carpRecord", _newRecord, true];', src)
+        self.assertIn('["TLB_CARP_carpRecordChanged", [_aircraft, _newRecord], crew _aircraft] call CBA_fnc_targetEvent;', src)
 
     def test_the_server_half_is_registered_where_the_server_runs(self):
         post = code(POSTINIT)
         head = post[:post.index(GUARD)]
-        self.assertIn('["USAFDC_fnc_syncMerge", "\\x\\usafdc\\addons\\drop_computer\\functions\\sync\\fn_syncMerge.sqf"]', head)
-        body = handler(head, "USAFDC_carpPatch")
+        self.assertIn('["TLB_CARP_fnc_syncMerge", "\\x\\tlbcarp\\addons\\drop_computer\\functions\\sync\\fn_syncMerge.sqf"]', head)
+        body = handler(head, "TLB_CARP_carpPatch")
         self.assertIn("if (!isServer) exitWith {};", body)
-        self.assertIn("_this call USAFDC_fnc_syncMerge;", body)
-        self.assertIn('if (isServer) then {missionNamespace setVariable ["USAFDC_serverVersion", USAFDC_VERSION, true]};', head)
+        self.assertIn("_this call TLB_CARP_fnc_syncMerge;", body)
+        self.assertIn('if (isServer) then {missionNamespace setVariable ["TLB_CARP_serverVersion", TLB_CARP_VERSION, true]};', head)
 
     def test_the_payload_length_agrees_between_snapshot_and_apply(self):
         snapshot = code(SNAPSHOT)
@@ -221,18 +221,18 @@ class VersionTests(unittest.TestCase):
     def test_the_record_carries_its_author_version_and_apply_checks_it(self):
         src = code(APPLY)
         self.assertIn('_record params ["_rev", "_uid", "_author", "_version", "_payload"];', src)
-        self.assertIn("if !(_version isEqualTo USAFDC_VERSION) then {", src)
-        self.assertIn("USAFDC_state_syncVersionWarned", src)
+        self.assertIn("if !(_version isEqualTo TLB_CARP_VERSION) then {", src)
+        self.assertIn("TLB_CARP_state_syncVersionWarned", src)
 
     def test_a_crew_member_on_the_old_sync_is_named(self):
         src = code(TICK)
-        self.assertIn('_aircraft getVariable ["USAFDC_carpIntent", []]', src)
-        self.assertIn("USAFDC_state_syncLegacyWarned", src)
+        self.assertIn('_aircraft getVariable ["TLB_CARP_carpIntent", []]', src)
+        self.assertIn("TLB_CARP_state_syncLegacyWarned", src)
 
     def test_nothing_writes_the_old_record_any_more(self):
         for path in (ROOT / "addon" / "functions").rglob("*.sqf"):
             rel = path.relative_to(ROOT).as_posix()
-            self.assertNotIn('setVariable ["USAFDC_carpIntent"', code(rel), rel)
+            self.assertNotIn('setVariable ["TLB_CARP_carpIntent"', code(rel), rel)
 
     def test_which_record_each_seat_holds_is_still_reportable(self):
         """WAS on the panel as the CREW line. v0.11.2 removed the panel status block (control 9314) on a flown request.
@@ -245,9 +245,9 @@ class VersionTests(unittest.TestCase):
         The console diagnostic still reports the revision, the author and the version on
         every machine, which is what settles a disagreement."""
         diag = read("testing/mp_carp_diagnostic.sqf")
-        self.assertIn("USAFDC_state_syncRev", diag)
-        self.assertIn("USAFDC_carpRecord", diag)
-        self.assertIn("USAFDC_fnc_hasComputer", diag)
+        self.assertIn("TLB_CARP_state_syncRev", diag)
+        self.assertIn("TLB_CARP_carpRecord", diag)
+        self.assertIn("TLB_CARP_fnc_hasComputer", diag)
 
 
 class AccessTests(unittest.TestCase):
@@ -256,26 +256,26 @@ class AccessTests(unittest.TestCase):
     def test_the_rule_is_inside_the_aircraft_supported_and_carrying_the_computer(self):
         src = code(CAN_USE)
         self.assertIn("if !((objectParent _unit) isEqualTo _aircraft) exitWith {false};", src)
-        self.assertIn("USAFDC_fnc_resolveAircraftProfile", src)
-        self.assertIn('!(missionNamespace getVariable ["USAFDC_setting_requireComputer", true]) || {[_unit] call USAFDC_fnc_hasComputer}', src)
+        self.assertIn("TLB_CARP_fnc_resolveAircraftProfile", src)
+        self.assertIn('!(missionNamespace getVariable ["TLB_CARP_setting_requireComputer", true]) || {[_unit] call TLB_CARP_fnc_hasComputer}', src)
         self.assertIn('"TLB_CARP_Computer"', code(HAS_COMPUTER))
 
     def test_every_way_in_asks_the_same_rule(self):
         post = code(POSTINIT)
-        self.assertIn("[player, _vehicle] call USAFDC_fnc_canUseCarp", code(OPEN))
-        self.assertIn("[player, _aircraft] call USAFDC_fnc_canUseCarp", code(PUBLISH))
-        self.assertIn("[player, _aircraft] call USAFDC_fnc_canUseCarp", code(TICK))
-        self.assertIn("USAFDC_fnc_canUseCarp", handler(post, "USAFDC_carpRecordChanged"))
+        self.assertIn("[player, _vehicle] call TLB_CARP_fnc_canUseCarp", code(OPEN))
+        self.assertIn("[player, _aircraft] call TLB_CARP_fnc_canUseCarp", code(PUBLISH))
+        self.assertIn("[player, _aircraft] call TLB_CARP_fnc_canUseCarp", code(TICK))
+        self.assertIn("TLB_CARP_fnc_canUseCarp", handler(post, "TLB_CARP_carpRecordChanged"))
 
     def test_the_access_functions_are_registered_above_the_interface_guard(self):
         post = code(POSTINIT)
         head = post[:post.index(GUARD)]
-        prefix = "\\x\\usafdc\\addons\\drop_computer\\functions\\access\\"
+        prefix = "\\x\\tlbcarp\\addons\\drop_computer\\functions\\access\\"
         for name in ("hasComputer", "canUseCarp"):
-            self.assertIn(f'["USAFDC_fnc_{name}", "{prefix}fn_{name}.sqf"]', head)
+            self.assertIn(f'["TLB_CARP_fnc_{name}", "{prefix}fn_{name}.sqf"]', head)
 
     def test_the_requirement_is_a_server_forced_setting_that_defaults_on(self):
-        lines = [ln for ln in code(POSTINIT).splitlines() if "USAFDC_setting_requireComputer" in ln and "CBA_fnc_addSetting" in ln]
+        lines = [ln for ln in code(POSTINIT).splitlines() if "TLB_CARP_setting_requireComputer" in ln and "CBA_fnc_addSetting" in ln]
         self.assertEqual(len(lines), 1)
         self.assertTrue(lines[0].rstrip().endswith('["TLB CARP", "Access"], true, 1] call CBA_fnc_addSetting;'))
 
@@ -285,13 +285,13 @@ class AccessTests(unittest.TestCase):
         post = code(POSTINIT)
         self.assertIn('["Air", 1, ["ACE_SelfActions"], _openAction, true] call ace_interact_menu_fnc_addActionToClass;', post)
         self.assertNotIn('["CAManBase", 1, ["ACE_SelfActions"], _openAction, true]', post)
-        action = post[post.index('"USAFDC_Open"'):post.index("call ace_interact_menu_fnc_createAction", post.index('"USAFDC_Open"'))]
-        self.assertIn("[_player, _target] call USAFDC_fnc_canUseCarp", action)
+        action = post[post.index('"TLB_CARP_Open"'):post.index("call ace_interact_menu_fnc_createAction", post.index('"TLB_CARP_Open"'))]
+        self.assertIn("[_player, _target] call TLB_CARP_fnc_canUseCarp", action)
         self.assertIn('"\\x\\tlbcarp\\addons\\items\\data\\tlb_carp_computer_ca.paa"', action)
 
     def test_losing_access_closes_the_panel(self):
         src = code(TICK)
-        lost = src[src.index("if (isNull _aircraft || {!([player, _aircraft] call USAFDC_fnc_canUseCarp)}) exitWith {"):]
+        lost = src[src.index("if (isNull _aircraft || {!([player, _aircraft] call TLB_CARP_fnc_canUseCarp)}) exitWith {"):]
         lost = lost[:lost.index("};") + 2]
         self.assertIn("closeDisplay 2", lost)
 
@@ -393,7 +393,7 @@ class ProtocolModelTests(unittest.TestCase):
 
     Server.merge is fn_syncMerge, Client.edit is a panel handler followed by
     fn_syncPublish, Client.tick is fn_syncTick's adoption, Client.doorbell is the
-    USAFDC_carpRecordChanged handler, and Client.apply is fn_syncApply's bookkeeping.
+    TLB_CARP_carpRecordChanged handler, and Client.apply is fn_syncApply's bookkeeping.
     """
 
     DEFAULTS = ["", "", "TOUCHDOWN", "", False, 0, 0, 3000, 500, -1, False, 0, False, False]

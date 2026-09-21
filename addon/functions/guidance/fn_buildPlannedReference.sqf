@@ -13,7 +13,7 @@ private _reference = createHashMapFromArray [["valid", false]];
 for "_i" from 0 to 1 do {
     _input set ["actionAltitudeAslM", _terrainGuess + _targetAglM];
     _input set ["openingTerrainAslM", _terrainGuess];
-    _reference = [_input, _model, _dz] call USAFDC_fnc_solveWorldReference;
+    _reference = [_input, _model, _dz] call TLB_CARP_fnc_solveWorldReference;
     if (_reference getOrDefault ["valid", false]) then {
         _terrainGuess = getTerrainHeightASL (_reference get "rpPosASL");
     };

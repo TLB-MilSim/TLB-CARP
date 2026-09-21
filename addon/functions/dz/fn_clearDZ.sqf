@@ -1,22 +1,22 @@
-if !(isNil "USAFDC_fnc_disarmAutoDrop") then {[] call USAFDC_fnc_disarmAutoDrop};
-if !(isNil "USAFDC_fnc_disarmGuidance") then {[] call USAFDC_fnc_disarmGuidance};
+if !(isNil "TLB_CARP_fnc_disarmAutoDrop") then {[] call TLB_CARP_fnc_disarmAutoDrop};
+if !(isNil "TLB_CARP_fnc_disarmGuidance") then {[] call TLB_CARP_fnc_disarmGuidance};
 
-if (USAFDC_state_mapClickEh >= 0) then {
-    removeMissionEventHandler ["MapSingleClick", USAFDC_state_mapClickEh];
-    USAFDC_state_mapClickEh = -1;
+if (TLB_CARP_state_mapClickEh >= 0) then {
+    removeMissionEventHandler ["MapSingleClick", TLB_CARP_state_mapClickEh];
+    TLB_CARP_state_mapClickEh = -1;
 };
 
 {
     deleteMarkerLocal _x;
-} forEach ["USAFDC_LOCAL_DZ", "USAFDC_LOCAL_RP", "USAFDC_LOCAL_CHUTE", "USAFDC_LOCAL_TOUCH", "USAFDC_LOCAL_RUNIN", "USAFDC_LOCAL_INTERCEPT", "USAFDC_LOCAL_CAPTURE"];
+} forEach ["TLB_CARP_LOCAL_DZ", "TLB_CARP_LOCAL_RP", "TLB_CARP_LOCAL_CHUTE", "TLB_CARP_LOCAL_TOUCH", "TLB_CARP_LOCAL_RUNIN", "TLB_CARP_LOCAL_INTERCEPT", "TLB_CARP_LOCAL_CAPTURE"];
 
-USAFDC_state_dzPosASL = [];
-USAFDC_state_dzName = "";
-USAFDC_state_solution = createHashMap;
-USAFDC_state_pathSolution = createHashMap;
-if !(isNil "USAFDC_fnc_resetPackageTiming") then {[] call USAFDC_fnc_resetPackageTiming};
-USAFDC_state_dropLatched = false;
+TLB_CARP_state_dzPosASL = [];
+TLB_CARP_state_dzName = "";
+TLB_CARP_state_solution = createHashMap;
+TLB_CARP_state_pathSolution = createHashMap;
+if !(isNil "TLB_CARP_fnc_resetPackageTiming") then {[] call TLB_CARP_fnc_resetPackageTiming};
+TLB_CARP_state_dropLatched = false;
 // A missed pass belongs to the previous attempt, not this one.
-USAFDC_state_passMissed = false;
-USAFDC_state_lastSignedRpM = 1e9;
+TLB_CARP_state_passMissed = false;
+TLB_CARP_state_lastSignedRpM = 1e9;
 true

@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_releaseSelected
+    TLB_CARP_fnc_releaseSelected
 
     Release one load. CARP's own sequence, unless the mission asks for USAF's.
 
-    [_carrier, _cargo] call USAFDC_fnc_releaseSelected  ->  "usaf" | "carp" | ""
+    [_carrier, _cargo] call TLB_CARP_fnc_releaseSelected  ->  "usaf" | "carp" | ""
 
     v0.10.0 FLIPPED THE DEFAULT. CARP NO LONGER DEPENDS ON THE USAF MOD TO DROP.
 
@@ -18,7 +18,7 @@
     sleep 0.5, the detach, the velocity inheritance, the canopy at 300 m AGL, the
     strobe and the smoke -- so USAF is optional rather than required.
 
-    USAFDC_setting_useUsafRelease restores the old path. It is kept, and it is kept
+    TLB_CARP_setting_useUsafRelease restores the old path. It is kept, and it is kept
     server-forced, for exactly one reason: it is the calibration reference. If a flown
     drop ever shows the two paths landing differently, that switch is how the
     difference gets measured rather than argued about.
@@ -51,11 +51,11 @@
 params ["_carrier", "_cargo", ["_dryRun", false]];
 if (isNull _carrier || {isNull _cargo}) exitWith {""};
 
-private _source = _cargo getVariable ["USAFDC_cargoSource", "attached"];
+private _source = _cargo getVariable ["TLB_CARP_cargoSource", "attached"];
 private _usafAboard = _carrier getVariable ["usaf_cargo", []];
 
 private _useUsaf =
-    (missionNamespace getVariable ["USAFDC_setting_useUsafRelease", false])
+    (missionNamespace getVariable ["TLB_CARP_setting_useUsafRelease", false])
     && {!(isNil "USAF_CARGO_fnc_canDrop")}
     && {_source isEqualTo "usaf"}
     && {(count (getArray (configFile >> "CfgVehicles" >> typeOf _carrier >> "USAF_Cargo_DropPos"))) >= 3}
@@ -78,7 +78,7 @@ if (_dryRun) exitWith {"carp"};
 // for everyone.
 // Read HERE, on the machine where a human chose it, and carried across. The far end
 // cannot look it up: see the note at the top of fn_releaseCargo.
-private _smoke = missionNamespace getVariable ["USAFDC_state_smokeEnabled", true];
+private _smoke = missionNamespace getVariable ["TLB_CARP_state_smokeEnabled", true];
 
 [_carrier, _cargo, _source, _smoke] spawn {
     params ["_carrier", "_cargo", "_source", "_smoke"];
@@ -99,6 +99,6 @@ private _smoke = missionNamespace getVariable ["USAFDC_state_smokeEnabled", true
     // CARP's path runs where the CARGO is local, which on a dedicated server is usually
     // the server rather than the pilot. One hop out, the same shape as USAF's own
     // remoteExec, rather than splitting steps across machines and paying two.
-    [_carrier, _cargo, _source, _smoke] remoteExec ["USAFDC_fnc_releaseCargo", _cargo];
+    [_carrier, _cargo, _source, _smoke] remoteExec ["TLB_CARP_fnc_releaseCargo", _cargo];
 };
 "carp"

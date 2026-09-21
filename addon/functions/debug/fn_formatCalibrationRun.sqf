@@ -7,7 +7,7 @@ private _releaseWindTelemetry = _run getOrDefault ["releaseWindTelemetry", creat
 private _chuteWindTelemetry = _run getOrDefault ["chuteWindTelemetry", createHashMap];
 private _nl = toString [13,10];
 private _lines = [
-    "USAFDC_CAL_V3",
+    "TLB_CARP_CAL_V3",
     format ["runId=%1", _run getOrDefault ["runId", -1]],
     format ["status=%1", _run getOrDefault ["status", "UNKNOWN"]],
     format ["failureReason=%1", _run getOrDefault ["failureReason", ""]],

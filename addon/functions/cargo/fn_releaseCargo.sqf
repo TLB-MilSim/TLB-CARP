@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_releaseCargo
+    TLB_CARP_fnc_releaseCargo
 
     CARP's own release: ballistic fall from the ramp, canopy below 300 m AGL.
 
-    [_carrier, _cargo, _source, _smoke] call USAFDC_fnc_releaseCargo
+    [_carrier, _cargo, _source, _smoke] call TLB_CARP_fnc_releaseCargo
 
     MUST RUN WHERE THE CARGO IS LOCAL. detach, setVelocity and attachTo are all
     local-effect commands, and on a dedicated server a load that was placed in Eden,
@@ -28,7 +28,7 @@
     IT IS THE DEFAULT AS OF v0.10.0. Through v0.9.1 a USAF airframe carrying USAF-loaded
     cargo went straight back to USAF's own canDrop, because that path is what the
     along-track calibration was measured against. That is now the fallback rather than
-    the rule -- USAFDC_setting_useUsafRelease -- so CARP drops without the USAF mod
+    the rule -- TLB_CARP_setting_useUsafRelease -- so CARP drops without the USAF mod
     present, and every behaviour the pilot sees on a drop is behaviour this project can
     fix.
 
@@ -52,7 +52,7 @@
     releaseDelayS = 0.5607 s was measured on USAF's path. Every step that consumes time
     is reproduced here in the same order with the same constants, so it SHOULD carry --
     but reproducing a sequence is not measuring it, and this project's rule is that a
-    calibration number is re-measured rather than inherited. USAFDC_releaseSimTime is
+    calibration number is re-measured rather than inherited. TLB_CARP_releaseSimTime is
     stamped in mission time below and the flown record carries commandToReleaseS, so one
     drop settles it. If the two paths differ, the difference belongs in model.json as its
     own field, never folded into releaseDelayS.
@@ -71,7 +71,7 @@
 
 // _smoke is PASSED IN, never read from state here. This function runs where the CARGO
 // is local, which on a dedicated server is the server -- a machine that has never had
-// the panel open and whose USAFDC_state_smokeEnabled is therefore its power-on default,
+// the panel open and whose TLB_CARP_state_smokeEnabled is therefore its power-on default,
 // not the crew's choice. The commanding machine reads the crew's value and sends it.
 // This is the same mistake guided cargo made with CBA settings in v0.8.0.
 params ["_carrier", "_cargo", ["_source", ""], ["_smoke", true]];
@@ -80,14 +80,14 @@ if !(local _cargo) exitWith {
     diag_log format ["[TLB CARP][RELEASE] refused: cargo %1 is not local here", _cargo];
     false
 };
-if (_source isEqualTo "") then {_source = _cargo getVariable ["USAFDC_cargoSource", "attached"]};
+if (_source isEqualTo "") then {_source = _cargo getVariable ["TLB_CARP_cargoSource", "attached"]};
 
 // Spawned so the sleeps below are legal however this was invoked. remoteExec does not
 // guarantee a scheduled environment, and the whole sequence is built on timing.
 [_carrier, _cargo, _source, _smoke] spawn {
     params ["_carrier", "_cargo", "_source", "_smoke"];
 
-    _carrier setVariable ["USAFDC_releaseInProgress", true, true];
+    _carrier setVariable ["TLB_CARP_releaseInProgress", true, true];
 
     // Set by the "viv" branch below and swept after the attach. Declared here because a
     // switch case is its own scope and cannot hand a private back out of it.
@@ -184,7 +184,7 @@ if (_source isEqualTo "") then {_source = _cargo getVariable ["USAFDC_cargoSourc
             // carrier brings about a fraction of a second later -- and deletes on that
             // frame.
             //
-            // PER FRAME, not a scheduled poll. Same lesson as USAFDC_fnc_canopyWatch: a
+            // PER FRAME, not a scheduled poll. Same lesson as TLB_CARP_fnc_canopyWatch: a
             // spawned loop shares three milliseconds of frame time with every other
             // script, so "check often" means "check whenever the scheduler reaches me".
             // Here that is the difference between a canopy nobody sees and one everybody
@@ -193,7 +193,7 @@ if (_source isEqualTo "") then {_source = _cargo getVariable ["USAFDC_cargoSourc
                 params ["_args", "_pfh"];
                 _args params ["_cargo", "_before", "_deadline"];
                 // Stop when OUR canopy is open. Deleting that one would drop the load.
-                if (isNull _cargo || {time > _deadline} || {!(_cargo getVariable ["USAFDC_canopyPending", true])}) exitWith {
+                if (isNull _cargo || {time > _deadline} || {!(_cargo getVariable ["TLB_CARP_canopyPending", true])}) exitWith {
                     [_pfh] call CBA_fnc_removePerFrameHandler;
                 };
                 private _parent = attachedTo _cargo;
@@ -210,7 +210,7 @@ if (_source isEqualTo "") then {_source = _cargo getVariable ["USAFDC_cargoSourc
 
     // ---- the release itself, step for step as USAF does it ---------------------
     _cargo disableCollisionWith _carrier;
-    private _offset = [_carrier, _cargo] call USAFDC_fnc_releaseModelOffset;
+    private _offset = [_carrier, _cargo] call TLB_CARP_fnc_releaseModelOffset;
     _cargo attachTo [_carrier, [_offset # 0, _offset # 1, _offset # 2]];
 
     sleep 0.5;
@@ -248,9 +248,9 @@ if (_source isEqualTo "") then {_source = _cargo getVariable ["USAFDC_cargoSourc
             getText (configFile >> "CfgVehicles" >> typeOf _cargo >> "displayName")];
     };
 
-    _cargo setVariable ["USAFDC_releaseSimTime", time, true];
-    _cargo setVariable ["USAFDC_releasePath", "carp", true];
-    _carrier setVariable ["USAFDC_releaseInProgress", false, true];
+    _cargo setVariable ["TLB_CARP_releaseSimTime", time, true];
+    _cargo setVariable ["TLB_CARP_releasePath", "carp", true];
+    _carrier setVariable ["TLB_CARP_releaseInProgress", false, true];
     diag_log format [
         "[TLB CARP][RELEASE] carp path sim=%1 cargo=%2 source=%3 offset=%4 (%5) carrierVel=%6",
         time, typeOf _cargo, _source, [_offset # 0, _offset # 1, _offset # 2], _offset # 3, velocity _carrier
@@ -258,7 +258,7 @@ if (_source isEqualTo "") then {_source = _cargo getVariable ["USAFDC_cargoSourc
 
     // ---- canopy -----------------------------------------------------------------
     //
-    // Handed to USAFDC_fnc_canopyWatch, which tests the altitude on the FRAME LOOP and
+    // Handed to TLB_CARP_fnc_canopyWatch, which tests the altitude on the FRAME LOOP and
     // creates the chute inline on the frame it crosses. It used to be a waitUntil right
     // here, and that is a scheduled poll: with a stick of three it slipped far enough
     // below 300 m that one load could not decelerate in time and was destroyed on
@@ -267,7 +267,7 @@ if (_source isEqualTo "") then {_source = _cargo getVariable ["USAFDC_cargoSourc
     // The 0.5 s is USAF's and is kept -- it is part of the sequence releaseDelayS was
     // measured against, even though the trigger below it no longer is.
     sleep 0.5;
-    [_cargo, _carrier, _smoke] call USAFDC_fnc_canopyWatch;
+    [_cargo, _carrier, _smoke] call TLB_CARP_fnc_canopyWatch;
 };
 
 true

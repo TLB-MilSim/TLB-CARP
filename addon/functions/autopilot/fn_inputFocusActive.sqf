@@ -12,7 +12,7 @@
 private _mapOpen = visibleMap;
 private _carpOpen = !(isNull (findDisplay 9300));
 private _zeusOpen = !(isNull (findDisplay 312));
-private _aceOpen = missionNamespace getVariable ["USAFDC_state_apAceInteractOpen", false];
+private _aceOpen = missionNamespace getVariable ["TLB_CARP_state_apAceInteractOpen", false];
 private _lookAroundHeld = (inputAction "lookAround") > 0.1;
 
 // "lookAroundToggle" reports a momentary key pulse, not the freelook state.
@@ -20,12 +20,12 @@ private _lookAroundHeld = (inputAction "lookAround") > 0.1;
 // mouse still drives the view, so mouse motion looked like pilot input and
 // disconnected the AP. Latch the toggle here on the key's rising edge.
 private _togglePulse = (inputAction "lookAroundToggle") > 0.1;
-private _prevPulse = missionNamespace getVariable ["USAFDC_state_apLookAroundTogglePrev", false];
+private _prevPulse = missionNamespace getVariable ["TLB_CARP_state_apLookAroundTogglePrev", false];
 if (_togglePulse && {!_prevPulse}) then {
-    USAFDC_state_apFreelookToggled = !(missionNamespace getVariable ["USAFDC_state_apFreelookToggled", false]);
+    TLB_CARP_state_apFreelookToggled = !(missionNamespace getVariable ["TLB_CARP_state_apFreelookToggled", false]);
 };
-USAFDC_state_apLookAroundTogglePrev = _togglePulse;
-private _freelookToggled = missionNamespace getVariable ["USAFDC_state_apFreelookToggled", false];
+TLB_CARP_state_apLookAroundTogglePrev = _togglePulse;
+private _freelookToggled = missionNamespace getVariable ["TLB_CARP_state_apFreelookToggled", false];
 
 _mapOpen
 || {_carpOpen}

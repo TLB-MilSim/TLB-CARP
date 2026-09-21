@@ -89,12 +89,22 @@ def main() -> int:
     ap.add_argument("--source-dir", type=Path, required=True)
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--version", default="0.1.9.1")
+    ap.add_argument("--prefix", default=None,
+                    help="Override the PBO header prefix inherited from the base PBO. "
+                         "Needed when the addon path itself changes, as it did when "
+                         "x/usafdc/addons/drop_computer became x/tlbcarp/addons/"
+                         "drop_computer. Must match the paths in CfgFunctions and in "
+                         "the fn_postInit compile table.")
     ap.add_argument("--exclude", action="append", default=[])
     ap.add_argument("--include", action="append", default=[])
     args = ap.parse_args()
 
     props, entries = parse_pbo_header(args.base_pbo)
     props = [(k, args.version if k == "version" else v) for k, v in props]
+    if args.prefix is not None:
+        if not any(k == "prefix" for k, _ in props):
+            raise ValueError("base PBO has no prefix property to override")
+        props = [(k, args.prefix if k == "prefix" else v) for k, v in props]
     excludes = {x.replace("/", "\\").lower() for x in args.exclude}
 
     selected = []

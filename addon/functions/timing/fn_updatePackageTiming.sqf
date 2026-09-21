@@ -36,12 +36,12 @@ private _empty = {
     ]
 };
 
-private _state = missionNamespace getVariable ["USAFDC_state_packageTimingState", "IDLE"];
+private _state = missionNamespace getVariable ["TLB_CARP_state_packageTimingState", "IDLE"];
 private _solutionValid = _solution getOrDefault ["valid", false];
 // The manifest, not usaf_cargo. Release is detected by an object leaving this list, so
 // reading only USAF's array meant an ACE or vehicle-in-vehicle load left the aircraft
 // without the tracker ever noticing -- no RELEASED transition, and a frozen TOT.
-private _currentCargo = if (isNull _vehicle) then {[]} else {[_vehicle] call USAFDC_fnc_getLoadedCargo};
+private _currentCargo = if (isNull _vehicle) then {[]} else {[_vehicle] call TLB_CARP_fnc_getLoadedCargo};
 
 // ---- guided cargo: one steer job per load that leaves, however it leaves ------------
 //
@@ -53,31 +53,31 @@ private _currentCargo = if (isNull _vehicle) then {[]} else {[_vehicle] call USA
 //
 // The carrier identity check is what stops "the player changed aircraft" being read as
 // "four loads just departed" -- the same trap the RELEASED latch guards against below.
-if (!(isNil "USAFDC_fnc_steerBegin")) then {
-    private _steerCarrier = missionNamespace getVariable ["USAFDC_state_steerSeenCarrier", objNull];
+if (!(isNil "TLB_CARP_fnc_steerBegin")) then {
+    private _steerCarrier = missionNamespace getVariable ["TLB_CARP_state_steerSeenCarrier", objNull];
     if (!isNull _vehicle && {_vehicle isEqualTo _steerCarrier}) then {
-        private _departed = (missionNamespace getVariable ["USAFDC_state_steerSeenCargo", []]) select {!(_x in _currentCargo)};
-        if ((count _departed) > 0 && {[_vehicle] call USAFDC_fnc_steerPublisher}) then {
-            {[_vehicle, _x] call USAFDC_fnc_steerBegin} forEach _departed;
+        private _departed = (missionNamespace getVariable ["TLB_CARP_state_steerSeenCargo", []]) select {!(_x in _currentCargo)};
+        if ((count _departed) > 0 && {[_vehicle] call TLB_CARP_fnc_steerPublisher}) then {
+            {[_vehicle, _x] call TLB_CARP_fnc_steerBegin} forEach _departed;
         };
     };
-    USAFDC_state_steerSeenCarrier = _vehicle;
-    USAFDC_state_steerSeenCargo = +_currentCargo;
+    TLB_CARP_state_steerSeenCarrier = _vehicle;
+    TLB_CARP_state_steerSeenCargo = +_currentCargo;
 };
 
 if (_state in ["IDLE", "ARRIVED", "LOST"] && {_solutionValid} && {(count _currentCargo) > 0} && {(_solution getOrDefault ["signedRpM", -1]) > 0}) then {
     if (_state in ["ARRIVED", "LOST"]) then {
-        [] call USAFDC_fnc_resetPackageTiming;
+        [] call TLB_CARP_fnc_resetPackageTiming;
     };
-    USAFDC_state_packageTimingState = "ESTIMATE";
-    USAFDC_state_packageCargoSnapshot = +_currentCargo;
-    USAFDC_state_packageCarrier = _vehicle;
+    TLB_CARP_state_packageTimingState = "ESTIMATE";
+    TLB_CARP_state_packageCargoSnapshot = +_currentCargo;
+    TLB_CARP_state_packageCarrier = _vehicle;
     _state = "ESTIMATE";
 };
 
 if (_state isEqualTo "IDLE") exitWith {
     private _result = ["IDLE"] call _empty;
-    USAFDC_state_packageTiming = _result;
+    TLB_CARP_state_packageTiming = _result;
     _result
 };
 
@@ -87,13 +87,13 @@ if (_state isEqualTo "ESTIMATE") then {
     // on the same tick the cargo leaves; gating this on validity left the state
     // machine stuck in ESTIMATE, so RELEASED/CHUTE/ARRIVED never happened and
     // the visible TOT froze on the final package.
-    private _previousCargo = +(missionNamespace getVariable ["USAFDC_state_packageCargoSnapshot", []]);
+    private _previousCargo = +(missionNamespace getVariable ["TLB_CARP_state_packageCargoSnapshot", []]);
     private _removed = _previousCargo select {!(_x in _currentCargo)};
     // Solver validity used to gate this block, which also implicitly rejected
     // "cargo vanished because the player left the aircraft (or changed seats to
     // another vehicle)". With the gate gone, the carrier identity check is what
     // keeps that from latching a release that never happened.
-    private _snapshotCarrier = missionNamespace getVariable ["USAFDC_state_packageCarrier", objNull];
+    private _snapshotCarrier = missionNamespace getVariable ["TLB_CARP_state_packageCarrier", objNull];
     private _sameCarrier = !isNull _vehicle && {_vehicle isEqualTo _snapshotCarrier};
     if ((count _removed) > 0 && {_sameCarrier}) then {
         private _primaryCargo = _removed # 0;
@@ -107,55 +107,55 @@ if (_state isEqualTo "ESTIMATE") then {
             _predictedCanopyTimeS = _relative getOrDefault ["predictedCanopyTimeS", 0];
         };
         if (_chuteAttachTimeS <= 0) then {
-            _chuteAttachTimeS = missionNamespace getVariable ["USAFDC_state_packageEstimatedChuteAttachTimeS", 0];
+            _chuteAttachTimeS = missionNamespace getVariable ["TLB_CARP_state_packageEstimatedChuteAttachTimeS", 0];
         };
         if (_predictedCanopyTimeS <= 0) then {
-            _predictedCanopyTimeS = missionNamespace getVariable ["USAFDC_state_packageEstimatedCanopyTimeS", 0];
+            _predictedCanopyTimeS = missionNamespace getVariable ["TLB_CARP_state_packageEstimatedCanopyTimeS", 0];
         };
-        USAFDC_state_packagePrimaryCargo = _primaryCargo;
-        USAFDC_state_packageReleaseSimTime = time;
-        USAFDC_state_packageReleaseClockSeconds = (daytime * 3600) mod 86400;
-        USAFDC_state_packagePredictedCanopyTimeS = _predictedCanopyTimeS;
-        USAFDC_state_packagePredictedChuteSimTime = time + _chuteAttachTimeS;
-        USAFDC_state_packagePredictedTouchdownSimTime = USAFDC_state_packagePredictedChuteSimTime + _predictedCanopyTimeS;
-        USAFDC_state_packagePredictedTouchdownClockSeconds = ((daytime * 3600) + (USAFDC_state_packagePredictedTouchdownSimTime - time)) mod 86400;
-        USAFDC_state_packageActualChuteSimTime = -1;
-        USAFDC_state_packageActualTouchdownSimTime = -1;
-        USAFDC_state_packageActualTouchdownClockSeconds = -1;
-        USAFDC_state_packageAirborneConfirmed = false;
-        USAFDC_state_packageGroundCandidateSince = -1;
-        USAFDC_state_packageTimingState = "RELEASED";
+        TLB_CARP_state_packagePrimaryCargo = _primaryCargo;
+        TLB_CARP_state_packageReleaseSimTime = time;
+        TLB_CARP_state_packageReleaseClockSeconds = (daytime * 3600) mod 86400;
+        TLB_CARP_state_packagePredictedCanopyTimeS = _predictedCanopyTimeS;
+        TLB_CARP_state_packagePredictedChuteSimTime = time + _chuteAttachTimeS;
+        TLB_CARP_state_packagePredictedTouchdownSimTime = TLB_CARP_state_packagePredictedChuteSimTime + _predictedCanopyTimeS;
+        TLB_CARP_state_packagePredictedTouchdownClockSeconds = ((daytime * 3600) + (TLB_CARP_state_packagePredictedTouchdownSimTime - time)) mod 86400;
+        TLB_CARP_state_packageActualChuteSimTime = -1;
+        TLB_CARP_state_packageActualTouchdownSimTime = -1;
+        TLB_CARP_state_packageActualTouchdownClockSeconds = -1;
+        TLB_CARP_state_packageAirborneConfirmed = false;
+        TLB_CARP_state_packageGroundCandidateSince = -1;
+        TLB_CARP_state_packageTimingState = "RELEASED";
         _state = "RELEASED";
-        diag_log format ["[TLB CARP][TOT] release tracked cargo=%1 chuteT=%2 touchdownT=%3", typeOf _primaryCargo, USAFDC_state_packagePredictedChuteSimTime, USAFDC_state_packagePredictedTouchdownSimTime];
+        diag_log format ["[TLB CARP][TOT] release tracked cargo=%1 chuteT=%2 touchdownT=%3", typeOf _primaryCargo, TLB_CARP_state_packagePredictedChuteSimTime, TLB_CARP_state_packagePredictedTouchdownSimTime];
 
     } else {
         if (!_solutionValid) exitWith {
             private _result = ["ESTIMATE"] call _empty;
-            USAFDC_state_packageTiming = _result;
+            TLB_CARP_state_packageTiming = _result;
             _result
         };
-        USAFDC_state_packageCargoSnapshot = +_currentCargo;
-        USAFDC_state_packageCarrier = _vehicle;
+        TLB_CARP_state_packageCargoSnapshot = +_currentCargo;
+        TLB_CARP_state_packageCarrier = _vehicle;
         // Cache the predictions so a release detected on an invalid tick can
         // still latch real chute/touchdown times.
         private _relativeNow = _solution getOrDefault ["relative", createHashMap];
-        USAFDC_state_packageEstimatedChuteAttachTimeS = _relativeNow getOrDefault ["chuteAttachTimeS", 0];
-        USAFDC_state_packageEstimatedCanopyTimeS = _relativeNow getOrDefault ["predictedCanopyTimeS", 0];
-        private _estimate = [_vehicle, _solution] call USAFDC_fnc_estimatePackageTiming;
+        TLB_CARP_state_packageEstimatedChuteAttachTimeS = _relativeNow getOrDefault ["chuteAttachTimeS", 0];
+        TLB_CARP_state_packageEstimatedCanopyTimeS = _relativeNow getOrDefault ["predictedCanopyTimeS", 0];
+        private _estimate = [_vehicle, _solution] call TLB_CARP_fnc_estimatePackageTiming;
         _estimate set ["packageState", "ESTIMATE"];
-        USAFDC_state_packageTiming = _estimate;
+        TLB_CARP_state_packageTiming = _estimate;
         _estimate
     };
 };
 
 if (_state in ["RELEASED", "CHUTE"]) then {
-    private _primaryCargo = missionNamespace getVariable ["USAFDC_state_packagePrimaryCargo", objNull];
+    private _primaryCargo = missionNamespace getVariable ["TLB_CARP_state_packagePrimaryCargo", objNull];
     if (isNull _primaryCargo) then {
-        USAFDC_state_packageTimingState = "LOST";
+        TLB_CARP_state_packageTimingState = "LOST";
         _state = "LOST";
     } else {
         private _aglM = (getPosATL _primaryCargo) # 2;
-        if (_aglM >= 10) then {USAFDC_state_packageAirborneConfirmed = true};
+        if (_aglM >= 10) then {TLB_CARP_state_packageAirborneConfirmed = true};
 
         if (_state isEqualTo "RELEASED") then {
             private _attached = attachedTo _primaryCargo;
@@ -173,31 +173,31 @@ if (_state in ["RELEASED", "CHUTE"]) then {
             // altitude that creates canopies -- suspect the instrument. The margin is
             // generous because the trigger is tested per frame at about 230 m/s, so the
             // real event can legitimately land a few metres high, never hundreds.
-            private _chuteCeilingM = (missionNamespace getVariable ["USAFDC_setting_canopyTriggerAglM", 300]) + 100;
+            private _chuteCeilingM = (missionNamespace getVariable ["TLB_CARP_setting_canopyTriggerAglM", 300]) + 100;
             if (!isNull _attached && {_attached isKindOf "ParachuteBase"} && {_aglM <= _chuteCeilingM}) then {
-                USAFDC_state_packageActualChuteSimTime = time;
-                USAFDC_state_packagePredictedTouchdownSimTime = time + USAFDC_state_packagePredictedCanopyTimeS;
-                USAFDC_state_packagePredictedTouchdownClockSeconds = ((daytime * 3600) + USAFDC_state_packagePredictedCanopyTimeS) mod 86400;
-                USAFDC_state_packageTimingState = "CHUTE";
+                TLB_CARP_state_packageActualChuteSimTime = time;
+                TLB_CARP_state_packagePredictedTouchdownSimTime = time + TLB_CARP_state_packagePredictedCanopyTimeS;
+                TLB_CARP_state_packagePredictedTouchdownClockSeconds = ((daytime * 3600) + TLB_CARP_state_packagePredictedCanopyTimeS) mod 86400;
+                TLB_CARP_state_packageTimingState = "CHUTE";
                 _state = "CHUTE";
-                diag_log format ["[TLB CARP][TOT] chute tracked cargo=%1 touchdownT=%2", typeOf _primaryCargo, USAFDC_state_packagePredictedTouchdownSimTime];
+                diag_log format ["[TLB CARP][TOT] chute tracked cargo=%1 touchdownT=%2", typeOf _primaryCargo, TLB_CARP_state_packagePredictedTouchdownSimTime];
             };
         };
 
-        private _groundCandidate = USAFDC_state_packageAirborneConfirmed && {isTouchingGround _primaryCargo} && {_aglM <= 2};
+        private _groundCandidate = TLB_CARP_state_packageAirborneConfirmed && {isTouchingGround _primaryCargo} && {_aglM <= 2};
         if (_groundCandidate) then {
-            if (USAFDC_state_packageGroundCandidateSince < 0) then {
-                USAFDC_state_packageGroundCandidateSince = time;
+            if (TLB_CARP_state_packageGroundCandidateSince < 0) then {
+                TLB_CARP_state_packageGroundCandidateSince = time;
             };
-            if ((time - USAFDC_state_packageGroundCandidateSince) >= 0.5) then {
-                USAFDC_state_packageActualTouchdownSimTime = time;
-                USAFDC_state_packageActualTouchdownClockSeconds = (daytime * 3600) mod 86400;
-                USAFDC_state_packageTimingState = "ARRIVED";
+            if ((time - TLB_CARP_state_packageGroundCandidateSince) >= 0.5) then {
+                TLB_CARP_state_packageActualTouchdownSimTime = time;
+                TLB_CARP_state_packageActualTouchdownClockSeconds = (daytime * 3600) mod 86400;
+                TLB_CARP_state_packageTimingState = "ARRIVED";
                 _state = "ARRIVED";
-                diag_log format ["[TLB CARP][TOT] arrived cargo=%1 clock=%2", typeOf _primaryCargo, USAFDC_state_packageActualTouchdownClockSeconds];
+                diag_log format ["[TLB CARP][TOT] arrived cargo=%1 clock=%2", typeOf _primaryCargo, TLB_CARP_state_packageActualTouchdownClockSeconds];
             };
         } else {
-            USAFDC_state_packageGroundCandidateSince = -1;
+            TLB_CARP_state_packageGroundCandidateSince = -1;
         };
     };
 };
@@ -205,28 +205,28 @@ if (_state in ["RELEASED", "CHUTE"]) then {
 private _result = ["IDLE"] call _empty;
 switch (_state) do {
     case "RELEASED": {
-        private _predictedChuteSimTime = missionNamespace getVariable ["USAFDC_state_packagePredictedChuteSimTime", -1];
-        private _predictedTouchdownSimTime = missionNamespace getVariable ["USAFDC_state_packagePredictedTouchdownSimTime", -1];
+        private _predictedChuteSimTime = missionNamespace getVariable ["TLB_CARP_state_packagePredictedChuteSimTime", -1];
+        private _predictedTouchdownSimTime = missionNamespace getVariable ["TLB_CARP_state_packagePredictedTouchdownSimTime", -1];
         private _chuteRemaining = (_predictedChuteSimTime - time) max 0;
         private _touchdownRemaining = (_predictedTouchdownSimTime - time) max 0;
         _result = createHashMapFromArray [
             ["dropEtaS", 0], ["chuteEtaS", _chuteRemaining], ["touchdownEtaS", _touchdownRemaining],
-            ["dropClockText", [USAFDC_state_packageReleaseClockSeconds] call _fmtClockSeconds],
+            ["dropClockText", [TLB_CARP_state_packageReleaseClockSeconds] call _fmtClockSeconds],
             ["chuteClockText", [((daytime * 3600) + _chuteRemaining) mod 86400] call _fmtClockSeconds],
-            ["totClockText", [USAFDC_state_packagePredictedTouchdownClockSeconds] call _fmtClockSeconds],
+            ["totClockText", [TLB_CARP_state_packagePredictedTouchdownClockSeconds] call _fmtClockSeconds],
             ["dropTMinusText", "RELEASED"], ["chuteTMinusText", [_chuteRemaining] call _fmtDuration],
             ["totTMinusText", [_touchdownRemaining] call _fmtDuration],
             ["timingState", "TRACKING"], ["packageState", "RELEASED"]
         ];
     };
     case "CHUTE": {
-        private _predictedTouchdownSimTime = missionNamespace getVariable ["USAFDC_state_packagePredictedTouchdownSimTime", -1];
+        private _predictedTouchdownSimTime = missionNamespace getVariable ["TLB_CARP_state_packagePredictedTouchdownSimTime", -1];
         private _touchdownRemaining = (_predictedTouchdownSimTime - time) max 0;
         _result = createHashMapFromArray [
             ["dropEtaS", 0], ["chuteEtaS", 0], ["touchdownEtaS", _touchdownRemaining],
-            ["dropClockText", [USAFDC_state_packageReleaseClockSeconds] call _fmtClockSeconds],
-            ["chuteClockText", [((daytime * 3600) - (time - USAFDC_state_packageActualChuteSimTime)) mod 86400] call _fmtClockSeconds],
-            ["totClockText", [USAFDC_state_packagePredictedTouchdownClockSeconds] call _fmtClockSeconds],
+            ["dropClockText", [TLB_CARP_state_packageReleaseClockSeconds] call _fmtClockSeconds],
+            ["chuteClockText", [((daytime * 3600) - (time - TLB_CARP_state_packageActualChuteSimTime)) mod 86400] call _fmtClockSeconds],
+            ["totClockText", [TLB_CARP_state_packagePredictedTouchdownClockSeconds] call _fmtClockSeconds],
             ["dropTMinusText", "RELEASED"], ["chuteTMinusText", "CHUTE"],
             ["totTMinusText", [_touchdownRemaining] call _fmtDuration],
             ["timingState", "TRACKING"], ["packageState", "CHUTE"]
@@ -235,9 +235,9 @@ switch (_state) do {
     case "ARRIVED": {
         _result = createHashMapFromArray [
             ["dropEtaS", 0], ["chuteEtaS", 0], ["touchdownEtaS", 0],
-            ["dropClockText", [USAFDC_state_packageReleaseClockSeconds] call _fmtClockSeconds],
+            ["dropClockText", [TLB_CARP_state_packageReleaseClockSeconds] call _fmtClockSeconds],
             ["chuteClockText", "DONE"],
-            ["totClockText", [USAFDC_state_packageActualTouchdownClockSeconds] call _fmtClockSeconds],
+            ["totClockText", [TLB_CARP_state_packageActualTouchdownClockSeconds] call _fmtClockSeconds],
             ["dropTMinusText", "RELEASED"], ["chuteTMinusText", "CHUTE"], ["totTMinusText", "ARRIVED"],
             ["timingState", "ARRIVED"], ["packageState", "ARRIVED"]
         ];
@@ -248,13 +248,13 @@ switch (_state) do {
         _result set ["packageState", "LOST"];
     };
     case "ESTIMATE": {
-        _result = if (_solutionValid) then {[_vehicle, _solution] call USAFDC_fnc_estimatePackageTiming} else {["ESTIMATE"] call _empty};
+        _result = if (_solutionValid) then {[_vehicle, _solution] call TLB_CARP_fnc_estimatePackageTiming} else {["ESTIMATE"] call _empty};
         _result set ["packageState", "ESTIMATE"];
     };
 };
 
-USAFDC_state_packageTimingState = _state;
-USAFDC_state_packageCargoSnapshot = +_currentCargo;
-USAFDC_state_packageCarrier = _vehicle;
-USAFDC_state_packageTiming = _result;
+TLB_CARP_state_packageTimingState = _state;
+TLB_CARP_state_packageCargoSnapshot = +_currentCargo;
+TLB_CARP_state_packageCarrier = _vehicle;
+TLB_CARP_state_packageTiming = _result;
 _result

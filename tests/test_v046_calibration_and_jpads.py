@@ -198,7 +198,7 @@ class JpadsGuidedCargoTests(unittest.TestCase):
     def test_only_runs_while_the_canopy_is_open(self):
         """Still gated on the canopy being open -- but on an OBSERVABLE FACT now.
 
-        v0.8.1 replaced `USAFDC_state_packageTimingState isEqualTo "CHUTE"` with the
+        v0.8.1 replaced `TLB_CARP_state_packageTimingState isEqualTo "CHUTE"` with the
         thing that global was standing in for: is the load hanging under a
         ParachuteBase. The global is written only by the guidance loop, on a client,
         with a panel open. A dedicated server has no such thing, and on a dedicated
@@ -219,7 +219,7 @@ class JpadsGuidedCargoTests(unittest.TestCase):
 
         The canopy usually belongs to the dedicated server, and setVelocity only works
         where the object is local -- so the server is the machine that must steer, and
-        it has no USAFDC_state_dzPosASL and reads every USAFDC_setting_jpads* as its
+        it has no TLB_CARP_state_dzPosASL and reads every TLB_CARP_setting_jpads* as its
         scope-0 default. Anything this function looked up for itself would be wrong
         there, silently. It is handed the DZ and all four parameters instead, and reads
         the settings only as defaults for callers that do have them.
@@ -227,17 +227,17 @@ class JpadsGuidedCargoTests(unittest.TestCase):
         text = code("addon/functions/jpads/fn_steerCargo.sqf")
         for name in ["_cargo", "_dz", "_glideMs", "_scatterM", "_releaseAglM", "_engageVzMs"]:
             self.assertIn(name, text)
-        self.assertNotIn("USAFDC_state_packagePrimaryCargo", text)
-        self.assertNotIn("USAFDC_state_dzPosASL", text)
-        self.assertNotIn("USAFDC_setting_jpadsEnabled", text)
+        self.assertNotIn("TLB_CARP_state_packagePrimaryCargo", text)
+        self.assertNotIn("TLB_CARP_state_dzPosASL", text)
+        self.assertNotIn("TLB_CARP_setting_jpadsEnabled", text)
 
     def test_the_bench_entry_point_is_unchanged(self):
-        """fn_parallelDropBench calls `[_x, _sdz] call USAFDC_fnc_steerCargo` per frame
+        """fn_parallelDropBench calls `[_x, _sdz] call TLB_CARP_fnc_steerCargo` per frame
         for many loads, and gates on its own flag rather than the CBA setting."""
         text = read("addon/functions/jpads/fn_steerCargo.sqf")
         self.assertIn('["_cargo", objNull, [objNull]]', text)
         self.assertIn('["_dz", [], [[]]]', text)
-        self.assertIn("[_x, _sdz] call USAFDC_fnc_steerCargo",
+        self.assertIn("[_x, _sdz] call TLB_CARP_fnc_steerCargo",
                       read("addon/functions/debug/fn_parallelDropBench.sqf"))
 
     def test_aim_offset_is_stored_per_load_and_broadcast(self):
@@ -249,8 +249,8 @@ class JpadsGuidedCargoTests(unittest.TestCase):
         load flew perfectly.
         """
         text = read("addon/functions/jpads/fn_steerCargo.sqf")
-        self.assertIn('_cargo getVariable ["USAFDC_jpadsTargetOffset", []]', text)
-        self.assertIn('_cargo setVariable ["USAFDC_jpadsTargetOffset", _offset, true]', text)
+        self.assertIn('_cargo getVariable ["TLB_CARP_jpadsTargetOffset", []]', text)
+        self.assertIn('_cargo setVariable ["TLB_CARP_jpadsTargetOffset", _offset, true]', text)
 
     def test_the_control_law_writes_no_hud_state_at_all(self):
         """A bench run steering one of many loads must not drive the pilot's HUD -- and
@@ -262,9 +262,9 @@ class JpadsGuidedCargoTests(unittest.TestCase):
         """
         text = code("addon/functions/jpads/fn_steerCargo.sqf")
         for global_name in [
-            "USAFDC_state_jpadsActive", "USAFDC_state_jpadsPhase", "USAFDC_state_jpadsErrorM",
-            "USAFDC_state_jpadsClosingMs", "USAFDC_state_jpadsGroundMs",
-            "USAFDC_state_jpadsTimeRemainingS",
+            "TLB_CARP_state_jpadsActive", "TLB_CARP_state_jpadsPhase", "TLB_CARP_state_jpadsErrorM",
+            "TLB_CARP_state_jpadsClosingMs", "TLB_CARP_state_jpadsGroundMs",
+            "TLB_CARP_state_jpadsTimeRemainingS",
         ]:
             self.assertNotIn(global_name, text)
         tick = code("addon/functions/jpads/fn_steerTick.sqf")
@@ -278,7 +278,7 @@ class JpadsGuidedCargoTests(unittest.TestCase):
 
     def test_aim_scatter_keeps_loads_off_dead_centre(self):
         text = read("addon/functions/jpads/fn_steerCargo.sqf")
-        self.assertIn("USAFDC_jpadsTargetOffset", text)
+        self.assertIn("TLB_CARP_jpadsTargetOffset", text)
         self.assertIn("_scatterM", text)
         self.assertIn("random", text)
         # Carried in the job so the steering machine uses the PILOT's value.
@@ -300,10 +300,10 @@ class JpadsGuidedCargoTests(unittest.TestCase):
         a per-client switch let the two seats disagree about whether the load they are
         both dropping is guided."""
         post_init = read("addon/functions/fn_postInit.sqf")
-        self.assertIn("USAFDC_state_jpadsEnabled = false;", post_init,
+        self.assertIn("TLB_CARP_state_jpadsEnabled = false;", post_init,
                       "guided cargo must default to off")
-        self.assertNotIn("USAFDC_setting_jpadsEnabled", post_init)
-        self.assertIn("USAFDC_fnc_steerCargo", post_init)
+        self.assertNotIn("TLB_CARP_setting_jpadsEnabled", post_init)
+        self.assertIn("TLB_CARP_fnc_steerCargo", post_init)
         self.assertIn("jpads\\fn_steerCargo.sqf", post_init)
 
     def test_steering_runs_per_frame_not_on_the_guidance_tick(self):
@@ -312,16 +312,16 @@ class JpadsGuidedCargoTests(unittest.TestCase):
         between calls. Measured: 8.0 m/s commanded, 3.28 m/s achieved."""
         post_init = read("addon/functions/fn_postInit.sqf")
         self.assertIn('addMissionEventHandler ["EachFrame"', post_init)
-        self.assertIn("USAFDC_state_jpadsEh", post_init)
+        self.assertIn("TLB_CARP_state_jpadsEh", post_init)
         guidance = read("addon/functions/guidance/fn_updateGuidance.sqf")
-        self.assertEqual(guidance.count("call USAFDC_fnc_steerCargo"), 0,
+        self.assertEqual(guidance.count("call TLB_CARP_fnc_steerCargo"), 0,
                          "the per-frame handler owns steering; guidance must not double-apply")
 
     def test_solver_authority_is_untouched(self):
         """Guided cargo is additive: it must not write solver or path state."""
         text = read("addon/functions/jpads/fn_steerCargo.sqf")
-        for forbidden in ("USAFDC_state_solution", "USAFDC_state_displaySolution",
-                          "USAFDC_state_pathSolution", "releaseStable"):
+        for forbidden in ("TLB_CARP_state_solution", "TLB_CARP_state_displaySolution",
+                          "TLB_CARP_state_pathSolution", "releaseStable"):
             self.assertNotIn(forbidden, text)
 
 
@@ -352,7 +352,7 @@ class JpadsInflationGateTests(unittest.TestCase):
         self.assertIn('"STEERING"', law)
         self.assertIn('["phase", "STEERING"]', law)
         self.assertIn('_result get "phase"', read("addon/functions/jpads/fn_steerTick.sqf"))
-        self.assertIn("USAFDC_state_jpadsPhase = _phase;", read("addon/functions/jpads/fn_steerTick.sqf"))
+        self.assertIn("TLB_CARP_state_jpadsPhase = _phase;", read("addon/functions/jpads/fn_steerTick.sqf"))
 
     def test_engage_gate_defaults_above_terminal_descent(self):
         post_init = read("addon/functions/fn_postInit.sqf")
@@ -385,8 +385,8 @@ class JpadsParafoilLawTests(unittest.TestCase):
         self.assertIn('["closingMs", _airM]', law)
         self.assertIn('["groundMs"', law)
         tick = read("addon/functions/jpads/fn_steerTick.sqf")
-        self.assertIn("USAFDC_state_jpadsGroundMs", tick)
-        self.assertIn("USAFDC_state_jpadsClosingMs", tick)
+        self.assertIn("TLB_CARP_state_jpadsGroundMs", tick)
+        self.assertIn("TLB_CARP_state_jpadsClosingMs", tick)
 
     def test_steers_almost_to_the_ground(self):
         """A 15 m release left ~19 m of unguided drift in a 5.5 m/s wind. The
@@ -583,7 +583,7 @@ class HudCuePlacementTests(unittest.TestCase):
     def test_dz_prefix_is_not_duplicated(self):
         """A DZ named "MAP DZ" rendered as "DZ MAP DZ"."""
         text = read("addon/functions/ui/fn_updateHud.sqf")
-        self.assertIn('if ("DZ" in (toUpper USAFDC_state_dzName splitString " "))', text)
+        self.assertIn('if ("DZ" in (toUpper TLB_CARP_state_dzName splitString " "))', text)
 
     def test_flight_director_glyphs_share_one_size(self):
         """The caret and the post must have identical line boxes or the apex of ^ does

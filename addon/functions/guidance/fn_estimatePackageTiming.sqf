@@ -8,7 +8,7 @@ private _invalid = createHashMapFromArray [
 ];
 if (isNull _vehicle || {!(_solution getOrDefault ["valid", false])}) exitWith {_invalid};
 
-private _model = [] call USAFDC_fnc_getModel;
+private _model = [] call TLB_CARP_fnc_getModel;
 private _profileId = _solution getOrDefault ["profileId", ""];
 private _profile = (_model get "aircraft") getOrDefault [_profileId, createHashMap];
 if ((count _profile) isEqualTo 0) exitWith {_invalid};
@@ -19,8 +19,8 @@ private _predictedCanopyTimeS = _relative getOrDefault ["predictedCanopyTimeS", 
 
 private _airState = _solution getOrDefault ["aircraftState", createHashMap];
 private _actualGs = _airState getOrDefault ["groundSpeedMs", 0];
-private _targetGs = (USAFDC_state_targetGroundSpeedKmh max 100) / 3.6;
-private _speedMs = if (missionNamespace getVariable ["USAFDC_state_apArmed", false]) then {_targetGs} else {_actualGs max 1};
+private _targetGs = (TLB_CARP_state_targetGroundSpeedKmh max 100) / 3.6;
+private _speedMs = if (missionNamespace getVariable ["TLB_CARP_state_apArmed", false]) then {_targetGs} else {_actualGs max 1};
 private _signedRpM = _solution getOrDefault ["signedRpM", -1];
 
 private _distance2d = {
@@ -31,7 +31,7 @@ private _distance2d = {
 };
 
 private _dropEtaS = 0;
-private _usePathEta = (missionNamespace getVariable ["USAFDC_state_apArmed", false]) && {_solution getOrDefault ["pathValid", false]} && {(_solution getOrDefault ["routeEtaS", -1]) >= 0};
+private _usePathEta = (missionNamespace getVariable ["TLB_CARP_state_apArmed", false]) && {_solution getOrDefault ["pathValid", false]} && {(_solution getOrDefault ["routeEtaS", -1]) >= 0};
 if (_signedRpM > 0) then {
     if (_usePathEta) then {
         _dropEtaS = _solution getOrDefault ["routeEtaS", 0];
@@ -82,7 +82,7 @@ private _fmtClock = {
     format ["%1:%2:%3", [_hours] call _two, [_minutes] call _two, [_secs] call _two]
 };
 
-private _timingState = if (missionNamespace getVariable ["USAFDC_state_apArmed", false]) then {
+private _timingState = if (missionNamespace getVariable ["TLB_CARP_state_apArmed", false]) then {
     if ((_signedRpM <= 800) && {_solution getOrDefault ["releaseStable", false]}) then {"AP STABLE"} else {"AP CONTROLLED"}
 } else {
     "EST"

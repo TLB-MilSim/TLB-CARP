@@ -20,8 +20,8 @@
 //   wait for either. It reports in a couple of seconds per run.
 //
 // Usage:
-//   [5] spawn USAFDC_fnc_stickTimingProbe;                       // 5 loads, defaults
-//   [5, 3000, 500, "rhsusf_mrzr4_d", 3] spawn USAFDC_fnc_stickTimingProbe;  // 3 reps
+//   [5] spawn TLB_CARP_fnc_stickTimingProbe;                       // 5 loads, defaults
+//   [5, 3000, 500, "rhsusf_mrzr4_d", 3] spawn TLB_CARP_fnc_stickTimingProbe;  // 3 reps
 
 params [
     ["_cargoCount", 5, [0]],
@@ -34,27 +34,27 @@ params [
 
 if (isMultiplayer) exitWith {hint "STICK PROBE\nEden / Single Player only"; false};
 if (_cargoCount < 2) exitWith {hint "STICK PROBE\nNeed at least 2 loads to measure an interval"; false};
-if (isNil "USAFDC_fnc_sequenceCargo") exitWith {hint "STICK PROBE\nsequenceCargo not available"; false};
+if (isNil "TLB_CARP_fnc_sequenceCargo") exitWith {hint "STICK PROBE\nsequenceCargo not available"; false};
 
 // Carrier class from the profile, so the interval can be confirmed per airframe.
 // It should be airframe-independent -- the cost is USAF's hardcoded `sleep 0.5` in
 // fn_dropCargo.sqf, the same code for every aircraft -- but that is a prediction, and
 // the point of this probe is that predictions about timing get measured.
-private _carrierProfile = (([] call USAFDC_fnc_getModel) getOrDefault ["aircraft", createHashMap]) getOrDefault [_aircraftId, createHashMap];
+private _carrierProfile = (([] call TLB_CARP_fnc_getModel) getOrDefault ["aircraft", createHashMap]) getOrDefault [_aircraftId, createHashMap];
 private _carrierClass = ((_carrierProfile getOrDefault ["classNames", []]) param [0, ""]);
 if (_carrierClass isEqualTo "") exitWith {hint format ["STICK PROBE: unknown aircraft profile %1", _aircraftId]; false};
 if !(isClass (configFile >> "CfgVehicles" >> _carrierClass)) exitWith {hint format ["STICK PROBE: missing class %1", _carrierClass]; false};
-if (missionNamespace getVariable ["USAFDC_state_stickProbeActive", false]) exitWith {
+if (missionNamespace getVariable ["TLB_CARP_state_stickProbeActive", false]) exitWith {
     hint "STICK PROBE\nAlready running"; false
 };
 
-USAFDC_state_stickProbeActive = true;
+TLB_CARP_state_stickProbeActive = true;
 private _probeId = round (time * 10);
 private _groundSpeedMs = _groundSpeedKmh / 3.6;
 
 diag_log format ["[STICKPROBE] probe=%1 aircraft=%8 class=%9 loads=%2 agl=%3 gs=%4 cargo=%5 repeats=%6 modelInterval=%7",
     _probeId, _cargoCount, _aglM, _groundSpeedKmh, _cargoClass, _repeats,
-    ((([player] call USAFDC_fnc_getModel) getOrDefault ["multiCargo", createHashMap]) getOrDefault ["sequenceIntervalS", 0.53]),
+    ((([player] call TLB_CARP_fnc_getModel) getOrDefault ["multiCargo", createHashMap]) getOrDefault ["sequenceIntervalS", 0.53]),
     _aircraftId, _carrierClass
 ];
 
@@ -124,10 +124,10 @@ for "_rep" from 0 to _repeats do {
     // Per-frame pin plus per-frame release stamping. The stamp MUST be per frame:
     // a scheduled poll at 0.05 s would quantise a ~0.6 s interval by up to 8%, which
     // is the same order as the discrepancy being measured.
-    USAFDC_state_stickProbePin = [_carrier, _cargos, getPosASL _carrier, time, _velocity, _forward];
-    USAFDC_state_stickProbeStamps = [];
-    USAFDC_state_stickProbeEh = addMissionEventHandler ["EachFrame", {
-        private _pin = missionNamespace getVariable ["USAFDC_state_stickProbePin", []];
+    TLB_CARP_state_stickProbePin = [_carrier, _cargos, getPosASL _carrier, time, _velocity, _forward];
+    TLB_CARP_state_stickProbeStamps = [];
+    TLB_CARP_state_stickProbeEh = addMissionEventHandler ["EachFrame", {
+        private _pin = missionNamespace getVariable ["TLB_CARP_state_stickProbePin", []];
         if ((count _pin) < 6) exitWith {};
         _pin params ["_pinCarrier", "_pinCargos", "_origin", "_t0", "_vel", "_fwd"];
         if (isNull _pinCarrier) exitWith {};
@@ -141,15 +141,15 @@ for "_rep" from 0 to _repeats do {
         _pinCarrier setVelocity _vel;
         private _aboard = _pinCarrier getVariable ["usaf_cargo", []];
         {
-            if (!(_x in _aboard) && {isNil {_x getVariable "USAFDC_stickReleaseTime"}}) then {
-                _x setVariable ["USAFDC_stickReleaseTime", time, false];
-                USAFDC_state_stickProbeStamps pushBack [_x, time];
+            if (!(_x in _aboard) && {isNil {_x getVariable "TLB_CARP_stickReleaseTime"}}) then {
+                _x setVariable ["TLB_CARP_stickReleaseTime", time, false];
+                TLB_CARP_state_stickProbeStamps pushBack [_x, time];
             };
         } forEach _pinCargos;
     }];
 
     private _cmdTime = time;
-    [_carrier, _cargoCount] spawn USAFDC_fnc_sequenceCargo;
+    [_carrier, _cargoCount] spawn TLB_CARP_fnc_sequenceCargo;
 
     // Generous: each load costs at least USAF's hardcoded 0.5 s.
     private _deadline = diag_tickTime + 10 + (_cargoCount * 3);
@@ -158,10 +158,10 @@ for "_rep" from 0 to _repeats do {
         ((count (_carrier getVariable ["usaf_cargo", []])) <= 0) || {diag_tickTime >= _deadline} || {isNull _carrier}
     };
 
-    private _stamps = +(missionNamespace getVariable ["USAFDC_state_stickProbeStamps", []]);
-    removeMissionEventHandler ["EachFrame", USAFDC_state_stickProbeEh];
-    USAFDC_state_stickProbeEh = -1;
-    USAFDC_state_stickProbePin = [];
+    private _stamps = +(missionNamespace getVariable ["TLB_CARP_state_stickProbeStamps", []]);
+    removeMissionEventHandler ["EachFrame", TLB_CARP_state_stickProbeEh];
+    TLB_CARP_state_stickProbeEh = -1;
+    TLB_CARP_state_stickProbePin = [];
 
     private _times = _stamps apply {_x # 1};
     _times sort true;
@@ -197,7 +197,7 @@ if ((count _allIntervals) > 0) then {
     private _var = 0;
     {_var = _var + ((_x - _mean) ^ 2)} forEach _allIntervals;
     private _sd = if ((count _allIntervals) > 1) then {sqrt (_var / ((count _allIntervals) - 1))} else {0};
-    private _model = (([player] call USAFDC_fnc_getModel) getOrDefault ["multiCargo", createHashMap]) getOrDefault ["sequenceIntervalS", 0.53];
+    private _model = (([player] call TLB_CARP_fnc_getModel) getOrDefault ["multiCargo", createHashMap]) getOrDefault ["sequenceIntervalS", 0.53];
     diag_log format ["[STICKPROBE] probe=%1 SUMMARY n=%2 meanIntervalS=%3 sdS=%4 modelIntervalS=%5 errorS=%6 stickErrorM_per_gap=%7",
         _probeId, count _allIntervals, _mean toFixed 4, _sd toFixed 4, _model,
         (_mean - _model) toFixed 4, ((_mean - _model) * _groundSpeedMs) toFixed 1];
@@ -207,5 +207,5 @@ if ((count _allIntervals) > 0) then {
     hint "STICK PROBE\nNo intervals measured - check RPT";
 };
 
-USAFDC_state_stickProbeActive = false;
+TLB_CARP_state_stickProbeActive = false;
 true

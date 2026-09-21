@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_loadModelOffset
+    TLB_CARP_fnc_loadModelOffset
 
     Where inside a carrier the next load should sit.
 
-        [_carrier, _cargo] call USAFDC_fnc_loadModelOffset
+        [_carrier, _cargo] call TLB_CARP_fnc_loadModelOffset
             -> [x, y, z, source] in the carrier's model space, or [] if it will not fit
 
     THREE SOURCES, BEST FIRST: an explicit override, the airframe author's own hold
@@ -46,7 +46,7 @@
     WHY THE DERIVATION IS STILL ACCEPTABLE WHERE IT IS USED
 
     Nothing ballistic depends on this. The load rides attached until release, and the
-    RELEASE offset -- USAFDC_fnc_releaseModelOffset, which reproduces the C-17's
+    RELEASE offset -- TLB_CARP_fnc_releaseModelOffset, which reproduces the C-17's
     hand-placed value to within two centimetres -- is what the solver is calibrated
     against. This only has to put the vehicle somewhere that looks like the inside of the
     aircraft and rides with it.
@@ -58,8 +58,8 @@
     and the derivation is deliberately conservative -- it is better to refuse a load that
     would have fitted than to put a truck through a wing.
 
-    A mission that knows better sets USAFDC_loadPos on the carrier -- the same override
-    USAFDC_dropPos gives the release -- and everything below is skipped.
+    A mission that knows better sets TLB_CARP_loadPos on the carrier -- the same override
+    TLB_CARP_dropPos gives the release -- and everything below is skipped.
 
     LOADS STACK FROM THE FORWARD END, AND THE LAST ONE IN IS NEAREST THE RAMP
 
@@ -98,7 +98,7 @@ if (isNull _carrier || {isNull _cargo}) exitWith {[]};
 // always said it wants.
 //
 // Two airframes is a fit, not a law. Any airframe that cares should publish a hold or set
-// USAFDC_loadPos, and both are read in preference to this.
+// TLB_CARP_loadPos, and both are read in preference to this.
 #define HOLD_AFT 0.40
 #define HOLD_FORE 0.70
 // The floor scales with the airframe rather than sitting 0.2 m above the bottom of the
@@ -108,7 +108,7 @@ if (isNull _carrier || {isNull _cargo}) exitWith {[]};
 #define FLOOR_FRACTION 0.115
 #define GAP_M 1.0
 
-private _override = _carrier getVariable ["USAFDC_loadPos", []];
+private _override = _carrier getVariable ["TLB_CARP_loadPos", []];
 if ((count _override) >= 3) exitWith {[_override # 0, _override # 1, _override # 2, "override"]};
 
 (0 boundingBoxReal _carrier) params ["_cMin", "_cMax"];
@@ -118,7 +118,7 @@ private _cargoLen = (_gMax # 1) - (_gMin # 1);
 private _cargoWide = (_gMax # 0) - (_gMin # 0);
 private _cargoTall = (_gMax # 2) - (_gMin # 2);
 
-private _loaded = [_carrier] call USAFDC_fnc_getLoadedCargo;
+private _loaded = [_carrier] call TLB_CARP_fnc_getLoadedCargo;
 private _cfg = configFile >> "CfgVehicles" >> typeOf _carrier;
 
 // ---- 1. the airframe author's own hold ----------------------------------------------
@@ -171,8 +171,8 @@ if ((count _endOffset) >= 3) exitWith {
         // Flush with the forward end, then each load directly behind the last.
         private _y = (_endOffset # 1) - ((_gMax # 1) + _usedLen);
         // Recorded so the derived branch's cursor can see this load if the two ever mix.
-        _cargo setVariable ["USAFDC_loadSlotY", _y, false];
-        _cargo setVariable ["USAFDC_loadSlotEndY", _y + (_cargoLen / 2) + GAP_M, false];
+        _cargo setVariable ["TLB_CARP_loadSlotY", _y, false];
+        _cargo setVariable ["TLB_CARP_loadSlotEndY", _y + (_cargoLen / 2) + GAP_M, false];
         [_endOffset # 0, _y, (_endOffset # 2) - (_gMin # 2), "usafConfig"]
     }
 };
@@ -194,7 +194,7 @@ if (_cargoWide > _holdWide || {_cargoTall > _holdTall}) exitWith {[]};
 //
 // THE CURSOR USED TO SEE ONLY CARP'S OWN LOADS, AND THAT WAS HALF THE FLOWN BUG.
 //
-// It read USAFDC_loadSlotY, which nothing but this file ever sets. A hold filled by
+// It read TLB_CARP_loadSlotY, which nothing but this file ever sets. A hold filled by
 // USAF's action, by ACE or by a mission maker therefore looked EMPTY, so the next CARP
 // load was placed at the aft-most slot regardless of what was already sitting there.
 // Reported from the field as a vehicle ending up outside the tail of a C-130 -- two loads
@@ -206,8 +206,8 @@ if (_cargoWide > _holdWide || {_cargoTall > _holdTall}) exitWith {[]};
 private _cursor = _rearY;
 {
     if (!isNull _x && {!(_x isEqualTo _cargo)}) then {
-        private _slot = _x getVariable ["USAFDC_loadSlotY", -1e9];
-        private _end = _x getVariable ["USAFDC_loadSlotEndY", -1e9];
+        private _slot = _x getVariable ["TLB_CARP_loadSlotY", -1e9];
+        private _end = _x getVariable ["TLB_CARP_loadSlotEndY", -1e9];
         if (_slot <= -1e8) then {
             // Not ours. Measure it.
             private _m = _carrier worldToModel (getPosWorld _x);
@@ -230,8 +230,8 @@ private _cursor = _rearY;
 private _y = _cursor + (_cargoLen / 2);
 if ((_y + (_cargoLen / 2)) > _foreY) exitWith {[]};
 
-_cargo setVariable ["USAFDC_loadSlotY", _y, false];
-_cargo setVariable ["USAFDC_loadSlotEndY", _y + (_cargoLen / 2) + GAP_M, false];
+_cargo setVariable ["TLB_CARP_loadSlotY", _y, false];
+_cargo setVariable ["TLB_CARP_loadSlotEndY", _y + (_cargoLen / 2) + GAP_M, false];
 
 // The model origin is not the bottom of the model, so the load is lifted by however far
 // its own origin sits above its lowest point. Without this a tall vehicle is buried to

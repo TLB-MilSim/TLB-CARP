@@ -4,7 +4,7 @@ import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-HARNESS = Path(os.environ.get("USAFDC_HARNESS", ROOT / "addon/functions/debug/fn_debugDropTest.sqf"))
+HARNESS = Path(os.environ.get("TLB_CARP_HARNESS", ROOT / "addon/functions/debug/fn_debugDropTest.sqf"))
 
 
 class DebugHarnessCargoInitTests(unittest.TestCase):

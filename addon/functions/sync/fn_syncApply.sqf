@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_syncApply
+    TLB_CARP_fnc_syncApply
 
     Adopt an aircraft's crew record on this client.
 
-        [aircraft, record] call USAFDC_fnc_syncApply
+        [aircraft, record] call TLB_CARP_fnc_syncApply
 
     record: [rev, authorUid, authorName, authorVersion, payload], where payload is the
     fourteen intent fields from fn_syncSnapshot, in that order.
@@ -30,7 +30,7 @@
 
     The sequence number used to be written after fn_setDZ, the reconcile and the panel
     repaint. A script error in any of them left the record un-adopted, so the next tick
-    applied it again and failed again, forever -- and left USAFDC_state_syncApplying
+    applied it again and failed again, forever -- and left TLB_CARP_state_syncApplying
     raised, which silently stopped this client publishing anything at all. Marking first
     means a failing side effect costs that one apply, and fn_syncTick lowers the
     stranded guard on its next run.
@@ -54,71 +54,71 @@ _payload params [
     "_jumpPlannedStick", "_jumpOpenAglM", "_jpadsEnabled"
 ];
 
-USAFDC_state_syncApplying = true;
-USAFDC_state_syncAircraft = _aircraft;
-USAFDC_state_syncRev = _rev;
-USAFDC_state_syncUid = _uid;
-USAFDC_state_syncAuthor = _author;
-USAFDC_state_syncAdoptedAt = diag_tickTime;
+TLB_CARP_state_syncApplying = true;
+TLB_CARP_state_syncAircraft = _aircraft;
+TLB_CARP_state_syncRev = _rev;
+TLB_CARP_state_syncUid = _uid;
+TLB_CARP_state_syncAuthor = _author;
+TLB_CARP_state_syncAdoptedAt = diag_tickTime;
 
 // A crew member on a different build. Say so once per person and version: a mismatch
 // otherwise looks exactly like sync being broken.
-if !(_version isEqualTo USAFDC_VERSION) then {
+if !(_version isEqualTo TLB_CARP_VERSION) then {
     private _key = format ["%1|%2", _uid, _version];
-    if !(_key in USAFDC_state_syncVersionWarned) then {
-        USAFDC_state_syncVersionWarned pushBack _key;
-        systemChat format ["TLB CARP: %1 is running v%2 and you are running v%3. Crew sync needs everyone on the same version.", _author, _version, USAFDC_VERSION];
+    if !(_key in TLB_CARP_state_syncVersionWarned) then {
+        TLB_CARP_state_syncVersionWarned pushBack _key;
+        systemChat format ["TLB CARP: %1 is running v%2 and you are running v%3. Crew sync needs everyone on the same version.", _author, _version, TLB_CARP_VERSION];
     };
 };
 
 // Scalars first: everything below re-solves and must read the new values.
-USAFDC_state_mode = _mode;
-USAFDC_state_profileOverride = _profileOverride;
-USAFDC_state_manualWind = _manualWind;
-USAFDC_state_manualWindMs = _manualWindMs;
-USAFDC_state_manualWindFromDeg = _manualWindFromDeg;
-USAFDC_state_targetAglM = _targetAglM;
-USAFDC_state_targetGroundSpeedKmh = _targetGroundSpeedKmh;
-USAFDC_state_cargoCount = _cargoCount;
-USAFDC_state_smokeEnabled = _smokeEnabled;
-USAFDC_state_jumpPlannedStick = _jumpPlannedStick;
-USAFDC_state_jumpOpenAglM = _jumpOpenAglM;
-USAFDC_state_jpadsEnabled = _jpadsEnabled;
+TLB_CARP_state_mode = _mode;
+TLB_CARP_state_profileOverride = _profileOverride;
+TLB_CARP_state_manualWind = _manualWind;
+TLB_CARP_state_manualWindMs = _manualWindMs;
+TLB_CARP_state_manualWindFromDeg = _manualWindFromDeg;
+TLB_CARP_state_targetAglM = _targetAglM;
+TLB_CARP_state_targetGroundSpeedKmh = _targetGroundSpeedKmh;
+TLB_CARP_state_cargoCount = _cargoCount;
+TLB_CARP_state_smokeEnabled = _smokeEnabled;
+TLB_CARP_state_jumpPlannedStick = _jumpPlannedStick;
+TLB_CARP_state_jumpOpenAglM = _jumpOpenAglM;
+TLB_CARP_state_jpadsEnabled = _jpadsEnabled;
 
 if ((count _dz) >= 3) then {
-    if (!(_dz isEqualTo USAFDC_state_dzPosASL) || {!(_dzName isEqualTo USAFDC_state_dzName)}) then {
-        [_dz, _dzName] call USAFDC_fnc_setDZ;
+    if (!(_dz isEqualTo TLB_CARP_state_dzPosASL) || {!(_dzName isEqualTo TLB_CARP_state_dzName)}) then {
+        [_dz, _dzName] call TLB_CARP_fnc_setDZ;
     };
 } else {
-    if ((count USAFDC_state_dzPosASL) >= 3) then {[] call USAFDC_fnc_clearDZ};
+    if ((count TLB_CARP_state_dzPosASL) >= 3) then {[] call TLB_CARP_fnc_clearDZ};
 };
 
 if (_runInLocked) then {
-    if (!USAFDC_state_runInLocked || {!(_runInDeg isEqualTo USAFDC_state_runInDeg)}) then {
-        USAFDC_state_runInDeg = _runInDeg;
-        USAFDC_state_runInLocked = true;
-        USAFDC_state_dropLatched = false;
-        USAFDC_state_passMissed = false;
-        USAFDC_state_pathSolution = createHashMap;
-        USAFDC_state_smoothedDesiredTrackDeg = nil;
+    if (!TLB_CARP_state_runInLocked || {!(_runInDeg isEqualTo TLB_CARP_state_runInDeg)}) then {
+        TLB_CARP_state_runInDeg = _runInDeg;
+        TLB_CARP_state_runInLocked = true;
+        TLB_CARP_state_dropLatched = false;
+        TLB_CARP_state_passMissed = false;
+        TLB_CARP_state_pathSolution = createHashMap;
+        TLB_CARP_state_smoothedDesiredTrackDeg = nil;
     };
 } else {
-    if (USAFDC_state_runInLocked) then {[] call USAFDC_fnc_unlockRunIn};
+    if (TLB_CARP_state_runInLocked) then {[] call TLB_CARP_fnc_unlockRunIn};
 };
 
-USAFDC_state_syncWantGuidance = _wantGuidance;
-USAFDC_state_syncWantAuto = _wantAuto;
+TLB_CARP_state_syncWantGuidance = _wantGuidance;
+TLB_CARP_state_syncWantAuto = _wantAuto;
 // What this client is now synced to. fn_syncPublish diffs against it to find the
 // fields a human changes here next.
-USAFDC_state_syncBase = [] call USAFDC_fnc_syncSnapshot;
+TLB_CARP_state_syncBase = [] call TLB_CARP_fnc_syncSnapshot;
 
 // Reconciling the armed flags is fn_syncReconcile's job, so a client that cannot arm
 // right now keeps trying instead of losing the crew's intent on one bad tick.
-[] call USAFDC_fnc_syncReconcile;
+[] call TLB_CARP_fnc_syncReconcile;
 
 // The panel paints its widgets once, when something happens on THIS client. Without
 // this a co-pilot watching the pilot move the DZ sees the old values until he clicks
-// something. Safe to re-enter: fn_refreshPanel raises USAFDC_state_panelRefreshing and
+// something. Safe to re-enter: fn_refreshPanel raises TLB_CARP_state_panelRefreshing and
 // every binarized control handler tests it before acting, so a repaint cannot re-fire
 // the handlers and echo back out.
 //
@@ -127,6 +127,6 @@ USAFDC_state_syncBase = [] call USAFDC_fnc_syncSnapshot;
 // cargo manifest. A co-pilot's replica lags the pilot's for a full round trip after a
 // load or a release, so a repaint landing in that window would reset cargoCount to ALL
 // and publish the reset back over the pilot's deliberate stick size.
-if !(isNull (findDisplay 9300)) then {[] call USAFDC_fnc_refreshPanel};
-USAFDC_state_syncApplying = false;
+if !(isNull (findDisplay 9300)) then {[] call TLB_CARP_fnc_refreshPanel};
+TLB_CARP_state_syncApplying = false;
 true

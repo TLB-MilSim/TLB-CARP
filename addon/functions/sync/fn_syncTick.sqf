@@ -1,5 +1,5 @@
 /*
-    USAFDC_fnc_syncTick
+    TLB_CARP_fnc_syncTick
 
     Keep this client on its aircraft's crew record, and reconciled with it.
 
@@ -27,8 +27,8 @@
 
     THE TWO GUARD FLAGS HEAL HERE
 
-    fn_syncApply raises USAFDC_state_syncApplying and fn_refreshPanel raises
-    USAFDC_state_panelRefreshing while they run. Both run unscheduled (fn_refreshPanel
+    fn_syncApply raises TLB_CARP_state_syncApplying and fn_refreshPanel raises
+    TLB_CARP_state_panelRefreshing while they run. Both run unscheduled (fn_refreshPanel
     re-dispatches itself when it is not), so neither can be half way through when this
     handler starts. A flag still raised here was stranded by a script error, and left
     alone it would stop this client publishing, or freeze every list on its panel, for
@@ -36,49 +36,49 @@
 */
 
 if (!hasInterface) exitWith {false};
-USAFDC_state_syncApplying = false;
-USAFDC_state_panelRefreshing = false;
+TLB_CARP_state_syncApplying = false;
+TLB_CARP_state_panelRefreshing = false;
 
 private _aircraft = objectParent player;
-if (isNull _aircraft || {!([player, _aircraft] call USAFDC_fnc_canUseCarp)}) exitWith {
+if (isNull _aircraft || {!([player, _aircraft] call TLB_CARP_fnc_canUseCarp)}) exitWith {
     // Out of the aircraft, or no CARP Computer: forget what was adopted, so boarding --
     // or picking the computer back up -- adopts that airframe's record afresh.
-    USAFDC_state_syncAircraft = objNull;
-    USAFDC_state_syncRev = -1;
-    USAFDC_state_syncUid = "";
-    USAFDC_state_syncBase = [];
+    TLB_CARP_state_syncAircraft = objNull;
+    TLB_CARP_state_syncRev = -1;
+    TLB_CARP_state_syncUid = "";
+    TLB_CARP_state_syncBase = [];
     private _display = findDisplay 9300;
     if (!isNull _display) then {_display closeDisplay 2};
     false
 };
 
-if !(_aircraft isEqualTo (missionNamespace getVariable ["USAFDC_state_syncAircraft", objNull])) then {
-    USAFDC_state_syncAircraft = _aircraft;
-    USAFDC_state_syncRev = -1;
-    USAFDC_state_syncUid = "";
-    USAFDC_state_syncBase = [];
+if !(_aircraft isEqualTo (missionNamespace getVariable ["TLB_CARP_state_syncAircraft", objNull])) then {
+    TLB_CARP_state_syncAircraft = _aircraft;
+    TLB_CARP_state_syncRev = -1;
+    TLB_CARP_state_syncUid = "";
+    TLB_CARP_state_syncBase = [];
 };
 
 // A crew member still on v0.7.0-v0.8.x writes the old record and cannot read this one.
 // From either seat that looks exactly like broken sync, so say who it is, once.
-private _legacy = _aircraft getVariable ["USAFDC_carpIntent", []];
-if ((count _legacy) >= 16 && {!((_legacy # 1) in USAFDC_state_syncLegacyWarned)}) then {
-    USAFDC_state_syncLegacyWarned pushBack (_legacy # 1);
-    systemChat format ["TLB CARP: %1 is running an older CARP. Crew sync needs everyone on v%2.", _legacy # 1, USAFDC_VERSION];
+private _legacy = _aircraft getVariable ["TLB_CARP_carpIntent", []];
+if ((count _legacy) >= 16 && {!((_legacy # 1) in TLB_CARP_state_syncLegacyWarned)}) then {
+    TLB_CARP_state_syncLegacyWarned pushBack (_legacy # 1);
+    systemChat format ["TLB CARP: %1 is running an older CARP. Crew sync needs everyone on v%2.", _legacy # 1, TLB_CARP_VERSION];
 };
 
-private _record = _aircraft getVariable ["USAFDC_carpRecord", []];
-if ((count _record) >= 5 && {!([_record # 0, _record # 1] isEqualTo [USAFDC_state_syncRev, USAFDC_state_syncUid])}) exitWith {
-    [_aircraft, _record] call USAFDC_fnc_syncApply
+private _record = _aircraft getVariable ["TLB_CARP_carpRecord", []];
+if ((count _record) >= 5 && {!([_record # 0, _record # 1] isEqualTo [TLB_CARP_state_syncRev, TLB_CARP_state_syncUid])}) exitWith {
+    [_aircraft, _record] call TLB_CARP_fnc_syncApply
 };
 
 // Nothing on this airframe yet: this client's own settings are its baseline, so its
 // first edit publishes what it changed rather than everything it holds.
-if ((count _record) < 5 && {(count USAFDC_state_syncBase) isEqualTo 0}) then {
-    USAFDC_state_syncBase = [] call USAFDC_fnc_syncSnapshot;
+if ((count _record) < 5 && {(count TLB_CARP_state_syncBase) isEqualTo 0}) then {
+    TLB_CARP_state_syncBase = [] call TLB_CARP_fnc_syncSnapshot;
 };
 
 // Nothing new arrived, but this client may still be behind on what it was already
 // told: guidance that could not arm a moment ago, for instance.
-[] call USAFDC_fnc_syncReconcile;
+[] call TLB_CARP_fnc_syncReconcile;
 true

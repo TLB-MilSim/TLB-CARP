@@ -13,7 +13,7 @@ PLAYER_FACING += sorted((ROOT / "docs" / "guides").glob("*.md"))
 class DocsMatchSourceTests(unittest.TestCase):
     def test_no_doc_describes_the_removed_degraded_tier(self):
         # The DEGRADED confidence tier, its five calibration warnings, the amber HUD block
-        # and USAFDC_setting_allowDegradedAuto were all removed in v0.14.0 --
+        # and TLB_CARP_setting_allowDegradedAuto were all removed in v0.14.0 --
         # fn_solveRelative says so in as many words. The player-facing docs kept telling
         # people an uncalibrated airframe "reports DEGRADED and says so on the HUD" for
         # several releases after it had stopped doing anything of the sort, which is the

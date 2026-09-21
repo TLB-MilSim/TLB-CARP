@@ -56,7 +56,7 @@ ALLOWED = {
 
 def dialog_block() -> str:
     cfg = read(CONFIG)
-    return cfg[cfg.index("class USAFDC_RscDialog"):cfg.index("class RscTitles")]
+    return cfg[cfg.index("class TLB_CARP_RscDialog"):cfg.index("class RscTitles")]
 
 
 class NoUnverifiedPropertyTests(unittest.TestCase):

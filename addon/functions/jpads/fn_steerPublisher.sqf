@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_steerPublisher
+    TLB_CARP_fnc_steerPublisher
 
     Is THIS machine the one that should publish steer jobs for this aircraft?
 
-    [_vehicle] call USAFDC_fnc_steerPublisher  ->  BOOL
+    [_vehicle] call TLB_CARP_fnc_steerPublisher  ->  BOOL
 
     Every crew member's package tracker sees the same load leave the aircraft within a
     frame or two of the others. If each published, one load would get several jobs

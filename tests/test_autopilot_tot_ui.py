@@ -32,17 +32,17 @@ def code(rel: str) -> str:
 class AutopilotSourceTests(unittest.TestCase):
     def test_postinit_loads_ap_functions_and_registers_override_threshold(self):
         text = read("addon/functions/fn_postInit.sqf")
-        self.assertIn("USAFDC_setting_apOverrideThreshold", text)
+        self.assertIn("TLB_CARP_setting_apOverrideThreshold", text)
         self.assertIn("[0.10, 0.60, 0.25, 2]", text)
         for name in ["armAutopilot", "disarmAutopilot", "updateAutopilot"]:
-            self.assertIn(f"USAFDC_fnc_{name}", text)
+            self.assertIn(f"TLB_CARP_fnc_{name}", text)
             self.assertIn(f"functions\\autopilot\\fn_{name}.sqf", text)
 
     def test_arm_ap_requires_pilot_guidance_locked_runin_and_fresh_rp(self):
         text = read("addon/functions/autopilot/fn_armAutopilot.sqf")
         self.assertIn("driver _vehicle", text)
-        self.assertIn("USAFDC_state_guidanceArmed", text)
-        self.assertIn("USAFDC_state_runInLocked", text)
+        self.assertIn("TLB_CARP_state_guidanceArmed", text)
+        self.assertIn("TLB_CARP_state_runInLocked", text)
         self.assertIn('getOrDefault ["valid", false]', text)
         self.assertIn('getOrDefault ["signedRpM", -1]', text)
         self.assertIn('inputAction "HeliThrottlePos"', text)
@@ -55,7 +55,7 @@ class AutopilotSourceTests(unittest.TestCase):
             "HeliThrottlePos",
         ]:
             self.assertIn(action, text)
-        self.assertIn("USAFDC_setting_apOverrideThreshold", text)
+        self.assertIn("TLB_CARP_setting_apOverrideThreshold", text)
         self.assertIn("0.12", text)
         self.assertIn("PILOT OVERRIDE", text)
         self.assertIn("setVelocity", text)
@@ -84,10 +84,10 @@ class AutopilotSourceTests(unittest.TestCase):
         post = read("addon/functions/fn_postInit.sqf")
         self.assertIn("findDisplay 9300", update)
         self.assertIn("findDisplay 312", update)
-        self.assertIn("USAFDC_state_apOverrideInhibitUntil", update)
+        self.assertIn("TLB_CARP_state_apOverrideInhibitUntil", update)
         self.assertIn("diag_tickTime + 0.5", update)
-        self.assertIn("USAFDC_state_apOverrideInhibitUntil", arm)
-        self.assertIn("USAFDC_state_apOverrideInhibitUntil", post)
+        self.assertIn("TLB_CARP_state_apOverrideInhibitUntil", arm)
+        self.assertIn("TLB_CARP_state_apOverrideInhibitUntil", post)
 
     def test_ap_horizontal_velocity_stays_aligned_with_commanded_heading(self):
         text = read("addon/functions/autopilot/fn_updateAutopilot.sqf")
@@ -102,9 +102,9 @@ class AutopilotSourceTests(unittest.TestCase):
         update = read("addon/functions/guidance/fn_updateGuidance.sqf")
         disarm = read("addon/functions/guidance/fn_disarmGuidance.sqf")
         unlock = read("addon/functions/guidance/fn_unlockRunIn.sqf")
-        self.assertIn("USAFDC_fnc_updateAutopilot", update)
-        self.assertIn("USAFDC_fnc_disarmAutopilot", disarm)
-        self.assertIn("USAFDC_fnc_disarmAutopilot", unlock)
+        self.assertIn("TLB_CARP_fnc_updateAutopilot", update)
+        self.assertIn("TLB_CARP_fnc_disarmAutopilot", disarm)
+        self.assertIn("TLB_CARP_fnc_disarmAutopilot", unlock)
 
 
 class ReleaseStabilityTests(unittest.TestCase):
@@ -144,7 +144,7 @@ class PackageTimingSourceTests(unittest.TestCase):
 
     def test_guidance_merges_timing_into_live_solution(self):
         text = read("addon/functions/guidance/fn_updateGuidance.sqf")
-        self.assertIn("USAFDC_fnc_estimatePackageTiming", text)
+        self.assertIn("TLB_CARP_fnc_estimatePackageTiming", text)
         self.assertIn("keys _timing", text)
 
 
@@ -155,9 +155,9 @@ class PanelDiagnosticsTests(unittest.TestCase):
         open_panel = read("addon/functions/ui/fn_openPanel.sqf")
         cfg = read("addon/config.cpp")
         self.assertIn("idc=9330;", cfg)
-        self.assertIn("USAFDC_fnc_armAutopilot", cfg)
-        self.assertIn("USAFDC_fnc_disarmAutopilot", cfg)
-        self.assertIn("USAFDC_fnc_ensurePanelEnhancements", open_panel)
+        self.assertIn("TLB_CARP_fnc_armAutopilot", cfg)
+        self.assertIn("TLB_CARP_fnc_disarmAutopilot", cfg)
+        self.assertIn("TLB_CARP_fnc_ensurePanelEnhancements", open_panel)
         # The AP button is what this test is really for, and it is untouched: created at
         # runtime, labelled from live state, enabled only when the AP could arm.
         self.assertIn("ctrlSetText format [\"AP: %1\"", telem)
@@ -166,17 +166,17 @@ class PanelDiagnosticsTests(unittest.TestCase):
         # AP STATE / PRE-CHUTE / PACKAGE TIMING / TOT lines were in it. TOT and the
         # package lifecycle are still on the HUD (test_hud_shows_ap_drift_and_timing
         # below); the rest was engineering detail and is gone from the aircraft.
-        for gone in ["AP STATE", "PRE-CHUTE", "PACKAGE TIMING", "USAFDC_setting_debug"]:
+        for gone in ["AP STATE", "PRE-CHUTE", "PACKAGE TIMING", "TLB_CARP_setting_debug"]:
             self.assertNotIn(gone, telem)
 
     def test_debug_master_is_not_toggled_by_panel(self):
         refresh = read("addon/functions/ui/fn_refreshPanel.sqf")
-        self.assertNotIn("USAFDC_setting_debug=!USAFDC_setting_debug", refresh)
-        self.assertIn("USAFDC_fnc_updatePanelTelemetry", refresh)
+        self.assertNotIn("TLB_CARP_setting_debug=!TLB_CARP_setting_debug", refresh)
+        self.assertIn("TLB_CARP_fnc_updatePanelTelemetry", refresh)
 
     def test_hud_shows_ap_drift_and_timing(self):
         hud = read("addon/functions/ui/fn_updateHud.sqf")
-        for marker in ["USAFDC_state_apState", "preChuteLateralDriftM", "totTMinusText", "totClockText"]:
+        for marker in ["TLB_CARP_state_apState", "preChuteLateralDriftM", "totTMinusText", "totClockText"]:
             self.assertIn(marker, hud)
 
 

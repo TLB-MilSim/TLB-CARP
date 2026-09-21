@@ -131,7 +131,7 @@ def verify_layout(rects):
 
 def parse_handlers(text: str) -> dict[str, dict[str, str]]:
     """Read the existing handler strings so they can be re-emitted verbatim."""
-    start = text.index("class USAFDC_RscDialog")
+    start = text.index("class TLB_CARP_RscDialog")
     end = text.index("class RscTitles")
     block = text[start:end]
     cur = None
@@ -166,7 +166,7 @@ def main() -> int:
     text = CONFIG.read_text(encoding="utf-8")
     H = parse_handlers(text)
 
-    required = ["USAFDC_RscDialog", "DZCombo", "MapDZ", "ClearDZ", "ModeCombo", "ProfileCombo",
+    required = ["TLB_CARP_RscDialog", "DZCombo", "MapDZ", "ClearDZ", "ModeCombo", "ProfileCombo",
                 "ManualWind", "ApplyWind", "ApplyProfile", "RunIn", "Guidance", "AutoDrop",
                 "CargoCombo", "Close"]
     missing = [c for c in required if c not in H]
@@ -319,7 +319,7 @@ def main() -> int:
     body.append(button("JumpRun", 9337, c.place("JumpRun", j_x, X0 + W - j_x, ROW_H, y), "ARM JUMP RUN",
                        colour=C_AMBER,
                        tooltip="Arm or disarm the HALO exit cue: computed exit point, audible countdown and the jumplight. Was an ACE interaction until v0.15.0.",
-                       handler="if (USAFDC_state_jumpArmed) then {['PILOT DISARM'] call USAFDC_fnc_disarmJumpRun} else {[] call USAFDC_fnc_armJumpRun}; [] call USAFDC_fnc_refreshPanel"))
+                       handler="if (TLB_CARP_state_jumpArmed) then {['PILOT DISARM'] call TLB_CARP_fnc_disarmJumpRun} else {[] call TLB_CARP_fnc_armJumpRun}; [] call TLB_CARP_fnc_refreshPanel"))
 
     # ---- CARGO ----------------------------------------------------------------------
     section("CARGO")
@@ -331,11 +331,11 @@ def main() -> int:
     jp_w = 0.093
     body.append(button("Jpads", 9336, c.place("Jpads", jp_x, jp_w, ROW_H, y), "JPADS: OFF",
                        tooltip="Steer the cargo canopy onto the drop zone after the chute opens. A stick is spread along the run-in rather than steered onto one point. Shared with the crew.",
-                       handler="USAFDC_state_jpadsEnabled=!(missionNamespace getVariable ['USAFDC_state_jpadsEnabled',false]); [] call USAFDC_fnc_refreshPanel"))
+                       handler="TLB_CARP_state_jpadsEnabled=!(missionNamespace getVariable ['TLB_CARP_state_jpadsEnabled',false]); [] call TLB_CARP_fnc_refreshPanel"))
     sm_x = jp_x + jp_w + PAD
     body.append(button("Smoke", 9331, c.place("Smoke", sm_x, X0 + W - sm_x, ROW_H, y), "SMOKE: ON",
                        tooltip="Mark the released load with a coloured smoke shell under canopy, re-lit as each burns out. Shared with the crew.",
-                       handler="USAFDC_state_smokeEnabled=!(missionNamespace getVariable ['USAFDC_state_smokeEnabled',true]); [] call USAFDC_fnc_refreshPanel"))
+                       handler="TLB_CARP_state_smokeEnabled=!(missionNamespace getVariable ['TLB_CARP_state_smokeEnabled',true]); [] call TLB_CARP_fnc_refreshPanel"))
 
     # ---- actions --------------------------------------------------------------------
     c.y += SEC_GAP_BEFORE
@@ -349,7 +349,7 @@ def main() -> int:
         ("RunIn", 9309, "RUN-IN", C_TEXT, H["RunIn"]["action"], "Lock the aircraft's current ground track as the required drop heading."),
         ("Guidance", 9310, "GUIDANCE", C_AMBER, H["Guidance"]["action"], "Start solving and drawing the release point."),
         ("Autopilot", 9330, "AP: OFF", C_TEXT,
-         "if (missionNamespace getVariable ['USAFDC_state_apArmed',false]) then {['USER',false] call USAFDC_fnc_disarmAutopilot} else {[] call USAFDC_fnc_armAutopilot}; [] call USAFDC_fnc_refreshPanel",
+         "if (missionNamespace getVariable ['TLB_CARP_state_apArmed',false]) then {['USER',false] call TLB_CARP_fnc_disarmAutopilot} else {[] call TLB_CARP_fnc_armAutopilot}; [] call TLB_CARP_fnc_refreshPanel",
          "Fly the locked run-in at the target altitude and speed. Driver only."),
         ("AutoDrop", 9311, "AUTO DROP: OFF", C_ARM_OFF, H["AutoDrop"]["action"], "Release automatically at the computed release point."),
     ]):
@@ -409,14 +409,14 @@ def main() -> int:
     bg += text_ctrl("Eyebrow", eyebrow_r, "TLB MISSION SYSTEMS", size=0.022, colour=C_MUTED)
     bg += "\t};\n"
 
-    block = "class USAFDC_RscDialog: RscDisplayEmpty\n{\n"
+    block = "class TLB_CARP_RscDialog: RscDisplayEmpty\n{\n"
     block += "\tidd=9300;\n\tmovingEnable=0;\n\tenableSimulation=1;\n"
-    block += f'\tonLoad="{H["USAFDC_RscDialog"]["onLoad"]}";\n'
-    block += f'\tonUnload="{H["USAFDC_RscDialog"]["onUnload"]}";\n'
+    block += f'\tonLoad="{H["TLB_CARP_RscDialog"]["onLoad"]}";\n'
+    block += f'\tonUnload="{H["TLB_CARP_RscDialog"]["onUnload"]}";\n'
     block += bg
     block += "\tclass controls\n\t{\n" + "".join(body) + "\t};\n};\n"
 
-    start = text.index("class USAFDC_RscDialog")
+    start = text.index("class TLB_CARP_RscDialog")
     end = text.index("class RscTitles")
     new = text[:start] + block + text[end:]
 

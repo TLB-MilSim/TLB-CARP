@@ -3,15 +3,15 @@
 // in-engine effect. Every HUD control position is set at runtime in
 // functions/ui/fn_updateHud.sqf via ctrlSetPosition -- change it there.
 class RscTitles {
-    class USAFDC_HUD {
+    class TLB_CARP_HUD {
         idd = -1;
         movingEnable = 0;
         enableSimulation = 1;
         fadeIn = 0;
         fadeOut = 0;
         duration = 1e10;
-        onLoad = "uiNamespace setVariable ['USAFDC_HUD_display', _this # 0]; uiNamespace setVariable ['USAFDC_HUD_STEER', (_this # 0) displayCtrl 9402];";
-        onUnload = "uiNamespace setVariable ['USAFDC_HUD_display', displayNull]; uiNamespace setVariable ['USAFDC_HUD_STEER', controlNull];";
+        onLoad = "uiNamespace setVariable ['TLB_CARP_HUD_display', _this # 0]; uiNamespace setVariable ['TLB_CARP_HUD_STEER', (_this # 0) displayCtrl 9402];";
+        onUnload = "uiNamespace setVariable ['TLB_CARP_HUD_display', displayNull]; uiNamespace setVariable ['TLB_CARP_HUD_STEER', controlNull];";
 
         class controls {
             class Guidance: RscStructuredText {

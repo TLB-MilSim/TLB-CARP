@@ -1,23 +1,23 @@
-if !(isNil "USAFDC_fnc_disarmAutopilot") then {["GUIDANCE DISARMED", false] call USAFDC_fnc_disarmAutopilot};
-if !(isNil "USAFDC_fnc_disarmAutoDrop") then {[] call USAFDC_fnc_disarmAutoDrop};
-if (USAFDC_state_pfh >= 0) then {
-    [USAFDC_state_pfh] call CBA_fnc_removePerFrameHandler;
-    USAFDC_state_pfh = -1;
+if !(isNil "TLB_CARP_fnc_disarmAutopilot") then {["GUIDANCE DISARMED", false] call TLB_CARP_fnc_disarmAutopilot};
+if !(isNil "TLB_CARP_fnc_disarmAutoDrop") then {[] call TLB_CARP_fnc_disarmAutoDrop};
+if (TLB_CARP_state_pfh >= 0) then {
+    [TLB_CARP_state_pfh] call CBA_fnc_removePerFrameHandler;
+    TLB_CARP_state_pfh = -1;
 };
-USAFDC_state_guidanceArmed = false;
-USAFDC_state_solution = createHashMap;
-USAFDC_state_pathSolution = createHashMap;
-if !(isNil "USAFDC_fnc_resetPackageTiming") then {[] call USAFDC_fnc_resetPackageTiming};
-USAFDC_state_lastSignedRpM = 1e9;
-USAFDC_state_dropLatched = false;
-USAFDC_state_standbyCueSent = false;
-USAFDC_state_smoothedDesiredTrackDeg = nil;
-USAFDC_state_guidanceLastTick = diag_tickTime;
-USAFDC_state_passMissed = false;
-USAFDC_state_displayRpM = nil;
-USAFDC_state_displayXtkM = nil;
-if !(isNil "USAFDC_state_hudLayer") then {USAFDC_state_hudLayer cutText ["", "PLAIN"]};
+TLB_CARP_state_guidanceArmed = false;
+TLB_CARP_state_solution = createHashMap;
+TLB_CARP_state_pathSolution = createHashMap;
+if !(isNil "TLB_CARP_fnc_resetPackageTiming") then {[] call TLB_CARP_fnc_resetPackageTiming};
+TLB_CARP_state_lastSignedRpM = 1e9;
+TLB_CARP_state_dropLatched = false;
+TLB_CARP_state_standbyCueSent = false;
+TLB_CARP_state_smoothedDesiredTrackDeg = nil;
+TLB_CARP_state_guidanceLastTick = diag_tickTime;
+TLB_CARP_state_passMissed = false;
+TLB_CARP_state_displayRpM = nil;
+TLB_CARP_state_displayXtkM = nil;
+if !(isNil "TLB_CARP_state_hudLayer") then {TLB_CARP_state_hudLayer cutText ["", "PLAIN"]};
 {
     deleteMarkerLocal _x;
-} forEach ["USAFDC_LOCAL_RP", "USAFDC_LOCAL_PLANNED_RP", "USAFDC_LOCAL_CHUTE", "USAFDC_LOCAL_TOUCH", "USAFDC_LOCAL_RUNIN", "USAFDC_LOCAL_INTERCEPT", "USAFDC_LOCAL_CAPTURE"];
+} forEach ["TLB_CARP_LOCAL_RP", "TLB_CARP_LOCAL_PLANNED_RP", "TLB_CARP_LOCAL_CHUTE", "TLB_CARP_LOCAL_TOUCH", "TLB_CARP_LOCAL_RUNIN", "TLB_CARP_LOCAL_INTERCEPT", "TLB_CARP_LOCAL_CAPTURE"];
 true

@@ -1,18 +1,18 @@
 """v0.11.1 -- guided cargo is a panel button, and NOTHING the crew sets is unshared.
 
-THE BUTTON. USAFDC_setting_jpadsEnabled was a per-client Addon Option. Two problems in
+THE BUTTON. TLB_CARP_setting_jpadsEnabled was a per-client Addon Option. Two problems in
 one: it is not reachable in flight, and being per-client it let the two seats disagree
 about whether the load they are both dropping is guided. fn_steerBegin reads it on the
 publishing machine, so whose copy won depended on which crew member fn_steerPublisher
 happened to elect -- a coin toss the crew could not see.
 
-It is now USAFDC_state_jpadsEnabled, a panel toggle and crew intent.
+It is now TLB_CARP_state_jpadsEnabled, a panel toggle and crew intent.
 
 THE AUDIT. Three releases in a row added a control to the panel, and each time the
 question "is it shared?" had to be answered by hand. This module answers it mechanically
 instead.
 
-The rule: every USAFDC_state_* a panel control writes is shared, unless it is named in
+The rule: every TLB_CARP_state_* a panel control writes is shared, unless it is named in
 DELIBERATELY_LOCAL with a reason. Three are -- the autopilot, which the driver alone owns
 because sharing it would have two machines commanding one aircraft's transform, and two
 that are not intent at all: a derived per-pass latch and a re-entrancy guard. Naming them
@@ -60,33 +60,33 @@ BENCH = "addon/functions/debug/fn_parallelDropBench.sqf"
 DELIBERATELY_LOCAL = {
     # Driver-only authority: two machines commanding one aircraft's transform is the one
     # thing crew sync must never do. See the developer guide, "Authority".
-    "USAFDC_state_apArmed",
+    "TLB_CARP_state_apArmed",
     # Derived, not intent. It records that THIS pass has already released, and every
     # intent change clears it locally anyway. Sharing it would let one client's completed
     # pass suppress another's release.
-    "USAFDC_state_dropLatched",
+    "TLB_CARP_state_dropLatched",
     # A re-entrancy guard, live for the duration of one paint. It exists to stop
     # fn_refreshPanel's own lbSetCurSel re-entering the handlers it just fired.
-    "USAFDC_state_panelRefreshing",
+    "TLB_CARP_state_panelRefreshing",
 }
 
 
 def snapshot_fields() -> set[str]:
-    return set(re.findall(r"USAFDC_state_\w+", code(SNAPSHOT)))
+    return set(re.findall(r"TLB_CARP_state_\w+", code(SNAPSHOT)))
 
 
 def panel_written_state() -> set[str]:
-    """Every USAFDC_state_* the panel's own controls set.
+    """Every TLB_CARP_state_* the panel's own controls set.
 
-    Both forms: a direct `USAFDC_state_x = ...` assignment, and the indirect
+    Both forms: a direct `TLB_CARP_state_x = ...` assignment, and the indirect
     `missionNamespace setVariable [_var, ...]` used by the toggle and field tables, whose
     variable names appear as string literals in those tables.
     """
     found = set()
     for rel in (ENHANCE, PANEL):
         src = code(rel)
-        found |= set(re.findall(r"(USAFDC_state_\w+)\s*=", src))
-        found |= set(re.findall(r'"(USAFDC_state_\w+)"', src))
+        found |= set(re.findall(r"(TLB_CARP_state_\w+)\s*=", src))
+        found |= set(re.findall(r'"(TLB_CARP_state_\w+)"', src))
     return found
 
 
@@ -95,24 +95,24 @@ class JpadsToggleTests(unittest.TestCase):
         """A per-client setting let the two seats disagree about whether the load they are
         both dropping is guided, and which copy won depended on which crew member
         fn_steerPublisher elected."""
-        self.assertNotIn("USAFDC_setting_jpadsEnabled", read(POSTINIT))
-        self.assertIn("USAFDC_state_jpadsEnabled = false;", read(POSTINIT))
+        self.assertNotIn("TLB_CARP_setting_jpadsEnabled", read(POSTINIT))
+        self.assertIn("TLB_CARP_state_jpadsEnabled = false;", read(POSTINIT))
 
     def test_the_steer_publisher_reads_the_crews_switch(self):
         src = code(BEGIN)
-        self.assertIn('missionNamespace getVariable ["USAFDC_state_jpadsEnabled", false]', src)
-        self.assertNotIn("USAFDC_setting_jpadsEnabled", src)
+        self.assertIn('missionNamespace getVariable ["TLB_CARP_state_jpadsEnabled", false]', src)
+        self.assertNotIn("TLB_CARP_setting_jpadsEnabled", src)
 
     def test_nothing_still_reads_the_removed_setting(self):
         """The bench flipped it around a run and would have silently stopped enabling
         guided cargo for every batch."""
         for rel in (BENCH, BEGIN, ENHANCE, TELEM, PANEL):
-            self.assertNotIn("USAFDC_setting_jpadsEnabled", code(rel), rel)
+            self.assertNotIn("TLB_CARP_setting_jpadsEnabled", code(rel), rel)
 
     def test_the_bench_still_restores_what_it_found(self):
         src = code(BENCH)
-        self.assertIn('private _jpadsBefore = missionNamespace getVariable ["USAFDC_state_jpadsEnabled", false]', src)
-        self.assertIn("USAFDC_state_jpadsEnabled = _jpadsBefore;", src)
+        self.assertIn('private _jpadsBefore = missionNamespace getVariable ["TLB_CARP_state_jpadsEnabled", false]', src)
+        self.assertIn("TLB_CARP_state_jpadsEnabled = _jpadsBefore;", src)
 
     def test_the_button_exists_and_is_labelled_from_the_same_state(self):
         """v0.15.0 moved the panel into addon/config.cpp, generated from a layout
@@ -121,14 +121,14 @@ class JpadsToggleTests(unittest.TestCase):
         write if any two control rectangles overlap -- the check v0.11.0 did not have when
         it put four controls on top of the CARGO row and shipped it."""
         self.assertIn("idc=9336;", read("addon/config.cpp"))
-        self.assertIn('[9336, "JPADS", "USAFDC_state_jpadsEnabled", false]', code(TELEM))
+        self.assertIn('[9336, "JPADS", "TLB_CARP_state_jpadsEnabled", false]', code(TELEM))
 
     def test_guided_cargo_still_defaults_off(self):
         """A long-standing invariant: nothing steers unless somebody asked for it."""
-        self.assertIn("USAFDC_state_jpadsEnabled = false;", read(POSTINIT))
+        self.assertIn("TLB_CARP_state_jpadsEnabled = false;", read(POSTINIT))
         # The button's own fallback matters as much as the state's: the config action
         # reads the variable with false as its default, so a fresh session toggles ON.
-        self.assertIn("'USAFDC_state_jpadsEnabled',false", read("addon/config.cpp"))
+        self.assertIn("'TLB_CARP_state_jpadsEnabled',false", read("addon/config.cpp"))
 
     def test_every_toggle_publishes(self):
         """WAS: both toggles share one runtime handler, so neither can forget to publish.
@@ -143,13 +143,13 @@ class JpadsToggleTests(unittest.TestCase):
         and the property has to be checked per control: every toggle must end by calling
         fn_refreshPanel, which is what publishes to the crew."""
         cfg = read("addon/config.cpp")
-        for idc, var in [("9331", "USAFDC_state_smokeEnabled"), ("9336", "USAFDC_state_jpadsEnabled")]:
+        for idc, var in [("9331", "TLB_CARP_state_smokeEnabled"), ("9336", "TLB_CARP_state_jpadsEnabled")]:
             block = cfg[cfg.index("idc=" + idc + ";"):]
             # NOT the first "};" -- a colour array ends "1};" and would cut the block
             # short of the action. The class terminator is the one at control indent.
             block = block[:block.index(chr(10) + chr(9) + chr(9) + "};")]
             self.assertIn(var, block, idc)
-            self.assertIn("USAFDC_fnc_refreshPanel", block, idc)
+            self.assertIn("TLB_CARP_fnc_refreshPanel", block, idc)
 
 
 class SyncCoverageTests(unittest.TestCase):
@@ -162,8 +162,8 @@ class SyncCoverageTests(unittest.TestCase):
     def test_the_autopilot_is_excluded_on_purpose(self):
         """Driver-only authority, and the one exclusion that is real intent rather than
         derived state. Named so it stays a decision rather than a thing somebody forgot."""
-        self.assertIn("USAFDC_state_apArmed", DELIBERATELY_LOCAL)
-        self.assertNotIn("USAFDC_state_apArmed", snapshot_fields())
+        self.assertIn("TLB_CARP_state_apArmed", DELIBERATELY_LOCAL)
+        self.assertNotIn("TLB_CARP_state_apArmed", snapshot_fields())
 
     def test_nothing_is_excluded_without_a_reason_beside_it(self):
         """A bare name added to the set is how a genuinely unshared control gets waved
@@ -226,7 +226,7 @@ class SyncCoverageTests(unittest.TestCase):
         one publish point. Publishing last meant any error in the painting swallowed the
         crew's change."""
         src = code(PANEL)
-        publish = src.index("USAFDC_fnc_syncPublish")
+        publish = src.index("TLB_CARP_fnc_syncPublish")
         first_paint = src.index("ctrlSetText")
         self.assertLess(publish, first_paint, "fn_refreshPanel must publish before painting")
 

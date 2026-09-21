@@ -71,11 +71,11 @@ class ColourTests(unittest.TestCase):
 
     def test_the_colour_reads_this_machines_flag_not_crew_intent(self):
         """Same rule the label already carried. config.bin's handler toggles on
-        USAFDC_state_autoArmed, so anything else makes the control lie about its action."""
+        TLB_CARP_state_autoArmed, so anything else makes the control lie about its action."""
         src = code(TELEM)
         block = src[src.index("private _autoCtrl"):]
         block = block[:block.index("} forEach [")]
-        self.assertIn('getVariable ["USAFDC_state_autoArmed", false]', block)
+        self.assertIn('getVariable ["TLB_CARP_state_autoArmed", false]', block)
         self.assertNotIn("syncWantAuto", block)
 
 
@@ -96,12 +96,12 @@ class OneWriterTests(unittest.TestCase):
 
     def test_refresh_panel_still_drives_the_telemetry_pass(self):
         """So a human press repaints immediately rather than waiting for a guidance tick."""
-        self.assertIn("USAFDC_fnc_updatePanelTelemetry", code(REFRESH))
+        self.assertIn("TLB_CARP_fnc_updatePanelTelemetry", code(REFRESH))
 
     def test_the_telemetry_pass_is_driven_by_the_guidance_loop(self):
         """This is what makes the colour true between presses. Without it the change is
         cosmetic and the stale-green hole is still open."""
-        self.assertIn("USAFDC_fnc_updatePanelTelemetry", code("addon/functions/guidance/fn_updateGuidance.sqf"))
+        self.assertIn("TLB_CARP_fnc_updatePanelTelemetry", code("addon/functions/guidance/fn_updateGuidance.sqf"))
 
     def test_the_label_reads_the_state_not_the_action(self):
         """DELIBERATE REVERSAL, asked for by the crew. The button used to be labelled with

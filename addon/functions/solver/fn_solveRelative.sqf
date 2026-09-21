@@ -44,17 +44,17 @@ private _ballistic = [
     _usaf get "triggerAglM",
     _usaf get "attachLagS",
     _physics get "gravityMs2"
-] call USAFDC_fnc_ballisticToTrigger;
+] call TLB_CARP_fnc_ballisticToTrigger;
 if !(_ballistic get "valid") exitWith {
     createHashMapFromArray [["confidence", "INVALID"], ["warnings", [_ballistic get "reason"]]]
 };
 
 private _chuteAttachAslM = _openingTerrainAslM + (_ballistic get "attachAglM");
 private _verticalPathM = _chuteAttachAslM - _dzTerrainAslM;
-private _canopyResult = [_verticalPathM, _ballistic get "attachVerticalSpeedMs", _canopy] call USAFDC_fnc_canopyTime;
+private _canopyResult = [_verticalPathM, _ballistic get "attachVerticalSpeedMs", _canopy] call TLB_CARP_fnc_canopyTime;
 
 private _runInDeg = _input get "runInDeg";
-private _basis = [_runInDeg] call USAFDC_fnc_basisFromHeading;
+private _basis = [_runInDeg] call TLB_CARP_fnc_basisFromHeading;
 private _forward = _basis get "forward";
 private _right = _basis get "right";
 private _windSpeed = _input get "windSpeedMs";
@@ -102,15 +102,15 @@ private _empiricalWarnings = [];
 private _empiricalInvalid = false;
 
 if (!_chuteMode) then {
-    if (isNil "USAFDC_fnc_empiricalCanopyC17") then {
-        USAFDC_fnc_empiricalCanopyC17 = compile preprocessFileLineNumbers "\x\usafdc\addons\drop_computer\functions\solver\fn_empiricalCanopyC17.sqf";
+    if (isNil "TLB_CARP_fnc_empiricalCanopyC17") then {
+        TLB_CARP_fnc_empiricalCanopyC17 = compile preprocessFileLineNumbers "\x\tlbcarp\addons\drop_computer\functions\solver\fn_empiricalCanopyC17.sqf";
     };
     // The load enters the canopy phase at essentially its release ground speed: freefall
     // barely touches the horizontal component, and the flown records agree -- a release at
     // 97.27 m/s along reached the canopy at 97.3. That speed sets the forward throw.
     // Freefall time as well: the canopy's duration depends on how fast the load is
     // falling when the chute opens, which is set by the drop altitude.
-    private _empirical = [_runInDeg, _windWorld, _canopyRoot get _canopyRef, _velocityAlongMs, _ballistic get "attachTimeS"] call USAFDC_fnc_empiricalCanopyC17;
+    private _empirical = [_runInDeg, _windWorld, _canopyRoot get _canopyRef, _velocityAlongMs, _ballistic get "attachTimeS"] call TLB_CARP_fnc_empiricalCanopyC17;
     if !(_empirical getOrDefault ["valid", false]) then {
         _empiricalInvalid = true;
         _empiricalWarnings = +(_empirical getOrDefault ["warnings", ["EMPIRICAL C17 CANOPY SOLVE FAILED"]]);

@@ -1,16 +1,16 @@
 /*
-    USAFDC_fnc_releaseModelOffset
+    TLB_CARP_fnc_releaseModelOffset
 
     Where on the carrier the load leaves from, in model space.
 
-    [_carrier, _cargo] call USAFDC_fnc_releaseModelOffset  ->  [x, y, z, source]
+    [_carrier, _cargo] call TLB_CARP_fnc_releaseModelOffset  ->  [x, y, z, source]
 
     The z already includes the load's own bounding-box top, exactly as USAF's
     fn_dropCargo does, so the returned vector is ready to hand to attachTo.
 
     THREE SOURCES, IN PRIORITY ORDER, AND THE MIDDLE ONE IS WHY THE CALIBRATION IS SAFE
 
-      override  USAFDC_dropPos set on the carrier by a mission maker. Highest priority
+      override  TLB_CARP_dropPos set on the carrier by a mission maker. Highest priority
                 so a unit can correct an airframe without a rebuild.
 
       config    USAF_Cargo_DropPos from the carrier's config. For a C-17 or a C-130
@@ -48,7 +48,7 @@ if (isNull _carrier) exitWith {[0, 0, 0, "none"]};
 // than through it. Same here, for the same reason.
 private _bboxTop = if (isNull _cargo) then {0} else {((0 boundingBoxReal _cargo) # 1) # 2};
 
-private _override = _carrier getVariable ["USAFDC_dropPos", []];
+private _override = _carrier getVariable ["TLB_CARP_dropPos", []];
 if ((count _override) >= 3) exitWith {
     [_override # 0, _override # 1, (_override # 2) + _bboxTop, "override"]
 };

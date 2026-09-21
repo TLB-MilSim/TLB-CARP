@@ -1,9 +1,9 @@
 /*
-    USAFDC_fnc_unloadCargo
+    TLB_CARP_fnc_unloadCargo
 
     Put a load back on the ground. The counterpart to fn_loadCargo, NOT to the release.
 
-        [_carrier, _cargo] call USAFDC_fnc_unloadCargo  ->  true/false
+        [_carrier, _cargo] call TLB_CARP_fnc_unloadCargo  ->  true/false
 
     THIS IS THE GROUND OPERATION AND fn_releaseCargo IS THE AIRBORNE ONE
 
@@ -28,19 +28,19 @@ if (_aglM > 3) exitWith {
     false
 };
 
-private _source = _cargo getVariable ["USAFDC_cargoSource", "attached"];
+private _source = _cargo getVariable ["TLB_CARP_cargoSource", "attached"];
 switch (_source) do {
     case "viv": {
         // To the CARGO, not the carrier: the unload idiom is `objNull setVehicleCargo
         // _cargo`, so the cargo is the operand whose locality matters. fn_loadViv is the
         // other way round because loading names the carrier.
-        [_carrier, _cargo] remoteExec ["USAFDC_fnc_unloadViv", _cargo];
+        [_carrier, _cargo] remoteExec ["TLB_CARP_fnc_unloadViv", _cargo];
     };
     case "usaf": {
         private _list = _carrier getVariable ["usaf_cargo", []];
         _carrier setVariable ["usaf_cargo", _list - [_cargo], true];
         if ((count _list) <= 1) then {_carrier enableVehicleCargo true};
-        [_carrier, _cargo] remoteExec ["USAFDC_fnc_unloadAttach", _cargo];
+        [_carrier, _cargo] remoteExec ["TLB_CARP_fnc_unloadAttach", _cargo];
     };
     case "ace": {
         private _loaded = _carrier getVariable ["ace_cargo_loaded", []];
@@ -53,7 +53,7 @@ switch (_source) do {
         ["ace_cargo_serverUnload", [_cargo, ASLToAGL (getPosASL _carrier)]] call CBA_fnc_serverEvent;
     };
     default {
-        [_carrier, _cargo] remoteExec ["USAFDC_fnc_unloadAttach", _cargo];
+        [_carrier, _cargo] remoteExec ["TLB_CARP_fnc_unloadAttach", _cargo];
     };
 };
 

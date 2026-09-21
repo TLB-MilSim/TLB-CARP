@@ -126,15 +126,15 @@ class LastCargoPackageTimingTests(unittest.TestCase):
 
     def test_predicted_timings_are_cached_while_estimate_is_valid(self):
         text = read("addon/functions/timing/fn_updatePackageTiming.sqf")
-        self.assertIn("USAFDC_state_packageEstimatedChuteAttachTimeS", text)
-        self.assertIn("USAFDC_state_packageEstimatedCanopyTimeS", text)
+        self.assertIn("TLB_CARP_state_packageEstimatedChuteAttachTimeS", text)
+        self.assertIn("TLB_CARP_state_packageEstimatedCanopyTimeS", text)
 
     def test_guidance_invalid_branch_still_runs_timing_from_estimate(self):
         text = read("addon/functions/guidance/fn_updateGuidance.sqf")
         self.assertIn('"ESTIMATE", "RELEASED", "CHUTE", "ARRIVED"', text)
         # The state may transition inside the timing call, so tracking must be
         # re-read afterwards or the HUD refresh is skipped on the release tick.
-        timing_call = text.index("USAFDC_fnc_updatePackageTiming")
+        timing_call = text.index("TLB_CARP_fnc_updatePackageTiming")
         tracking = text.index("_trackingPackage = (missionNamespace getVariable")
         self.assertLess(timing_call, tracking)
 
@@ -143,18 +143,18 @@ class LastCargoPackageTimingTests(unittest.TestCase):
         player left the aircraft'. Removing that gate needs an explicit check or
         disembarking latches a release that never happened."""
         text = read("addon/functions/timing/fn_updatePackageTiming.sqf")
-        self.assertIn("USAFDC_state_packageCarrier", text)
+        self.assertIn("TLB_CARP_state_packageCarrier", text)
         self.assertIn("_sameCarrier", text)
         self.assertIn("{_sameCarrier}", text)
         reset = read("addon/functions/timing/fn_resetPackageTiming.sqf")
-        self.assertIn("USAFDC_state_packageCarrier = objNull", reset)
+        self.assertIn("TLB_CARP_state_packageCarrier = objNull", reset)
 
     def test_cached_timings_are_initialised_and_reset(self):
         post_init = read("addon/functions/fn_postInit.sqf")
         reset = read("addon/functions/timing/fn_resetPackageTiming.sqf")
         for var in [
-            "USAFDC_state_packageEstimatedChuteAttachTimeS",
-            "USAFDC_state_packageEstimatedCanopyTimeS",
+            "TLB_CARP_state_packageEstimatedChuteAttachTimeS",
+            "TLB_CARP_state_packageEstimatedCanopyTimeS",
         ]:
             self.assertIn(var, post_init)
             self.assertIn(var, reset)
@@ -166,8 +166,8 @@ class ToggledFreelookTests(unittest.TestCase):
 
     def test_focus_guard_latches_toggled_freelook_state(self):
         text = read("addon/functions/autopilot/fn_inputFocusActive.sqf")
-        self.assertIn("USAFDC_state_apFreelookToggled", text)
-        self.assertIn("USAFDC_state_apLookAroundTogglePrev", text)
+        self.assertIn("TLB_CARP_state_apFreelookToggled", text)
+        self.assertIn("TLB_CARP_state_apLookAroundTogglePrev", text)
 
     def test_focus_guard_still_covers_held_freelook_and_menus(self):
         text = read("addon/functions/autopilot/fn_inputFocusActive.sqf")
@@ -179,11 +179,11 @@ class ToggledFreelookTests(unittest.TestCase):
 
     def test_latch_state_is_initialised_and_reset_on_arm(self):
         post_init = read("addon/functions/fn_postInit.sqf")
-        self.assertIn("USAFDC_state_apFreelookToggled", post_init)
-        self.assertIn("USAFDC_state_apLookAroundTogglePrev", post_init)
+        self.assertIn("TLB_CARP_state_apFreelookToggled", post_init)
+        self.assertIn("TLB_CARP_state_apLookAroundTogglePrev", post_init)
         # A stale latch must not survive into a new AP engagement.
         arm = read("addon/functions/autopilot/fn_armAutopilot.sqf")
-        self.assertIn("USAFDC_state_apFreelookToggled = false", arm)
+        self.assertIn("TLB_CARP_state_apFreelookToggled = false", arm)
 
 
 class VersionIdentificationTests(unittest.TestCase):
@@ -197,11 +197,11 @@ class VersionIdentificationTests(unittest.TestCase):
 
     def test_source_declares_a_version_constant(self):
         text = read("addon/functions/fn_postInit.sqf")
-        self.assertIn("USAFDC_VERSION", text)
+        self.assertIn("TLB_CARP_VERSION", text)
 
     def test_hud_header_shows_the_version(self):
         text = read("addon/functions/ui/fn_updateHud.sqf")
-        self.assertIn("USAFDC_VERSION", text)
+        self.assertIn("TLB_CARP_VERSION", text)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

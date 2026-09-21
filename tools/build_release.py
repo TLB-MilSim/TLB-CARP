@@ -48,6 +48,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PBO_NAME = "TLB_CARP_System.pbo"
 # Names this PBO shipped under before. Each carries the same CfgPatches class, so one
 # left beside the current PBO loads the addon twice; deploy removes them.
+# These are FACTS ABOUT WHAT SHIPPED and must never be swept up in a rename. The
+# USAFDC_ -> TLB_CARP_ pass did exactly that and left this equal to PBO_NAME, which
+# would have made deploy delete the PBO it had just installed.
 LEGACY_PBO_NAMES = ["usafdc_drop_computer.pbo"]
 MOD_DIR = "@TLB_CARP_System"
 # Mod folder names releases shipped under before. Release ZIPs still named for one of
@@ -66,6 +69,45 @@ DEFAULT_KEY_NAME = os.environ.get("TLB_CARP_SIGNING_KEY", "tlb_carp")
 DEFAULT_TOOLS_DIR = os.environ.get(
     "ARMA3TOOLS_DIR", "E:/SteamLibrary/steamapps/common/Arma 3 Tools")
 ITEMS_PREFIX = "x\\tlbcarp\\addons\\items"
+# The drop computer's own prefix. It was x\usafdc\addons\drop_computer until the
+# TLB_CARP rename. pack_pbo inherits header properties from the base PBO, and a base
+# built before the rename still carries the old prefix, so this has to be forced until
+# a post-rename release becomes the base. It must match the paths in config.cpp's
+# CfgFunctions and in fn_postInit's compile table, or nothing resolves in game.
+PREFIX = "x\\tlbcarp\\addons\\drop_computer"
+
+# The 24 compiled .sqfc siblings were deleted with the rename: each had the old USAFDC_
+# symbol names COMPILED IN and shadowed the .sqf beside it, so keeping one would have
+# silently run pre-rename code. A base PBO built before the rename still lists them and
+# pack_pbo requires every base entry to exist in source, so they are excluded here
+# rather than by hand. An exclude that matches nothing is a no-op, so this stays
+# correct once a post-rename release becomes the base.
+DELETED_SQFC_ENTRIES = [
+    "functions\\aircraft\\fn_projectAircraftKinematics.sqfc",
+    "functions\\auto\\fn_armAutoDrop.sqfc",
+    "functions\\auto\\fn_disarmAutoDrop.sqfc",
+    "functions\\debug\\fn_computeCalibrationError.sqfc",
+    "functions\\debug\\fn_copyLastDebugSeries.sqfc",
+    "functions\\debug\\fn_debugSnapshot.sqfc",
+    "functions\\debug\\fn_formatCalibrationRun.sqfc",
+    "functions\\debug\\fn_runSolverSelfTest.sqfc",
+    "functions\\debug\\fn_sampleParachuteTelemetry.sqfc",
+    "functions\\debug\\fn_sampleWindTelemetry.sqfc",
+    "functions\\dz\\fn_beginMapDZ.sqfc",
+    "functions\\dz\\fn_getMissionDZs.sqfc",
+    "functions\\fn_preInit.sqfc",
+    "functions\\generated\\fn_getTestVectors.sqfc",
+    "functions\\guidance\\fn_armGuidance.sqfc",
+    "functions\\guidance\\fn_buildPlannedReference.sqfc",
+    "functions\\guidance\\fn_computeRunInGuidance.sqfc",
+    "functions\\guidance\\fn_interceptLimitDeg.sqfc",
+    "functions\\guidance\\fn_solveWorldReference.sqfc",
+    "functions\\solver\\fn_acquiredWindDisplacement.sqfc",
+    "functions\\solver\\fn_ballisticToTrigger.sqfc",
+    "functions\\solver\\fn_basisFromHeading.sqfc",
+    "functions\\solver\\fn_canopyTime.sqfc",
+    "functions\\ui\\fn_updateMarkers.sqfc",
+]
 
 ARCHIVE_DIR = "releases"
 # "testing" carries the debug-console diagnostic, which the suite asserts against -- it is
@@ -124,9 +166,9 @@ def run_suite(cwd: Path, label: str) -> None:
 def source_version() -> str:
     """The version declared in SQF, which is what actually runs in-engine."""
     text = (ROOT / VERSION_SOURCE).read_text(encoding="utf-8")
-    match = re.search(r'USAFDC_VERSION\s*=\s*"([^"]+)"', text)
+    match = re.search(r'TLB_CARP_VERSION\s*=\s*"([^"]+)"', text)
     if match is None:
-        raise BuildError(f"no USAFDC_VERSION declared in {VERSION_SOURCE}")
+        raise BuildError(f"no TLB_CARP_VERSION declared in {VERSION_SOURCE}")
     return match.group(1)
 
 
@@ -456,11 +498,11 @@ def main() -> int:
         declared = source_version()
         if declared != short:
             raise BuildError(
-                f"USAFDC_VERSION is {declared!r} in {VERSION_SOURCE} but --version "
+                f"TLB_CARP_VERSION is {declared!r} in {VERSION_SOURCE} but --version "
                 f"gives {short!r}; bump the source constant so the running build "
                 f"reports its own version correctly"
             )
-        print(f"     USAFDC_VERSION={declared} matches --version")
+        print(f"     TLB_CARP_VERSION={declared} matches --version")
         if args.skip_tests:
             print("     SKIPPED (--skip-tests)")
         else:
@@ -475,7 +517,10 @@ def main() -> int:
             "--source-dir", str(ROOT / "addon"),
             "--output", str(pbo_path),
             "--version", args.version,
+            "--prefix", PREFIX,
         ]
+        for value in DELETED_SQFC_ENTRIES:
+            cmd += ["--exclude", value]
         for value in args.exclude:
             cmd += ["--exclude", value]
         for value in args.include:

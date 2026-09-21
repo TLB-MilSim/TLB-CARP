@@ -1,7 +1,7 @@
 // Canonical mod.cpp template for the release ZIP (not part of the PBO).
 // build_release.py replaces the version placeholder on the name line below, so
 // the Arma launcher entry states which build is loaded.
-// Keep the number in sync with USAFDC_VERSION in addon/functions/fn_postInit.sqf
+// Keep the number in sync with TLB_CARP_VERSION in addon/functions/fn_postInit.sqf
 // -- build_release.py fails the build if the two disagree.
 name = "TLB CARP System (Computed Air Release Point) v{VERSION}";
 author = "TLB MilSim";

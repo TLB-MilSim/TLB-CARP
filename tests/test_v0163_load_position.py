@@ -117,8 +117,8 @@ class OneReaderTests(unittest.TestCase):
     def test_can_and_load_ask_the_same_function(self):
         """They used to read the config key separately, which is how "can I load this" and
         "where does it go" come to disagree."""
-        self.assertIn("USAFDC_fnc_loadModelOffset", code(CAN))
-        self.assertIn("USAFDC_fnc_loadModelOffset", code(LOAD))
+        self.assertIn("TLB_CARP_fnc_loadModelOffset", code(CAN))
+        self.assertIn("TLB_CARP_fnc_loadModelOffset", code(LOAD))
 
     def test_the_mechanism_name_is_the_offsets_own_answer(self):
         """Relabelled, not recomputed -- so the ACE action's reason string cannot claim a
@@ -130,12 +130,12 @@ class OneReaderTests(unittest.TestCase):
 
     def test_the_engine_mechanism_is_still_tried_first(self):
         src = code(CAN)
-        self.assertLess(src.index("canVehicleCargo"), src.index("USAFDC_fnc_loadModelOffset"))
+        self.assertLess(src.index("canVehicleCargo"), src.index("TLB_CARP_fnc_loadModelOffset"))
 
 
 class CursorTests(unittest.TestCase):
     def test_the_cursor_measures_loads_it_did_not_place(self):
-        """THE SECOND HALF OF THE FLOWN BUG. It read USAFDC_loadSlotY, which only this file
+        """THE SECOND HALF OF THE FLOWN BUG. It read TLB_CARP_loadSlotY, which only this file
         ever sets, so a hold filled by USAF, ACE or a mission maker looked empty."""
         src = code(OFFSET)
         self.assertIn("_carrier worldToModel (getPosWorld _x)", src)
@@ -152,7 +152,7 @@ class CursorTests(unittest.TestCase):
         """A hold can hold one of each. Whichever branch places a load, the next one has to
         be able to see it."""
         src = code(OFFSET)
-        self.assertEqual(src.count('_cargo setVariable ["USAFDC_loadSlotY"'), 2)
+        self.assertEqual(src.count('_cargo setVariable ["TLB_CARP_loadSlotY"'), 2)
 
     def test_the_load_is_lifted_onto_the_floor_not_sunk_through_it(self):
         """Both branches subtract the load's own bbMin.z, because a model's origin is not
@@ -195,13 +195,13 @@ class DerivationTests(unittest.TestCase):
 
 class UnchangedTests(unittest.TestCase):
     def test_the_mission_override_still_wins(self):
-        self.assertIn('_carrier getVariable ["USAFDC_loadPos", []]', code(OFFSET))
+        self.assertIn('_carrier getVariable ["TLB_CARP_loadPos", []]', code(OFFSET))
 
     def test_the_release_offset_is_not_touched_by_any_of_this(self):
         """CLAUDE.md: a derived LOAD position is acceptable because nothing ballistic
         depends on it; a derived RELEASE point would not be. This change stays entirely on
         the load side -- fn_releaseModelOffset is what the solver is calibrated against."""
-        self.assertNotIn("USAFDC_fnc_releaseModelOffset", code(OFFSET))
+        self.assertNotIn("TLB_CARP_fnc_releaseModelOffset", code(OFFSET))
         self.assertNotIn("USAF_Cargo_DropPos", code(OFFSET))
 
 

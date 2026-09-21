@@ -64,7 +64,7 @@ class JumpReadoutAudienceTests(unittest.TestCase):
         countdown they cannot see, or the reverse."""
         src = code(CUE)
         self.assertEqual(
-            src.count("(USAFDC_state_jumpRoster select {alive _x}) + (crew USAFDC_state_jumpAircraft)"),
+            src.count("(TLB_CARP_state_jumpRoster select {alive _x}) + (crew TLB_CARP_state_jumpAircraft)"),
             2,
         )
         self.assertEqual(src.count("_roster arrayIntersect _roster"), 2)
@@ -74,12 +74,12 @@ class JumpReadoutAudienceTests(unittest.TestCase):
         crew. Targeting crew would make the readout invisible to exactly the people it
         is for, while looking perfectly correct to the pilot."""
         src = code(CUE)
-        self.assertIn("USAFDC_state_jumpRoster", src)
-        self.assertIn('["USAFDC_jumpHint", [_this], _targets] call CBA_fnc_targetEvent', src)
+        self.assertIn("TLB_CARP_state_jumpRoster", src)
+        self.assertIn('["TLB_CARP_jumpHint", [_this], _targets] call CBA_fnc_targetEvent', src)
 
     def test_the_roster_is_snapshotted_at_arm_time(self):
         """The only record that still knows a standing jumper is aboard."""
-        self.assertIn("USAFDC_state_jumpRoster = crew _aircraft;", code(ARM))
+        self.assertIn("TLB_CARP_state_jumpRoster = crew _aircraft;", code(ARM))
 
     def test_the_hint_closure_exists_before_the_first_readout(self):
         """The hold-reason readout is inside an early exitWith. A closure defined next to
@@ -95,16 +95,16 @@ class JumpReadoutAudienceTests(unittest.TestCase):
         mod's ramp UI takes it. The readout now goes to a title layer CARP allocates for
         itself. See tests/test_v01613_jump_readout_layer.py for the evidence."""
         src = code(POSTINIT)
-        self.assertIn('["USAFDC_jumpHint", {', src)
-        self.assertIn('USAFDC_state_jumpHintLayer cutText [_text, "PLAIN", 0, true, true];', src)
+        self.assertIn('["TLB_CARP_jumpHint", {', src)
+        self.assertIn('TLB_CARP_state_jumpHintLayer cutText [_text, "PLAIN", 0, true, true];', src)
 
     def test_the_readout_is_not_gated_on_the_sounds_setting(self):
-        """The cue receiver checks USAFDC_setting_sounds. A jumper who turned cue audio
+        """The cue receiver checks TLB_CARP_setting_sounds. A jumper who turned cue audio
         off still needs to see the countdown."""
         src = code(POSTINIT)
-        receiver = src[src.index('["USAFDC_jumpHint", {'):]
+        receiver = src[src.index('["TLB_CARP_jumpHint", {'):]
         receiver = receiver[:receiver.index("call CBA_fnc_addEventHandler")]
-        self.assertNotIn("USAFDC_setting_sounds", receiver)
+        self.assertNotIn("TLB_CARP_setting_sounds", receiver)
 
     def test_an_empty_audience_sends_nothing(self):
         """CBA_fnc_targetEvent with no targets is a broadcast to everyone on some paths.
