@@ -110,9 +110,10 @@ history that was the whole point of squashing.
    is that description.
 5. **Fly it.** A release is the one change that cannot be "source-verified only".
 6. Merge, then tag `main` and publish: `python tools/publish_release.py --tag v1.2.3`.
-   It attaches the mod ZIP plus the loose PBOs, signatures and key that
-   `build_release.py` left in `releases/pbo/v1.2.3/`, so an admin can refresh a server
-   with `gh release download v1.2.3 -p '*.pbo'` instead of unpacking the archive.
+
+**A release page carries two things:** the mod ZIP and GitHub's own source archive. Do not
+attach loose PBOs, signatures or keys. They are all inside the ZIP already, and a release
+with six assets buries the one people came for.
 
 ## Tests
 

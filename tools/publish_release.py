@@ -95,37 +95,20 @@ def asset_for(tag: str) -> Path | None:
     return None
 
 
-def pbos_for(tag: str) -> list[Path]:
-    """The loose PBOs for this version, if the build exported them.
-
-    build_release.py writes them to releases/pbo/v<version>/ under their exact runtime
-    names from v0.16.12 on, and their .bisign signatures plus the public .bikey from
-    v0.16.14. Releases built before those have none, so this returns an empty list or a
-    short one and publishing still works.
-    """
-    folder = ROOT / "releases" / "pbo" / f"v{tag.lstrip('v')}"
-    if not folder.is_dir():
-        return []
-    # The signatures and the public key ride with them. From v0.16.14 a PBO without its
-    # .bisign is exactly as unloadable on a signature-checking server as an unsigned one,
-    # and the .bikey is what the admin installs. Attaching the PBOs alone would look
-    # complete and not be.
-    out = []
-    for pattern in ("*.pbo", "*.bisign", "*.bikey"):
-        out += sorted(folder.glob(pattern))
-    return out
-
-
 def assets_for(tag: str) -> list[Path]:
-    """Everything attached to this version's GitHub Release.
+    """What gets attached to this version's GitHub Release: the mod ZIP, and nothing else.
 
-    The mod ZIP is what a player installs. The loose PBOs ride along so a Workshop
-    upload can refresh a staging folder by copying two files instead of re-extracting
-    the archive -- `gh release download <tag> -p '*.pbo'` lands them under the names
-    Arma expects. Asked for 2026-09-21.
+    GitHub adds its own "Source code" archives, so between them a player has the mod and a
+    developer has the source. The loose PBOs, their .bisign files and the public .bikey
+    were attached too until 2026-09-22 -- six assets on a release, five of which are
+    already inside the ZIP, which buried the one people actually came for.
+
+    build_release.py still exports the loose PBOs to releases/pbo/v<version>/. That is for
+    refreshing a Workshop staging folder on the machine that built them, not for handing
+    to a downloader.
     """
     zip_asset = asset_for(tag)
-    return ([zip_asset] if zip_asset is not None else []) + pbos_for(tag)
+    return [zip_asset] if zip_asset is not None else []
 
 
 def notes_for(tag: str) -> str:

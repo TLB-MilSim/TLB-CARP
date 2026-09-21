@@ -117,9 +117,9 @@ class KeySafetyTests(unittest.TestCase):
         source ZIP, and lets anyone sign a hostile PBO that passes as TLB CARP.
 
         The PUBLIC .bikey is deliberately NOT included here: build_release.py writes it
-        into releases/pbo/v<version>/ so it ships with the loose PBOs, and publishing it
-        is the entire point of a public key. The first version of this test asserted both
-        and failed the moment signing worked."""
+        into releases/pbo/v<version>/ and into the release ZIP, which is how an admin gets
+        it, and publishing a public key is the entire point of one. The first version of
+        this test asserted both and failed the moment signing worked."""
         self.assertEqual(list(ROOT.rglob("*.biprivatekey")), [])
 
     def test_git_tracks_no_key_material_of_either_kind(self):
