@@ -32,6 +32,11 @@ the change.
 PR, push another commit to the same branch — it all collapses on merge, so iterating costs
 nothing. Do not open a second PR to correct one that is still open.
 
+**Merge only when the feature is finished.** Not at a checkpoint, and not when the first
+half works. Merging something half-done means the rest has to arrive as a second PR with a
+subject of its own, which puts one piece of work on `main` twice and undoes the point of
+squashing. An open PR costs nothing while you finish it.
+
 **After a PR merges, a follow-up is a new PR** with a subject of its own.
 
 Merged branches delete themselves.
