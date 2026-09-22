@@ -1,6 +1,6 @@
 # Publishing the Steam Workshop page
 
-Everything the Workshop item needs lives in this folder.
+The item is **[TLB - CARP System](https://steamcommunity.com/sharedfiles/filedetails/?id=3806212403)**. Everything it needs lives in this folder.
 
 | File | What it is |
 | --- | --- |
