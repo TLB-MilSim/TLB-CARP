@@ -16,7 +16,8 @@
   <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki/Jump-Run">Jump run</a> ·
   <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki/Mission-Making">Mission making</a> ·
   <a href="https://github.com/TLB-MilSim/TLB-CARP/wiki/Settings">Settings</a> ·
-  <a href="https://github.com/TLB-MilSim/TLB-CARP/releases">Releases</a>
+  <a href="https://github.com/TLB-MilSim/TLB-CARP/releases">Releases</a> ·
+  <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3806212403">Steam Workshop</a>
 </p>
 
 <p align="center">
@@ -90,6 +91,10 @@ C-17's numbers, which works, but the accuracy figures above were measured on the
 calibrated pair.
 
 ## Installation
+
+**[Subscribe on the Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3806212403)**, or download a release from
+[Releases](https://github.com/TLB-MilSim/TLB-CARP/releases) and unpack
+`@TLB_CARP_System` into your Arma 3 folder.
 
 1. Load `@TLB_CARP_System` alongside CBA_A3 and ACE3.
 2. On a server, load it on the server too, not just the clients. Cargo usually belongs to
