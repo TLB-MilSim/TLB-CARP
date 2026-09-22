@@ -16,6 +16,36 @@ def load_tool(name):
     return module
 
 
+class RepositoryNameTests(unittest.TestCase):
+    """The repository was renamed from TLB-CARP-System to TLB-CARP. The old path does not
+    redirect -- it is a hard 404 -- so anything still pointing at it is broken, silently.
+    Two were: mod.cpp's launcher GitHub button, and publish_release.REPO, which would have
+    tried to publish releases to a repository that no longer exists."""
+
+    def test_nothing_points_at_the_old_repository(self):
+        offenders = []
+        for pattern in ("*.md", "*.py", "*.cpp", "*.hpp", "*.sqf", "*.bbcode", "*.json"):
+            for path in ROOT.rglob(pattern):
+                if any(part in {".git", "__pycache__", "releases", "build"} for part in path.parts):
+                    continue
+                if path == Path(__file__).resolve():
+                    continue  # this file names the old path on purpose: it is the needle
+                text = path.read_text(encoding="utf-8", errors="replace")
+                for number, line in enumerate(text.splitlines(), start=1):
+                    if "TLB-MilSim/TLB-CARP-System" in line:
+                        offenders.append(f"{path.relative_to(ROOT)}:{number}")
+        self.assertEqual(
+            [], offenders,
+            "these still point at the renamed repository: " + ", ".join(offenders)
+        )
+
+    def test_the_launcher_button_and_the_publisher_agree_on_the_repository(self):
+        mod = (ROOT / "packaging" / "mod.cpp").read_text(encoding="utf-8")
+        pub = (ROOT / "tools" / "publish_release.py").read_text(encoding="utf-8")
+        self.assertIn('action = "https://github.com/TLB-MilSim/TLB-CARP";', mod)
+        self.assertIn('REPO = "TLB-MilSim/TLB-CARP"', pub)
+
+
 class ModNamingTests(unittest.TestCase):
     def setUp(self):
         self.build = load_tool("build_release")

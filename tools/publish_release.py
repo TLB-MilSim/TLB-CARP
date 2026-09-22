@@ -42,7 +42,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REPO = "TLB-MilSim/TLB-CARP-System"
+REPO = "TLB-MilSim/TLB-CARP"
 
 
 def run(args: list[str], check: bool = True) -> str:

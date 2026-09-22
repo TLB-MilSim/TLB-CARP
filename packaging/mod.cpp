@@ -16,4 +16,4 @@ tooltipOwned = "TLB CARP";
 overview = "A drop computer for cargo aircraft. It works out where to let go so the load lands on the drop zone, from the aircraft's live state, and can fly the run-in for you. Everyone aboard carrying a CARP Computer shares one CARP.";
 description = "Dynamic CARP guidance with optional player autopilot, package TOT, release stability, and USAF cargo Auto Drop for C-17/C-130 cargo operations. Requires CBA_A3 and ACE3. Licensed APL-ND.";
 actionName = "GitHub";
-action = "https://github.com/TLB-MilSim/TLB-CARP-System";
+action = "https://github.com/TLB-MilSim/TLB-CARP";
