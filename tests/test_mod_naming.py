@@ -46,6 +46,25 @@ class RepositoryNameTests(unittest.TestCase):
         self.assertIn('REPO = "TLB-MilSim/TLB-CARP"', pub)
 
 
+class PublishFailureTests(unittest.TestCase):
+    """v1.1.0 printed "created" for a release that did not exist.
+
+    The tag push had not propagated, `gh release create --verify-tag` exited non-zero, and
+    publish() called run(..., check=False) and then returned True regardless. The release
+    was missing and the script said it was fine. A publisher that cannot report failure is
+    worse than none, because you stop checking its output."""
+
+    def test_publish_checks_the_exit_code(self):
+        src = (ROOT / "tools" / "publish_release.py").read_text(encoding="utf-8")
+        self.assertIn("if result.returncode != 0:", src)
+        self.assertIn("FAILED (gh exit", src)
+        self.assertNotIn("out = run(args, check=False)", src)
+
+    def test_a_failed_publish_is_a_non_zero_exit(self):
+        src = (ROOT / "tools" / "publish_release.py").read_text(encoding="utf-8")
+        self.assertIn("return 0 if ok else 1", src)
+
+
 class ModNamingTests(unittest.TestCase):
     def setUp(self):
         self.build = load_tool("build_release")
