@@ -37,6 +37,16 @@ half works. Merging something half-done means the rest has to arrive as a second
 subject of its own, which puts one piece of work on `main` twice and undoes the point of
 squashing. An open PR costs nothing while you finish it.
 
+**A test or calibration campaign is ONE pull request, not twenty.** Flying test drops or
+calibrating a new airframe takes days and dozens of runs. Open one PR at the start and keep
+committing to it: every batch, every retune of the numbers, every abandoned theory, same
+branch. Do not open a PR per session, and do not merge half a campaign.
+
+When the airframe is actually calibrated and the numbers have settled, squash merge it.
+`main` then gets one commit reading *Calibrate the C-130J* rather than forty reading
+*another batch*. Nobody reading the history later wants the forty; they want the number and
+how it was arrived at, which is what the PR description is for.
+
 **After a PR merges, a follow-up is a new PR** with a subject of its own.
 
 Merged branches delete themselves.
@@ -114,6 +124,33 @@ history that was the whole point of squashing.
 **A release page carries two things:** the mod ZIP and GitHub's own source archive. Do not
 attach loose PBOs, signatures or keys. They are all inside the ZIP already, and a release
 with six assets buries the one people came for.
+
+### Before a release goes public
+
+A release is the one change that reaches people who cannot read the diff. Every line here
+has to be true before it ships, and someone has to have actually checked it rather than
+assumed it.
+
+- [ ] `TLB_CARP_VERSION` matches the version you are building.
+- [ ] **The key is this version's key.** `tlb_carp_v<major>_<minor>_<patch>`, created fresh
+      with `DSCreateKey`, private half outside the repository. `build_release.py` derives
+      the name from `--version` and refuses a key belonging to another version, so if you
+      are fighting it, you are about to sign the wrong thing.
+- [ ] The build passed. It runs the suite, signs both PBOs, writes both ZIPs and re-runs
+      the suite from a fresh extraction of the source ZIP. It fails rather than shipping
+      something unverified, so a green build is a real result.
+- [ ] **It has been flown.** Not "the tests pass". Load the built mod, open the panel, fly
+      a drop. A release is the one change that cannot be source-verified only.
+- [ ] Signatures verify: `DSCheckSignatures -deep addons keys` against the unpacked folder.
+      Silence and exit 0 is the pass.
+- [ ] **The release notes say the key changed**, every single time, near the top. A server
+      that misses the new `.bikey` kicks every client running the new build, and the admin
+      has no way to know why.
+- [ ] The notes say what has *not* been tested. That is usually the most useful line.
+- [ ] The Workshop description and the wiki still describe what actually ships.
+- [ ] The tag points at the merged commit, not at your branch.
+
+Then publish, and put the unpacked signed folder somewhere the Workshop upload can reach it.
 
 ## Do not rename what records history
 

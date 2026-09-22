@@ -65,7 +65,12 @@ ITEMS_SOURCE = "items"
 
 # Signing. The private key lives outside the repository on purpose -- see step 3.
 DEFAULT_KEY_DIR = os.environ.get("TLB_CARP_SIGNING_DIR", "E:/CARP-SIGNING")
-DEFAULT_KEY_NAME = os.environ.get("TLB_CARP_SIGNING_KEY", "tlb_carp")
+# No DEFAULT_KEY_NAME: the basename is DERIVED from the version being built, by
+# key_name_for() below. Through v1.0.0 this was one persistent "tlb_carp" for every
+# release, on the reasoning that a key admins reinstall every time is a key they stop
+# installing. The owner reversed that on 2026-09-22 to match the other TLB mods, which
+# version their keys. The cost is real and belongs in the release notes every time: a
+# server that misses the new key kicks every client running the new build.
 DEFAULT_TOOLS_DIR = os.environ.get(
     "ARMA3TOOLS_DIR", "E:/SteamLibrary/steamapps/common/Arma 3 Tools")
 ITEMS_PREFIX = "x\\tlbcarp\\addons\\items"
@@ -108,6 +113,19 @@ DELETED_SQFC_ENTRIES = [
     "functions\\solver\\fn_canopyTime.sqfc",
     "functions\\ui\\fn_updateMarkers.sqfc",
 ]
+
+def key_name_for(version: str) -> str:
+    """Signing key basename for a version, e.g. 1.1.0.0 -> tlb_carp_v1_1_0.
+
+    The build number (the fourth part) is deliberately dropped: it moves for reasons that
+    do not concern an admin, and a key per build would be absurd. Dots become underscores
+    because the basename ends up inside a .bisign filename.
+    """
+    parts = [p for p in version.split(".") if p != ""]
+    if len(parts) < 3:
+        raise BuildError(f"cannot derive a key name from version {version!r}")
+    return "tlb_carp_v" + "_".join(parts[:3])
+
 
 ARCHIVE_DIR = "releases"
 # "testing" carries the debug-console diagnostic, which the suite asserts against -- it is
@@ -457,9 +475,11 @@ def main() -> int:
                     help="directory holding <key-name>.biprivatekey and .bikey. Kept OUTSIDE "
                          "the repository so a private key can never reach a commit or the "
                          "source ZIP")
-    ap.add_argument("--key-name", default=DEFAULT_KEY_NAME,
-                    help="signing key basename. One persistent key across versions, so a "
-                         "server admin installs the .bikey once instead of every release")
+    ap.add_argument("--key-name", default=None,
+                    help="signing key basename. Defaults to the version's own key, "
+                         "tlb_carp_v<major>_<minor>_<patch>. An explicit name must still "
+                         "contain that, so a release cannot be signed with another "
+                         "version's key by accident")
     ap.add_argument("--tools-dir", default=DEFAULT_TOOLS_DIR,
                     help="Arma 3 Tools directory containing DSSignFile/")
     ap.add_argument("--no-sign", action="store_true",
@@ -560,13 +580,22 @@ def main() -> int:
                   "verifySignatures = 2 will kick every client that loads it")
         else:
             key_dir = Path(args.key_dir)
-            private_key = key_dir / f"{args.key_name}.biprivatekey"
-            public_key = key_dir / f"{args.key_name}.bikey"
+            expected = key_name_for(args.version)
+            key_name = args.key_name or expected
+            if expected not in key_name:
+                raise BuildError(
+                    f"--key-name {key_name!r} does not carry version {args.version}. "
+                    f"Every release is signed with its own key: expected a name "
+                    f"containing {expected!r}. Signing v{args.version} with another "
+                    f"version's key is the one mistake this check exists to stop."
+                )
+            private_key = key_dir / f"{key_name}.biprivatekey"
+            public_key = key_dir / f"{key_name}.bikey"
             for needed in (private_key, public_key):
                 if not needed.is_file():
                     raise BuildError(
                         f"signing key {needed} not found. Create one once with: "
-                        f"cd {key_dir} && DSCreateKey.exe {args.key_name} -- "
+                        f"cd {key_dir} && DSCreateKey.exe {key_name} -- "
                         f"or pass --no-sign to ship an unsigned release deliberately"
                     )
             dssign = Path(args.tools_dir) / "DSSignFile" / "DSSignFile.exe"
@@ -577,13 +606,13 @@ def main() -> int:
                 # DSSignFile drops <pbo>.<keyname>.bisign beside the file it signs.
                 result = subprocess.run([str(dssign), str(private_key), str(built)],
                                         capture_output=True, text=True)
-                sig = built.with_name(f"{built.name}.{args.key_name}.bisign")
+                sig = built.with_name(f"{built.name}.{key_name}.bisign")
                 if result.returncode != 0 or not sig.is_file():
                     print(result.stdout + result.stderr)
                     raise BuildError(f"signing {built.name} failed")
                 signatures.append((sig.name, sig.read_bytes()))
                 print(f"     {sig.name} ({sig.stat().st_size} bytes)")
-            bikey = (f"{args.key_name}.bikey", public_key.read_bytes())
+            bikey = (f"{key_name}.bikey", public_key.read_bytes())
             # Verified, not assumed. A signature the engine will reject is worse than none,
             # because the build would claim the deployment blocker was closed.
             if dscheck.is_file():
@@ -595,7 +624,7 @@ def main() -> int:
                 check_dir.mkdir(exist_ok=True)
                 for built in (pbo_path, items_path):
                     shutil.copy2(built, check_dir / built.name)
-                    sig = built.with_name(f"{built.name}.{args.key_name}.bisign")
+                    sig = built.with_name(f"{built.name}.{key_name}.bisign")
                     shutil.copy2(sig, check_dir / sig.name)
                 check = subprocess.run([str(dscheck), str(check_dir), str(key_dir)],
                                        capture_output=True, text=True)
