@@ -155,8 +155,18 @@ def publish(tag: str, dry_run: bool = False, refresh: bool = False) -> bool:
         args.extend(str(a) for a in assets)
 
     try:
-        out = run(args, check=False)
-        print(f"      {out.strip() or 'created'}")
+        # check=False and then reporting success regardless is how v1.1.0 came to print
+        # "created" for a release that did not exist: the tag push had not propagated, gh
+        # exited non-zero on --verify-tag, and nothing looked at the code. A publisher that
+        # cannot fail is worse than no publisher, because you stop checking.
+        result = subprocess.run(args, capture_output=True, text=True)
+        output = (result.stdout + result.stderr).strip()
+        if result.returncode != 0:
+            print(f"      FAILED (gh exit {result.returncode})")
+            for line in output.splitlines():
+                print(f"        {line}")
+            return False
+        print(f"      {output or 'created'}")
         return True
     finally:
         Path(notes_path).unlink(missing_ok=True)
