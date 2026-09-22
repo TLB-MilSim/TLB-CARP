@@ -7,9 +7,11 @@ PBOs and mod.cpp. That made TLB CARP undeployable to any unit server with signat
 on, which is most of them. Found while answering a question about the client/server split;
 asked for directly on the way to 1.0.0.
 
-ONE PERSISTENT KEY, NOT ONE PER VERSION. A versioned key makes every server admin install
-a new .bikey on every release, and that is how a unit ends up turning signature checking
-off instead. The key basename is stable; the mod version is not in it.
+ONE KEY PER VERSION, as of 2026-09-22. This file originally argued the opposite: a
+versioned key makes every admin install a new .bikey every release, and that is how a unit
+ends up turning signature checking off instead. The owner chose versioned keys to match the
+other TLB mods. That cost did not disappear -- it moved into the release notes, which now
+have to say the key changed, every time.
 
 THE PRIVATE KEY LIVES OUTSIDE THE REPOSITORY. Anyone holding it can sign a hostile PBO
 that passes as TLB CARP, so there must be no path by which it reaches a commit or the
@@ -25,6 +27,7 @@ before the build continues. A signature the engine will reject is worse than no 
 at all, because the build would report the deployment blocker closed.
 """
 from pathlib import Path
+import importlib.util
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -90,15 +93,39 @@ class ArchiveLayoutTests(unittest.TestCase):
         self.assertIn("(pbo_out / name).write_bytes(body)", BUILD)
 
 
+def load_tool(name):
+    spec = importlib.util.spec_from_file_location(name, ROOT / "tools" / f"{name}.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 class KeySafetyTests(unittest.TestCase):
     def test_the_key_directory_defaults_outside_the_repository(self):
         self.assertIn('DEFAULT_KEY_DIR = os.environ.get("TLB_CARP_SIGNING_DIR", "E:/CARP-SIGNING")', BUILD)
         self.assertNotIn('DEFAULT_KEY_DIR = ROOT', BUILD)
 
-    def test_the_key_name_carries_no_version(self):
-        """A versioned key makes admins reinstall every release, which is how signature
-        checking ends up switched off."""
-        self.assertIn('DEFAULT_KEY_NAME = os.environ.get("TLB_CARP_SIGNING_KEY", "tlb_carp")', BUILD)
+    def test_the_key_name_carries_the_version(self):
+        """REVERSED 2026-09-22, deliberately. This test used to assert the opposite, on the
+        reasoning that a key admins reinstall every release is a key they stop installing.
+        The owner chose versioned keys instead, to match the other TLB mods. The old cost
+        did not go away -- it moved into the release notes, which have to say the key
+        changed every single time."""
+        build = load_tool("build_release")
+        self.assertEqual(build.key_name_for("1.1.0.0"), "tlb_carp_v1_1_0")
+        self.assertEqual(build.key_name_for("2.0.0.0"), "tlb_carp_v2_0_0")
+        # The build number moves for reasons no admin cares about.
+        self.assertEqual(build.key_name_for("1.1.0.7"), build.key_name_for("1.1.0.0"))
+        # The ASSIGNMENT, not the word: the comment where the constant used to be
+        # names it so anyone grepping for it lands on the reason it went.
+        self.assertNotIn("DEFAULT_KEY_NAME =", BUILD)
+
+    def test_a_release_cannot_be_signed_with_another_versions_key(self):
+        """The derived name is only half of it. Passing --key-name by hand is how you would
+        sign v1.2.0 with v1.1.0's key and not notice until a server started kicking
+        people."""
+        self.assertIn("does not carry version", BUILD)
+        self.assertIn("if expected not in key_name:", BUILD)
 
     def test_git_refuses_key_material(self):
         # The source ZIP does not carry .gitignore, and the suite is re-run from a fresh
