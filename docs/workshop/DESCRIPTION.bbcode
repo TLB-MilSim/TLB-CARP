@@ -2,7 +2,7 @@
 
 CARP tells you where to release so the load lands on the drop zone.
 
-It doesn't use a lookup table, and it doesn't assume you hit your planned numbers. It reads the aircraft you are actually flying, height, speed, climb and wind, and re-solves several times a second. Fly it fast and the release point slides back. Fly it low and it slides forward. You can be well off plan and still put the load on the X.
+It doesn't use a lookup table, and doesn't assume you hit your planned numbers. It reads the aircraft you are actually flying, height, speed, climb and wind, and re-solves several times a second. Fly it fast and the release point slides back, fly it low and it slides forward. You can be well off plan and still put the load on the X.
 
 [list]
 [*][b]Live release point[/b], updated continuously rather than looked up
@@ -18,18 +18,18 @@ It doesn't use a lookup table, and it doesn't assume you hit your planned number
 
 [list]
 [*][b]CBA_A3[/b] and [b]ACE3[/b], required
-[*][b]USAF Mod[/b], optional. Its C-17 and C-130J are the calibrated airframes, but CARP does its own loading and releasing
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2397376046][b]USAF Mod - Utility[/b][/url], optional. Carries the C-17 and C-130J, and pulls in USAF Mod - Main
 [*][b]Free Fall Off The Ramp[/b], optional, drives the jumplight
 [/list]
 
 Two things catch people out:
 
 [list]
-[*]You need to be carrying a [b]CARP Computer[/b]. It's in the Arsenal, and without it there's no CARP in your interaction menu. Mission makers can switch that requirement off.
-[*][b]The mod has to be on the server as well[/b], not just the clients. Cargo usually belongs to the server, and that's the machine that performs the release.
+[*]You need a [b]CARP Computer[/b]. It's in the Arsenal, and without it there's no CARP in your interaction menu. Mission makers can switch that off.
+[*][b]The mod has to be on the server too[/b], not just the clients. Cargo usually belongs to the server, and that's the machine that performs the release.
 [/list]
 
-[b]Signed[/b], so it works on servers running signature checks. Admins: copy the [i].bikey[/i] from the mod's [i]keys[/i] folder into your server's Keys folder.
+[b]Signed[/b], so it works on servers with signature checks. Admins: copy the [i].bikey[/i] from the mod's [i]keys[/i] folder into your server's Keys folder. It changes every release.
 
 [img]https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/getting-started.png[/img]
 
@@ -46,47 +46,47 @@ Two things catch people out:
 
 Walk up to the [b]vehicle[/b], not the aircraft. The load action sits on the thing being loaded and works out which aircraft you mean.
 
-CARP takes cargo from four places and drops them all the same way: its own loading, USAF, ACE, and vehicle-in-vehicle. Loads stack forward from the ramp and come out back to front, so whatever sits nearest the ramp leaves first.
+CARP takes cargo from four places and drops them all the same way: its own loading, USAF, ACE, and vehicle-in-vehicle. Loads stack forward from the ramp and come out back to front, so whatever is nearest the ramp leaves first.
 
-One rule: [b]you can't unload in the air[/b]. Above three metres it refuses, because unloading at altitude opens the canopy next to the tail.
+One rule: [b]you can't unload in the air[/b]. Above three metres it refuses: unloading at altitude opens the canopy next to the tail.
 
 [img]https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/the-run-in.png[/img]
 
-Press RUN-IN and CARP takes [b]the direction you are actually travelling at that moment[/b] and makes it your final drop heading. Not where your nose points, not a bearing to the DZ. Your ground track, right then.
+Press RUN-IN and CARP takes [b]the direction you are actually travelling at that moment[/b] and makes it your final drop heading. Not your nose, not a bearing to the DZ. Your ground track, right then.
 
-So fly the heading you intend to drop on, get settled on it, [i]then[/i] lock. You then get a run-in line on the map and a release point on it, with range, cross-track and track error on the HUD.
+So fly the heading you intend to drop on, get settled on it, [i]then[/i] lock. You get a run-in line on the map and a release point on it, with range, cross-track and track error on the HUD.
 
 [img]https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/auto-drop.png[/img]
 
-The autopilot intercepts the line, captures it, holds your height and speed, and keeps the aircraft steady through the release. It flies with control forces, so it banks and pitches like an aeroplane instead of riding a rail. It's yours again the moment you touch the controls.
+The autopilot intercepts the line, captures it, holds your height and speed, and keeps the aircraft steady through the release. It flies with control forces, so it banks and pitches like an aeroplane. It's yours again the moment you touch the controls.
 
 Auto drop will also refuse. Inside the final stretch it checks you're within 25 m of the line, within 2 degrees of the locked heading, and that the load won't inherit a big sideways drift. Miss one and it holds, and says which. A load released off the line misses by about as much as you were off, so it would rather send you round again.
 
 [img]https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/guided-cargo.png[/img]
 
-JPADS turns the load into a guided one. The canopy steers itself onto the drop zone after it opens, which takes most of the wind error out of the problem.
+JPADS turns the load into a guided one: the canopy steers itself onto the drop zone after it opens, which takes most of the wind error out.
 
-It waits until the canopy is open and settled before doing anything, because steering during inflation eats the forward throw the release point is built around. In the last twenty-five metres it eases off so the load comes down with the air, not sideways. Drop a stick with it on and each load gets its own slot along the run-in.
+It waits until the canopy is open and settled, because steering during inflation eats the forward throw the release point is built around. In the last twenty-five metres it eases off so the load comes down with the air, not sideways. Drop a stick and each load gets its own slot along the run-in.
 
-In bulk testing, guided loads landed inside about a metre, measured with the steering on a client rather than a dedicated server. Treat it as very good rather than exact.
+In bulk testing, guided loads landed inside about a metre, measured on a client rather than a dedicated server. Treat it as very good rather than exact.
 
 [img]https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/jump-run.png[/img]
 
 Switch the mode to [b]HALO JUMP[/b] and CARP works the same problem for people.
 
-Set your stick size and opening height on the panel, lock the run-in and arm it. Everybody aboard sees and hears the countdown, and the jumplight goes green at the exit point, staying green long enough for the last man out.
+Set your stick size and opening height on the panel, lock the run-in and arm it. Everybody aboard sees and hears the countdown, and the jumplight goes green at the exit point, long enough for the last man out.
 
-It will refuse a green light it can't honour. If the aircraft isn't tracking the run-in, the exit point can be a kilometre off to one side, so it holds red and tells the pilot to correct.
+It refuses a green light it can't honour. If the aircraft isn't tracking the run-in the exit point can be a kilometre off to one side, so it holds red and tells the pilot to correct.
 
 [img]https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/crew.png[/img]
 
-Everyone in the aircraft with a CARP Computer shares one CARP. Set the drop zone in the left seat and it shows up in the right. Either seat can change anything, and edits merge per field on the server, so two people changing different things at once both keep their change.
+Everyone in the aircraft with a CARP Computer shares one CARP. Set the drop zone in the left seat and it shows up in the right. Either seat can change anything, and edits merge per field on the server, so two people changing different things both keep their change.
 
 The autopilot and the release command belong to whoever is flying.
 
 [img]https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/settings.png[/img]
 
-Everything sits in [b]Addon Options, TLB CARP[/b]: display and audio, autopilot handling, guided cargo, the jump run, and whether the CARP Computer is required. The ones a unit should standardise are server-forced.
+Everything sits in [b]Addon Options, TLB CARP[/b]: display and audio, autopilot handling, guided cargo, the jump run, and whether the CARP Computer is required.
 
 [img]https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/accuracy.png[/img]
 
@@ -98,11 +98,13 @@ Measured on flown drops, not estimated:
 [*][b]7 m[/b] and [b]12 m[/b] on two cue-flown HALO exits
 [/list]
 
-Only the C-17 and C-130J are calibrated. Anything else will fly and drop on the C-17's numbers, so treat those figures as a best case rather than a promise.
+Only the C-17 and C-130J are calibrated; anything else flies and drops on their numbers, so treat the figures as a best case.
+
+[b]Flown with:[/b] C-17 Globemaster III and C-130J Super Hercules from USAF Mod - Utility, plus MH-47G Block I and II from [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3805899171]Pegasus Systems MH-47G[/url].
 
 [img]https://raw.githubusercontent.com/TLB-MilSim/TLB-CARP/main/docs/workshop/banners/support.png[/img]
 
-Bug reports, ideas and questions are welcome. We built this for our own operations and are sharing it in case it's useful to anyone else.
+Bug reports, ideas and questions are welcome. We built this for our own operations and are sharing it in case it's useful.
 
 [b]Discord:[/b] [url=https://discord.gg/TLBMilSim]discord.gg/TLBMilSim[/url]
 

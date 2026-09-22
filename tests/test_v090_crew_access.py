@@ -324,7 +324,7 @@ class ItemsAddonTests(unittest.TestCase):
         for key, name in (("picture", "logo_ca"), ("logo", "logo_ca"), ("logoOver", "logo_ca"), ("logoSmall", "logo_small_ca")):
             self.assertIn(f'{key} = "{prefix}\\data\\{name}.paa";', mod)
             self.assertTrue((ROOT / "items" / "data" / f"{name}.paa").is_file(), name)
-        self.assertIn('action = "https://github.com/TLB-MilSim/TLB-CARP-System";', mod)
+        self.assertIn('action = "https://github.com/TLB-MilSim/TLB-CARP";', mod)
         self.assertTrue((ROOT / "docs" / "images" / "logo.png").is_file())
 
     def test_the_items_addon_ships_and_is_verified_with_the_release(self):

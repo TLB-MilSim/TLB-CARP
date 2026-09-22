@@ -18,7 +18,7 @@ diag_log format ["[TLB CARP][LOAD] postInit begin hasInterface=%1", hasInterface
 // Source of truth for the shipped version. Bump this with every release:
 // build_release.py fails if it disagrees with --version, and packaging/mod.cpp
 // stamps the same number into the launcher entry.
-TLB_CARP_VERSION = "1.0.0";
+TLB_CARP_VERSION = "1.1.0";
 
 TLB_CARP_state_guidanceArmed = false;
 TLB_CARP_state_autoArmed = false;

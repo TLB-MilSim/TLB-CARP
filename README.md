@@ -72,8 +72,22 @@ A walkthrough of the system in flight: [youtu.be/3v0Nm9U3178](https://youtu.be/3
 | Arma 3 | v2.14 or newer |
 | [CBA_A3](https://steamcommunity.com/workshop/filedetails/?id=450814997) | required |
 | [ACE3](https://steamcommunity.com/workshop/filedetails/?id=463939057) | required. CARP opens from the ACE interaction menu |
-| [USAF Mod](https://steamcommunity.com/workshop/filedetails/?id=2397360831) | optional. Its C-17 and C-130J are the calibrated airframes, but CARP does its own loading and releasing |
+| [USAF Mod - Utility](https://steamcommunity.com/sharedfiles/filedetails/?id=2397376046) | optional. Carries the C-17 and C-130J, the calibrated airframes. Pulls in USAF Mod - Main. CARP does its own loading and releasing, so neither is required |
 | [Free Fall Off The Ramp](https://steamcommunity.com/workshop/filedetails/?id=2654268308) | optional. Drives the jumplight on a jump run |
+
+## Tested aircraft
+
+These are the airframes we've actually dropped from. CARP will solve for any aircraft, so
+this is what has been flown rather than what is supported.
+
+| Mod | Aircraft |
+| --- | --- |
+| [USAF Mod - Utility](https://steamcommunity.com/sharedfiles/filedetails/?id=2397376046) | C-17 Globemaster III · C-130J Super Hercules |
+| [Pegasus Systems MH-47G](https://steamcommunity.com/sharedfiles/filedetails/?id=3805899171) | MH-47G Block I · MH-47G Block II |
+
+The C-17 and C-130J are the two calibrated airframes. The MH-47Gs fly and drop on the
+C-17's numbers, which works, but the accuracy figures above were measured on the
+calibrated pair.
 
 ## Installation
 
